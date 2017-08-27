@@ -9,36 +9,45 @@ Created on Sep 26, 2012
 from __future__ import absolute_import, division, print_function
 
 
-
-import types
-
 MM_PER_INCH = 25.4
 PT_PER_INCH = 72.
 
-class Size(object):
-    '''
-    Class for specifying size values.
 
-    Size can be specified as a number with units, supported units are pt (points),
-    in (inches), cm (centimeters), and mm(millimeters). If units are not specified
-    then inches are assumed.
+class Size(object):
+    '''Class for specifying size values.
+
+    Size can be specified as a number with units, supported units are pt
+    (points), in (inches), cm (centimeters), mm (millimeters), and px (pixels).
+    If units are not specified then inches are assumed.
+
+    Constructor converts input value to a size. If input value has numeric
+    type then it is assumed to be size in inches. If input value is a string
+    then it should be a floating number followed by optional suffix (one of
+    pt, in, mm, cm, px). Without suffix the number gives size in inches.
+    Constructor also accepts other ``Size`` instances as an argument which
+    copies the size value.
+
+    Class supports most of the regular numeric operators so it can be used
+    as a regular numeric value (in inches) in expressions. Operator XOR (^)
+    us used for formatting of the size values with the specified unit type,
+    e.g.::
+
+        size = Size("144pt") / 2
+        print(size^"mm")           # will produce string "25.4mm"
+
+    :var dpi: Class constant used for pixels-to-inches conversion, default
+        value is 96., can be changed on per-class basis if necessary.
+
+    :param value: input value.
+    :type value: int or float or string or `Size`
+
+    :raises ValueError: If string does not have correct format.
+    :raises TypeError: If input value has unsupported type.
     '''
 
     dpi = 96.  # some random number for converting pixels to inches
 
-
     def __init__(self, value=0):
-        '''
-        Constructor converts input value to a size.
-
-        If input value has numeric type then it is assumed to be size in inches.
-        If input value is a string then it should be a floating number followed
-        by optional suffix (one of pt, in, mm, cm). Without suffix the number gives
-        size in inches.
-
-        If string does not have correct format then ValueError is raised.
-        If input value has unsupported type TypeError is raised.
-        '''
 
         if isinstance(value, (type(''), type(u''))):
             # convert units to inches
@@ -66,17 +75,17 @@ class Size(object):
 
     @property
     def pt(self):
-        ''' return size in points '''
+        ''' size in points '''
         return self.value * 72.
 
     @property
     def px(self):
-        ''' return size in pixels '''
+        ''' size in pixels '''
         return int(round(self.value * self.dpi))
 
     @property
     def inches(self):
-        ''' return size in inches '''
+        ''' size in inches '''
         return self.value
 
     def __str__(self):
@@ -160,11 +169,22 @@ class Size(object):
 
 
 class String2Size(object):
-    """Class implementing conversion of strings to Size.
+    """Class implementing callable for conversion of strings to
+    :py:class:`Size`.
     
-    This class can define restrictions on Size units, you can define set of
-    accepted/rejected unit types. This could be usefulfor command line
-    parsers.
+    This class defines restrictions on Size units, you can define set of
+    accepted/rejected unit types. This could be useful for command line
+    parser, e.g. as a `type` argument for ``argparse`` methods.
+
+    :param str default_unit: Default unit name to use when unit is not given.
+    :param list accepted_units: List of acceptable unit names, if string
+        passed to ``__call__`` has unit not on this list then ``ValueError``
+        is raised. If ``None`` or empty list is passed to this argument then
+        check is not performed.
+    :param list rejected_units: List of rejected unit names, if string
+        passed to ``__call__`` has unit on this list then ``ValueError``
+        is raised. If ``None`` or empty list is passed to this argument then
+        check is not performed.
     """
 
     all_units = ('pt', 'in', 'cm', 'mm', 'px')
@@ -176,7 +196,10 @@ class String2Size(object):
         self._rejected_units = rejected_units
 
     def __call__(self, value):
-        # if string contains digits only add default unit
+        """Implements operator().
+
+        :param str value: String value to convert to ``Size``.
+        """
         try:
             float(value)
             value += self._default_unit
