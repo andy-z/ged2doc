@@ -1,9 +1,4 @@
-'''
-Module which defines class for manipulating size values.
-
-Created on Sep 26, 2012
-
-@author: salnikov
+'''Module which defines class for manipulating size values.
 '''
 
 from __future__ import absolute_import, division, print_function
@@ -28,9 +23,8 @@ class Size(object):
     copies the size value.
 
     Class supports most of the regular numeric operators so it can be used
-    as a regular numeric value (in inches) in expressions. Operator XOR (^)
-    us used for formatting of the size values with the specified unit type,
-    e.g.::
+    as a numeric value (in inches) in expressions. Operator XOR (^) is used
+    for formatting of the size values with the specified unit type, e.g.::
 
         size = Size("144pt") / 2
         print(size^"mm")           # will produce string "25.4mm"
