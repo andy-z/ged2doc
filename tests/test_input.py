@@ -55,15 +55,18 @@ def files_in_zip():
     os.unlink(aname)
 
 
-def checkFSLoc(loc):
+def checkFilesLoc(loc):
     ged = loc.open_gedcom()
     assert ged.read() == b"xxx.ged"
 
     img = loc.open_image("one.jpg")
     assert img.read() == b"one.jpg"
 
-    with pytest.raises(ged2doc_input.MultipleFiles):
+    with pytest.raises(ged2doc_input.MultipleMatchesError):
         img = loc.open_image("two.gif")
+
+    img = loc.open_image("one.jpg")
+    assert img.read() == b"one.jpg"
 
     assert loc.open_image("three.pdf") is None
 
@@ -74,7 +77,7 @@ def test_FSLocator_name(files_on_disk):
     tmpdir = files_on_disk
 
     loc = ged2doc_input._FSLocator(os.path.join(tmpdir, "xxx.ged"), tmpdir)
-    checkFSLoc(loc)
+    checkFilesLoc(loc)
 
 
 def test_FSLocator_fobj(files_on_disk):
@@ -84,7 +87,7 @@ def test_FSLocator_fobj(files_on_disk):
 
     with open(os.path.join(tmpdir, "xxx.ged"), 'rb') as fobj:
         loc = ged2doc_input._FSLocator(fobj, tmpdir)
-        checkFSLoc(loc)
+        checkFilesLoc(loc)
 
 
 def test_make_file_locator_name(files_on_disk):
@@ -94,7 +97,7 @@ def test_make_file_locator_name(files_on_disk):
 
     loc = ged2doc_input.make_file_locator(os.path.join(tmpdir, "xxx.ged"), "", tmpdir)
     assert isinstance(loc, ged2doc_input._FSLocator)
-    checkFSLoc(loc)
+    checkFilesLoc(loc)
 
 
 def test_make_file_locator_fobj(files_on_disk):
@@ -105,7 +108,7 @@ def test_make_file_locator_fobj(files_on_disk):
     with open(os.path.join(tmpdir, "xxx.ged"), 'rb') as fobj:
         loc = ged2doc_input.make_file_locator(fobj, "", tmpdir)
         assert isinstance(loc, ged2doc_input._FSLocator)
-        checkFSLoc(loc)
+        checkFilesLoc(loc)
 
 
 def test_ZipLocator_name(files_in_zip):
@@ -114,16 +117,16 @@ def test_ZipLocator_name(files_in_zip):
     archive = files_in_zip
 
     loc = ged2doc_input._ZipLocator(archive, "*.ged", None)
-    checkFSLoc(loc)
+    checkFilesLoc(loc)
 
     loc = ged2doc_input._ZipLocator(archive, "*.ged*", None)
-    checkFSLoc(loc)
+    checkFilesLoc(loc)
 
     loc = ged2doc_input._ZipLocator(archive, "*.egd", None)
     assert loc.open_gedcom() is None
 
     loc = ged2doc_input._ZipLocator(archive, "*.gif", None)
-    with pytest.raises(ged2doc_input.MultipleFiles):
+    with pytest.raises(ged2doc_input.MultipleMatchesError):
         assert loc.open_gedcom()
 
 
@@ -134,7 +137,7 @@ def test_ZipLocator_fobj(files_in_zip):
     with open(archive, 'rb') as fobj:
 
         loc = ged2doc_input._ZipLocator(fobj, "*.ged", None)
-        checkFSLoc(loc)
+        checkFilesLoc(loc)
 
 
 def test_make_file_locator_zip_name(files_in_zip):
@@ -144,7 +147,7 @@ def test_make_file_locator_zip_name(files_in_zip):
 
     loc = ged2doc_input.make_file_locator(archive, "*.ged", None)
     assert isinstance(loc, ged2doc_input._ZipLocator)
-    checkFSLoc(loc)
+    checkFilesLoc(loc)
 
 
 def test_make_file_locator_zip_fobj(files_in_zip):
@@ -155,5 +158,4 @@ def test_make_file_locator_zip_fobj(files_in_zip):
     with open(archive, 'rb') as fobj:
         loc = ged2doc_input.make_file_locator(fobj, "*.ged", None)
         assert isinstance(loc, ged2doc_input._ZipLocator)
-        checkFSLoc(loc)
-
+        checkFilesLoc(loc)
