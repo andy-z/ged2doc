@@ -28,7 +28,7 @@ def files_on_disk():
             os.makedirs(os.path.join(tmpdir, *fname[:-1]))
         path = os.path.join(tmpdir, *fname)
         with open(path, "wb") as fobj:
-            fobj.write(fname[-1])
+            fobj.write(fname[-1].encode('ascii'))
 
     yield tmpdir
 

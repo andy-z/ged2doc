@@ -127,16 +127,19 @@ class _FSFileSearch(object):
         if self._files is None:
             self._files = []
             if self._path:
-                # make the list of files in the directory and all sub-directories
-                _log.debug("_FSFileSearch.find_file: recursively scan directory " + self._path)
+                # make the list of files in the directory and all sub-dirs
+                _log.debug("_FSFileSearch.find_file: recursively scan "
+                           "directory " + self._path)
                 self._files = list(os.walk(self._path))
 
-        matches = [os.path.join(fldr, name) for fldr, _, files in self._files if name in files]
+        matches = [os.path.join(fldr, name) for fldr, _, files in self._files
+                   if name in files]
         if not matches:
             _log.debug("_FSFileSearch.find_file: nothing found")
             return
         elif len(matches) > 1:
-            _log.debug("_FSFileSearch.find_file: many files found: " + str(matches))
+            _log.debug("_FSFileSearch.find_file: many files found: " +
+                       str(matches))
             raise MultipleMatchesError('More than file matches name ' + name)
         else:
             _log.debug("_FSFileSearch.find_file: found: " + matches[0])
@@ -207,13 +210,14 @@ class _ZipLocator(FileLocator):
         if not matches:
             return None
         if len(matches) > 1:
-            raise MultipleMatchesError('Multiple matching files found in archive: '
-                                + ' '.join(matches))
+            raise MultipleMatchesError('Multiple matching files found in '
+                                       'archive: ' + ' '.join(matches))
         member = matches[0]
         _log.debug("_ZipLocator.open_gedcom: " + member)
 
         # wee need a file on disk which supports seek, open in binary mode
-        fobj = tempfile.NamedTemporaryFile("w+b", suffix=os.path.basename(member))
+        fobj = tempfile.NamedTemporaryFile("w+b",
+                                           suffix=os.path.basename(member))
         with self._zip.open(member, 'r') as src:
             shutil.copyfileobj(src, fobj)
         fobj.seek(0)
@@ -226,7 +230,8 @@ class _ZipLocator(FileLocator):
 
         paths = [f for f in self._toc if os.path.basename(f) == name]
         if len(paths) > 1:
-            raise MultipleMatchesError('Multiple image files found in archive matching name ' + name)
+            raise MultipleMatchesError('Multiple image files found in archive '
+                                       'matching name ' + name)
         if paths:
             _log.debug("_ZipLocator.open_image: " + paths[0])
             return self._zip.open(paths[0], 'r')

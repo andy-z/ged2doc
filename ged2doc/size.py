@@ -64,8 +64,9 @@ class Size(object):
             # expect a number
             try:
                 self.value = float(value)
-            except (TypeError, ValueError) as exc:
-                raise TypeError("incorrect type of the argument: " + str(type(value)))
+            except (TypeError, ValueError):
+                raise TypeError("incorrect type of the argument: " +
+                                str(type(value)))
 
     @property
     def pt(self):
@@ -165,7 +166,7 @@ class Size(object):
 class String2Size(object):
     """Class implementing callable for conversion of strings to
     :py:class:`Size`.
-    
+
     This class defines restrictions on Size units, you can define set of
     accepted/rejected unit types. This could be useful for command line
     parser, e.g. as a `type` argument for ``argparse`` methods.
@@ -201,14 +202,17 @@ class String2Size(object):
             pass
 
         if not any(value.endswith(unit) for unit in self.all_units):
-            raise ValueError("String {} does not contain valid unit".format(value))
+            raise ValueError("String {} does not contain valid "
+                             "unit".format(value))
 
         if self._accepted_units:
             if not any(value.endswith(unit) for unit in self._accepted_units):
-                raise ValueError("String {} does not contain acceptable unit".format(value))
+                raise ValueError("String {} does not contain acceptable "
+                                 "unit".format(value))
 
         if self._rejected_units:
             if any(value.endswith(unit) for unit in self._rejected_units):
-                raise ValueError("String {} contains unacceptable unit".format(value))
+                raise ValueError("String {} contains unacceptable "
+                                 "unit".format(value))
 
         return Size(value)
