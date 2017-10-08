@@ -5,16 +5,23 @@
 from __future__ import absolute_import, division, print_function
 
 from argparse import ArgumentParser
+import logging
 
 from ged2doc.size import String2Size
 from ged2doc.input import make_file_locator
 from ged2doc.html_writer import HtmlWriter
 
 
+_log = logging.getLogger(__name__)
+
+
 def main():
     """Console script for ged2doc."""
 
     parser = ArgumentParser(description='Convert GEDCOM file into document.')
+    parser.add_argument('-v', "--verbose", action="count", default=0,
+                        help="Print some info to standard output, "
+                        "-vv prints debug info.")
     parser.add_argument("input",
                         help="Location of input file, input file can be "
                         "either GEDCOM file or ZIP archive which can also "
@@ -58,6 +65,16 @@ def main():
 
     args = parser.parse_args()
 
+    if args.verbose == 0:
+        log_level = logging.WARN
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.DEBUG
+    logfmt = "%(asctime)s [%(levelname)s] %(name)s (%(filename)s:%(lineno)d)"\
+             " -- %(message)s"
+    logging.basicConfig(level=log_level, format=logfmt)
+
     # instantiate file locator
     try:
         flocator = make_file_locator(args.input, args.file_name_pattern,
@@ -79,4 +96,5 @@ def main():
     try:
         writer.save(args.output)
     except Exception as exc:
+        _log.debug("caught exception: %s", exc, exc_info=True)
         parser.error("Error while producing a document: {0}".format(exc))

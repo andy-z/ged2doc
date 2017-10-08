@@ -46,6 +46,7 @@ __all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
 
 import errno
 import fnmatch
+import io
 import logging
 import os
 import shutil
@@ -172,7 +173,7 @@ class _FSLocator(FileLocator):
         if hasattr(self._input_file, 'read'):
             # it's likely a file
             return self._input_file
-        return open(self._input_file, 'rb')
+        return io.open(self._input_file, 'rb')
 
     def open_image(self, name):
         '''Returns file object for the named image file.'''

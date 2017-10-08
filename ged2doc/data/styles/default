@@ -1,0 +1,96 @@
+<style type="text/css" media="screen" >
+body {
+  background-color: #bbbbbb;
+}
+#contents_div {
+  background-color: white;
+  padding: 1em;
+  width: ${page_width};
+  margin:auto;
+}
+a { text-decoration:   none; }
+a:visited { color: black; }
+a:link { color: black; }
+a:hover { color: red; }
+h1 {
+  background-color: #bbbbbb;
+  color: white;
+  text-align: center;
+  width: 100%;
+  padding: 4px 0px 4px 0px;
+  border-radius: 0.2em;
+  box-shadow: 4px 4px 4px #555;
+  clear:both;
+}
+h2 {
+  background-color: #e0e0e0;
+  color: black;
+  text-align: center;
+  width: 100%;
+  padding: 4px 0px 4px 0px;
+  border-radius: 0.2em;
+  box-shadow: 4px 4px 4px #555;
+  clear:both;
+}
+h3 {
+  text-align: center;
+  font-weight: normal;
+  font-style: italic;
+}
+.svglink:hover {
+  fill:red;
+}
+</style>
+
+<style type="text/css" media="print" >
+body {
+  background-color: white;
+}
+#contents_div {
+  padding: 1em;
+  width: 90%;
+  margin:auto;
+}
+a { text-decoration:   none; }
+a:visited { color: black; }
+a:link { color: black; }
+a:hover { color: red; }
+h1 {
+  text-align: center;
+  width: 100%;
+  padding: 4px 0px 4px 0px;
+  page-break-before: always;
+  border: solid black 1pt;
+  clear:both;
+}
+h2 {
+  text-align: center;
+  width: 100%;
+  padding: 4px 0px 4px 0px;
+  clear:both;
+}
+h3 {
+  text-align: center;
+  font-weight: normal;
+  font-style: italic;
+}
+</style>
+
+<style type="text/css" media="all" >
+img.personImage {
+  border-radius: 6px;
+  box-shadow: 2px 2px 10px #555;
+  float: right;
+  margin: 0px 0px 10px 10px;
+  padding: 6px 6px 6px 6px;
+}
+table.statTable {
+  margin:auto;
+  width: 80%;
+}
+.centered {
+  margin:auto;
+  width: -moz-max-content;
+  width: max-content;
+}
+</style>
