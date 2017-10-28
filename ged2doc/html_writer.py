@@ -16,14 +16,16 @@ from ged4py import model, parser
 _log = logging.getLogger(__name__)
 
 
-def _(x):
+def _(x, sex="U"):
     return x
 
 
 def _personRef(person, name=None):
+    """Returns HTML fragment with person name linked to person.
+    """
     if name is None:
-        name = person.name.full
-    return u'<a href="#person.{0}">{1}</a>'.format(person.id, name)
+        name = person.name.format(model.FMT_SURNAME_FIRST | model.FMT_MAIDEN)
+    return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)
 
 
 class HtmlWriter(object):
@@ -85,6 +87,113 @@ class HtmlWriter(object):
             doc += [u'<h2 id="person.{0}">{1}</h2>\n'.format(person.xref_id,
                                                              name)]
             toc += [(2, 'person.' + person.xref_id, name)]
+
+            # birth date and place
+            doc += ['<p>' + _('Born', person.sex) + ": "]
+            bday = person.sub_tag("BIRT/DATE")
+            if bday:
+                doc += [bday.value.fmt()]
+            else:
+                doc += [_('Unknown', person.sex)]
+            bplace = person.sub_tag("BIRT/PLAC")
+            if bplace:
+                doc += [", " + bplace.value]
+            doc += ['</p>\n']
+
+            # family as a child, potentially could be >1
+            famc = person.sub_tag("FAMC")
+            if famc:
+                # Parents
+                pfmt = u'<p>{person}: {ref}</p>\n'
+                mother = famc.sub_tag("WIFE")
+                if mother:
+                    doc += [pfmt.format(person=_('Mother', mother.sex),
+                                        ref=_personRef(mother))]
+                father = famc.sub_tag("HUSB")
+                if father:
+                    doc += [pfmt.format(person=_('Father', father.sex),
+                                        ref=_personRef(father))]
+
+            # all families as spouse
+            fams = [rec.ref for rec in person.sub_tags("FAMS")]
+            fams = [rec for rec in fams if rec is not None]
+            if fams:
+                doc += ['<h3>' + _("Spouses and children", person) + '</h3>\n']
+
+                own_kids = []
+                for fam in fams:
+
+                    # list of Pointers
+                    spouses = fam.sub_tags("HUSB", "WIFE")
+                    spouses = [rec for rec in spouses if rec.value != person.xref_id]
+
+                    # more than one spouse is odd (from the structural concern)
+                    if spouses:
+                        spouse = spouses[0].ref
+                    else:
+                        spouse = None
+
+                    children = fam.sub_tags("CHIL")
+                    children_ids = [rec.value for rec in children]
+                    children = [rec.ref for rec in children]
+
+                    _log.debug('spouse = %s; children ids = %s; children = %s', spouse, children_ids, children)
+                    if spouse:
+                        pfmt = u'<p>{person}: {ref}'
+                        doc += [pfmt.format(person=_('Spouse', spouse.sex),
+                                            ref=_personRef(spouse))]
+                        if children:
+                            kids = [_personRef(c, c.name.first) for c in children]
+                            doc += ["; " + _('kids') + ': ' + ', '.join(kids)]
+                        doc += ['</p>\n']
+                    else:
+                        own_kids += [_personRef(c, c.name.first) for c in children]
+                if own_kids:
+                    doc += ['<p>' + _('Kids', '') + ': ' + ', '.join(own_kids) + '</p>\n']
+
+            # collect all events from person and families
+            events = []
+            for rec in person.sub_records:
+                date = rec.sub_tag('DATE')
+                if not date:
+                    continue
+                place = rec.sub_tag('PLAC')
+                if place is not None:
+                    place = place.value
+                events += [(date.value, rec.tag, place)]
+            for fam_ptr in person.sub_tags("FAMS"):
+                fam = fam_ptr.ref
+                for rec in fam.sub_records:
+                    date = rec.sub_tag('DATE')
+                    if not date:
+                        continue
+                    # list of Pointers
+                    spouses = fam.sub_tags("HUSB", "WIFE")
+                    spouses = [rec for rec in spouses if rec.value != person.xref_id]
+                    if spouses:
+                        spouse = spouses[0].ref
+                        note = u'{person}: {ref}'.format(person=_('Spouse', spouse.sex),
+                                                         ref=_personRef(spouse))
+                    else:
+                        note = None
+                    events += [(date.value, rec.tag, note)]
+
+            # order events
+            if events:
+                doc += ['<h3>' + _("Events and dates") + '</h3>\n']
+            for date, tag, note in sorted(events):
+                doc += ['<p>' + date.fmt() + ": " + tag]
+                if note:
+                    doc += [', ' + note]
+                doc += ['</p>\n']
+
+            # Comments are published as set of paragraphs
+            notes = person.sub_tags('NOTE')
+            if notes:
+                doc += ['<h3>' + _("Comments", person) + '</h3>\n']
+                for note in notes:
+                    for para in note.value.split('\n'):
+                        doc += ['<p>' + para + '</p>\n']
 
         # add table of contents
         doc += [u'<h1>{0}</h1>\n'.format(_("Table Of Contents"))]
