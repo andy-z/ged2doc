@@ -162,14 +162,16 @@ class HtmlWriter(object):
                     place = place.value
                 events += [(date.value, rec.tag, place)]
             for fam_ptr in person.sub_tags("FAMS"):
+
+                spouses = fam.sub_tags("HUSB", "WIFE")
+                spouses = [spouse for spouse in spouses if spouse.value != person.xref_id]
+
                 fam = fam_ptr.ref
                 for rec in fam.sub_records:
                     date = rec.sub_tag('DATE')
                     if not date:
                         continue
                     # list of Pointers
-                    spouses = fam.sub_tags("HUSB", "WIFE")
-                    spouses = [rec for rec in spouses if rec.value != person.xref_id]
                     if spouses:
                         spouse = spouses[0].ref
                         note = u'{person}: {ref}'.format(person=_('Spouse', spouse.sex),
@@ -177,6 +179,12 @@ class HtmlWriter(object):
                     else:
                         note = None
                     events += [(date.value, rec.tag, note)]
+
+                for child in fam.sub_tags("CHIL"):
+                    child = child.ref
+                    bday = child.sub_tag("BIRT/DATE")
+                    if bday:
+                        events += [(bday.value, "BORN", child.name.first)]
 
             # order events
             if events:
