@@ -135,7 +135,7 @@ class TextBox(object):
         if self._text_style:
             kw['style'] = self._text_style
         if textclass:
-            kw['class'] = textclass
+            kw['class_'] = textclass
         txt = Text(**kw)
         if self._href:
             a = Hyperlink(self._href)

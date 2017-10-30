@@ -9,6 +9,7 @@ import logging
 import pkg_resources
 import string
 
+from .plotter import Plotter
 from .size import Size
 from ged4py import model, parser
 
@@ -203,6 +204,16 @@ class HtmlWriter(object):
                     for para in note.value.split('\n'):
                         doc += ['<p>' + para + '</p>\n']
 
+            # plot ancestors tree
+            tree_elem = self._getParentTree(person)
+            if tree_elem:
+                doc += ['<h3>' + _("Ancestor tree", person) + '</h3>\n']
+                doc += ['<div class="centered">\n']
+                doc += [tree_elem]
+                doc += ['</div>\n']
+            else:
+                doc += ['<svg width="100%" height="1pt"/>\n']
+
         # add table of contents
         doc += [u'<h1>{0}</h1>\n'.format(_("Table Of Contents"))]
         lvl = 0
@@ -230,3 +241,22 @@ class HtmlWriter(object):
             for line in doc:
                 out.write(line.encode('utf-8'))
             out.close()
+
+    def _getParentTree(self, person):
+        '''
+        Returns element containg parent tree or None
+        '''
+
+        width = Size(self._options.get('html_page_width')) ^ 'px'
+
+        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
+                          fullxml=False, refs=True)
+        img = plotter.parent_tree(person, 'px')
+        if img is None:
+            return
+
+        # if not None then 4-tuple
+        imgdata, imgtype, width, height = img
+
+        # return unicode string
+        return imgdata
