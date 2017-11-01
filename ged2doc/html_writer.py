@@ -5,12 +5,16 @@ from __future__ import absolute_import, division, print_function
 
 __all__ = ["HtmlWriter"]
 
+import base64
+import io
 import logging
 import pkg_resources
 import string
+from PIL import Image
 
 from .plotter import Plotter
 from .size import Size
+from . import utils
 from ged4py import model, parser
 
 
@@ -89,6 +93,10 @@ class HtmlWriter(object):
                                                              name)]
             toc += [(2, 'person.' + person.xref_id, name)]
 
+            img = self._getMainImage(person)
+            if img:
+                doc += [img]
+
             # birth date and place
             doc += ['<p>' + _('Born', person.sex) + ": "]
             bday = person.sub_tag("BIRT/DATE")
@@ -101,23 +109,17 @@ class HtmlWriter(object):
                 doc += [", " + bplace.value]
             doc += ['</p>\n']
 
-            # family as a child, potentially could be >1
-            famc = person.sub_tag("FAMC")
-            if famc:
-                # Parents
-                pfmt = u'<p>{person}: {ref}</p>\n'
-                mother = famc.sub_tag("WIFE")
-                if mother:
-                    doc += [pfmt.format(person=_('Mother', mother.sex),
-                                        ref=_personRef(mother))]
-                father = famc.sub_tag("HUSB")
-                if father:
-                    doc += [pfmt.format(person=_('Father', father.sex),
-                                        ref=_personRef(father))]
+            # Parents
+            pfmt = u'<p>{person}: {ref}</p>\n'
+            if person.mother:
+                doc += [pfmt.format(person=_('Mother', person.mother.sex),
+                                    ref=_personRef(person.mother))]
+            if person.father:
+                doc += [pfmt.format(person=_('Father', person.father.sex),
+                                    ref=_personRef(person.father))]
 
             # all families as spouse
-            fams = [rec.ref for rec in person.sub_tags("FAMS")]
-            fams = [rec for rec in fams if rec is not None]
+            fams = person.sub_tags("FAMS")
             if fams:
                 doc += ['<h3>' + _("Spouses and children", person) + '</h3>\n']
 
@@ -125,7 +127,7 @@ class HtmlWriter(object):
                 for fam in fams:
 
                     # list of Pointers
-                    spouses = fam.sub_tags("HUSB", "WIFE")
+                    spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
                     spouses = [rec for rec in spouses if rec.value != person.xref_id]
 
                     # more than one spouse is odd (from the structural concern)
@@ -135,8 +137,7 @@ class HtmlWriter(object):
                         spouse = None
 
                     children = fam.sub_tags("CHIL")
-                    children_ids = [rec.value for rec in children]
-                    children = [rec.ref for rec in children]
+                    children_ids = [rec.xref_id for rec in children]
 
                     _log.debug('spouse = %s; children ids = %s; children = %s', spouse, children_ids, children)
                     if spouse:
@@ -162,12 +163,12 @@ class HtmlWriter(object):
                 if place is not None:
                     place = place.value
                 events += [(date.value, rec.tag, place)]
-            for fam_ptr in person.sub_tags("FAMS"):
 
-                spouses = fam.sub_tags("HUSB", "WIFE")
+            for fam in person.sub_tags("FAMS"):
+
+                spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
                 spouses = [spouse for spouse in spouses if spouse.value != person.xref_id]
 
-                fam = fam_ptr.ref
                 for rec in fam.sub_records:
                     date = rec.sub_tag('DATE')
                     if not date:
@@ -182,10 +183,10 @@ class HtmlWriter(object):
                     events += [(date.value, rec.tag, note)]
 
                 for child in fam.sub_tags("CHIL"):
-                    child = child.ref
                     bday = child.sub_tag("BIRT/DATE")
                     if bday:
-                        events += [(bday.value, "BORN", child.name.first)]
+                        note = _personRef(child, child.name.first)
+                        events += [(bday.value, "BORN", note)]
 
             # order events
             if events:
@@ -260,3 +261,55 @@ class HtmlWriter(object):
 
         # return unicode string
         return imgdata
+
+    def _getMainImage(self, person):
+        '''Returns image for a person, return value is an <img> element.
+
+        Iterates over all OBJE records and tries to find/open files.
+        Returns first file that succeeds.
+        '''
+
+        for obje in person.sub_tags('OBJE'):
+
+            for path, form, media in obje.files:
+
+                _log.debug('Found media file name %s', path)
+
+                # For open_image we need basename of the file, trouble here is
+                # that GEDCOM file can be prepared on different type of system.
+                # For now assume that path separator in GEDCOM can be either
+                # slash or backslash
+                basename = path.rsplit('/', 1)[-1]
+                basename = basename.rsplit('\\', 1)[-1]
+                _log.debug('Trying to open image %s', basename)
+
+                # find image file, try to open it
+                imgfile = self._floc.open_image(basename)
+                if imgfile:
+                    _log.debug('Opened image file %s', path)
+                    imgdata = imgfile.read()
+                    imgfile = io.BytesIO(imgdata)
+                    img = Image.open(imgfile)
+
+                    # resize it if larger than needed
+                    width = Size(self._options.get('html_image_width', '300px')).px
+                    height = Size(self._options.get('html_image_height', '300px')).px
+                    maxsize = (width, height)
+                    size = utils.resize(img.size, maxsize)
+                    size = (int(size[0]), int(size[1]))
+                    if size != img.size:
+                        # means size was reduced
+                        _log.debug('Resize image to %s', size)
+                        img = img.resize(size, Image.LANCZOS)
+                        imgsize = ""
+                    else:
+                        # means size was not changed and image is smaller than box,
+                        # we may want to extend it
+                        extend = utils.resize(img.size, maxsize, False)
+                        imgsize = ' width="{}" height="{}"'.format(*extend)
+
+                    # save to a buffer
+                    imgfile = io.BytesIO()
+                    img.save(imgfile, 'JPEG')
+
+                    return '<img class="personImage"' + imgsize + ' src="data:image/jpg;base64,' + base64.b64encode(imgfile.getvalue()) + '">'
