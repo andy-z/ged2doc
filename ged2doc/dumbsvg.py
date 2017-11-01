@@ -11,7 +11,7 @@ __all__ = ['Doc', 'Element', 'Line', 'Rect', 'Text', 'Tspan', 'Hyperlink']
 
 class Doc(object):
     """Class for SVG document, top-level structure.
-    
+
     :param width: Document width, int for pixels or string.
     :param height: Document height, int for pixels or string.
     """
@@ -48,7 +48,7 @@ class Doc(object):
 
 class Element(object):
     """Base class for all SVG elements.
-    
+
     :param str tag: SVG tag name
     :param list attributes: List of tuples (attribute, attr_value)
     :param str value: element value (text).
@@ -105,6 +105,7 @@ class Rect(Element):
             attr += [("style", style)]
         Element.__init__(self, "rect", attr)
 
+
 class Text(Element):
     """Class for SVG text element.
     """
@@ -121,12 +122,14 @@ class Text(Element):
             attr += [("class", class_)]
         Element.__init__(self, "text", attr, value)
 
+
 class Tspan(Element):
     """Class for SVG tspan element.
     """
     def __init__(self, x, y, value=""):
         attr = [("x", x), ("y", y)]
         Element.__init__(self, "tspan", attr, value)
+
 
 class Hyperlink(Element):
     """Class for SVG "a" element.

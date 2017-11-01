@@ -33,8 +33,8 @@ class TextBox(object):
     :param Size padding: box padding space (def: 3pt)
     """
 
-    def __init__(self, x0=0, y0=0, width=0, maxwidth=0, height=0,
-                 text='', font_size='10pt', padding='4pt', line_spacing='1.5pt',
+    def __init__(self, x0=0, y0=0, width=0, maxwidth=0, height=0, text='',
+                 font_size='10pt', padding='4pt', line_spacing='1.5pt',
                  rect_style='', text_style='', href=None):
         self._x0 = Size(x0)
         self._y0 = Size(y0)
@@ -104,13 +104,13 @@ class TextBox(object):
 
     def reflow(self):
         '''
-        Split the text inside the box so that it fits into box width, then recalculate
-        box height so that all text fits inside the box.
+        Split the text inside the box so that it fits into box width, then
+        recalculate box height so that all text fits inside the box.
         '''
         self._lines = self._splitText(self._text)
         nlines = len(self._lines)
-        self._height = nlines * self._font_size + (nlines - 1) * self._line_spacing + \
-                    2 * self._padding
+        self._height = nlines * self._font_size + \
+            (nlines - 1) * self._line_spacing + 2 * self._padding
 
     def move(self, x0, y0):
         ''' Sets new coordinates fo x0 and y0 '''
@@ -123,8 +123,8 @@ class TextBox(object):
         shapes = []
 
         # render box
-        kw = dict(x=self.x0 ^ units, y=self.y0 ^ units, width=self.width ^ units,
-                  height=self.height ^ units)
+        kw = dict(x=self.x0 ^ units, y=self.y0 ^ units,
+                  width=self.width ^ units, height=self.height ^ units)
         if self._rect_style:
             kw['style'] = self._rect_style
         rect = Rect(**kw)
@@ -145,7 +145,8 @@ class TextBox(object):
             shapes.append(txt)
         for i, line in enumerate(self._lines):
             x = self.midx
-            y = self.y0 + self._padding + self._font_size * (i + 1) + self._line_spacing * i
+            y = self.y0 + self._padding + self._font_size * (i + 1) + \
+                self._line_spacing * i
             tspan = Tspan(x=x ^ units, y=y ^ units, value=line)
             txt.add(tspan)
 
@@ -153,8 +154,9 @@ class TextBox(object):
 
     def _splitText(self, text):
         '''
-        Tries to split a line of text into a number of lines which fit into box width.
-        It honors embedded newlines, line will always be split at those first.
+        Tries to split a line of text into a number of lines which fit into
+        box width. It honors embedded newlines, line will always be split at
+        those first.
         '''
 
         width = self._width - 2 * self._padding
@@ -173,14 +175,16 @@ class TextBox(object):
             lines1 = self._splitText1(text, width)
 
             if len(lines1) < len(lines):
-                self._width = max(self._textWidth(line) for line in lines1) + 2 * self._padding
+                self._width = max(self._textWidth(line) for line in lines1) + \
+                    2 * self._padding
                 return lines1
 
         return lines
 
     def _splitText1(self, text, width):
         '''
-        Tries to split a line of text into a number of lines which fit into box width.
+        Tries to split a line of text into a number of lines which fit into
+        box width.
         '''
 
         lines = []

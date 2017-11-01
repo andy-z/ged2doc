@@ -83,7 +83,8 @@ class HtmlWriter(object):
         indis.sort(key=lambda x: x.name.order(model.ORDER_SURNAME_GIVEN))
         for person in indis:
 
-            name = person.name.format(model.FMT_SURNAME_FIRST | model.FMT_MAIDEN)
+            name = person.name.format(model.FMT_SURNAME_FIRST |
+                                      model.FMT_MAIDEN)
 
             _log.debug('Found INDI: %s', person)
             _log.debug('INDI name: %r', name)
@@ -128,7 +129,8 @@ class HtmlWriter(object):
 
                     # list of Pointers
                     spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-                    spouses = [rec for rec in spouses if rec.value != person.xref_id]
+                    spouses = [rec for rec in spouses
+                               if rec.value != person.xref_id]
 
                     # more than one spouse is odd (from the structural concern)
                     if spouses:
@@ -139,19 +141,23 @@ class HtmlWriter(object):
                     children = fam.sub_tags("CHIL")
                     children_ids = [rec.xref_id for rec in children]
 
-                    _log.debug('spouse = %s; children ids = %s; children = %s', spouse, children_ids, children)
+                    _log.debug('spouse = %s; children ids = %s; children = %s',
+                               spouse, children_ids, children)
                     if spouse:
                         pfmt = u'<p>{person}: {ref}'
                         doc += [pfmt.format(person=_('Spouse', spouse.sex),
                                             ref=_personRef(spouse))]
                         if children:
-                            kids = [_personRef(c, c.name.first) for c in children]
+                            kids = [_personRef(c, c.name.first)
+                                    for c in children]
                             doc += ["; " + _('kids') + ': ' + ', '.join(kids)]
                         doc += ['</p>\n']
                     else:
-                        own_kids += [_personRef(c, c.name.first) for c in children]
+                        own_kids += [_personRef(c, c.name.first)
+                                     for c in children]
                 if own_kids:
-                    doc += ['<p>' + _('Kids', '') + ': ' + ', '.join(own_kids) + '</p>\n']
+                    doc += ['<p>' + _('Kids') + ': ' +
+                            ', '.join(own_kids) + '</p>\n']
 
             # collect all events from person and families
             events = []
@@ -167,7 +173,8 @@ class HtmlWriter(object):
             for fam in person.sub_tags("FAMS"):
 
                 spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-                spouses = [spouse for spouse in spouses if spouse.value != person.xref_id]
+                spouses = [sps for sps in spouses
+                           if sps.value != person.xref_id]
 
                 for rec in fam.sub_records:
                     date = rec.sub_tag('DATE')
@@ -176,8 +183,9 @@ class HtmlWriter(object):
                     # list of Pointers
                     if spouses:
                         spouse = spouses[0].ref
-                        note = u'{person}: {ref}'.format(person=_('Spouse', spouse.sex),
-                                                         ref=_personRef(spouse))
+                        note = u'{person}: {ref}'.format(
+                            person=_('Spouse', spouse.sex),
+                            ref=_personRef(spouse))
                     else:
                         note = None
                     events += [(date.value, rec.tag, note)]
@@ -292,8 +300,10 @@ class HtmlWriter(object):
                     img = Image.open(imgfile)
 
                     # resize it if larger than needed
-                    width = Size(self._options.get('html_image_width', '300px')).px
-                    height = Size(self._options.get('html_image_height', '300px')).px
+                    width = Size(self._options.get('html_image_width',
+                                                   '300px')).px
+                    height = Size(self._options.get('html_image_height',
+                                                    '300px')).px
                     maxsize = (width, height)
                     size = utils.resize(img.size, maxsize)
                     size = (int(size[0]), int(size[1]))
@@ -303,8 +313,8 @@ class HtmlWriter(object):
                         img = img.resize(size, Image.LANCZOS)
                         imgsize = ""
                     else:
-                        # means size was not changed and image is smaller than box,
-                        # we may want to extend it
+                        # means size was not changed and image is smaller
+                        # than box, we may want to extend it
                         extend = utils.resize(img.size, maxsize, False)
                         imgsize = ' width="{}" height="{}"'.format(*extend)
 
@@ -312,4 +322,6 @@ class HtmlWriter(object):
                     imgfile = io.BytesIO()
                     img.save(imgfile, 'JPEG')
 
-                    return '<img class="personImage"' + imgsize + ' src="data:image/jpg;base64,' + base64.b64encode(imgfile.getvalue()) + '">'
+                    return '<img class="personImage"' + imgsize + \
+                        ' src="data:image/jpg;base64,' + \
+                        base64.b64encode(imgfile.getvalue()) + '">'

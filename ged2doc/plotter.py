@@ -17,7 +17,6 @@ _pline_unknown_style = "fill:none;stroke-width:0.5pt;stroke:grey"
 _log = logging.getLogger(__name__)
 
 
-
 class _PersonBox(object):
     """Class implementing "drawing" of SVG box with person name.
 
@@ -38,7 +37,8 @@ class _PersonBox(object):
 
     _margin = Size('1pt')
 
-    def __init__(self, person, gen, motherBox, fatherBox, box_width, max_box_width, font_size, gen_dist):
+    def __init__(self, person, gen, motherBox, fatherBox, box_width,
+                 max_box_width, font_size, gen_dist):
         self.mother = motherBox
         self.father = fatherBox
         self.generation = gen
@@ -47,20 +47,24 @@ class _PersonBox(object):
         if person is None:
             self.name = '?'
         elif gen == 0:
-            self.name = (person.name.first or '') + ' ' + (person.name.maiden or person.name.surname or '')
-            if not self.name.strip(): self.name = '...'
+            self.name = (person.name.first or '') + ' ' + \
+                (person.name.maiden or person.name.surname or '')
+            if not self.name.strip():
+                self.name = '...'
         else:
-            self.name = (person.name.first or '') + ' ' + (person.name.surname or '')
+            self.name = (person.name.first or '') + ' ' + \
+                (person.name.surname or '')
         style = _rect_unknown_style if person is None else _rect_style
         href = None if person is None else ('#person.' + person.xref_id)
         x0 = gen * (gen_dist + box_width) + Size('1pt')
-        self.box = TextBox(text=self.name, x0=x0, width=box_width, maxwidth=max_box_width,
-                           font_size=font_size, rect_style=style, href=href)
+        self.box = TextBox(text=self.name, x0=x0, width=box_width,
+                           maxwidth=max_box_width, font_size=font_size,
+                           rect_style=style, href=href)
 
         self.setY0(Size())
 
     def height(self):
-        """Calculate the height of the whole tree including (grand)parent boxes.
+        """Calculate the height of the whole tree including parent boxes.
         """
         h = Size()
         if self.mother:
@@ -77,7 +81,8 @@ class _PersonBox(object):
             self.mother.setY0(y0 + self._margin)
             mheight = self.mother.height()
             self.father.setY0(y0 + mheight + self._margin)
-            self.box.y0 = (self.mother.box.midy + self.father.box.midy - self.box.height) / 2
+            self.box.y0 = (self.mother.box.midy + self.father.box.midy -
+                           self.box.height) / 2
         else:
             self.box.y0 = y0 + self._margin
 
@@ -95,16 +100,27 @@ class _PersonBox(object):
             y1 = pbox1.box.midy
             midx = (x0 + x1) / 2
             style = _pline_unknown_style if pbox1.name == '?' else _pline_style
-            elements.append(Line(x1=x0 ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y0 ^ units, style=_pline_style))
-            elements.append(Line(x1=midx ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y1 ^ units, style=style))
-            elements.append(Line(x1=midx ^ units, y1=y1 ^ units, x2=x1 ^ units, y2=y1 ^ units, style=style))
+            elements.append(Line(x1=x0 ^ units, y1=y0 ^ units,
+                                 x2=midx ^ units, y2=y0 ^ units,
+                                 style=_pline_style))
+            elements.append(Line(x1=midx ^ units, y1=y0 ^ units,
+                                 x2=midx ^ units, y2=y1 ^ units,
+                                 style=style))
+            elements.append(Line(x1=midx ^ units, y1=y1 ^ units,
+                                 x2=x1 ^ units, y2=y1 ^ units,
+                                 style=style))
             pbox2 = self.father
             y1 = pbox2.box.midy
             style = _pline_unknown_style if pbox2.name == '?' else _pline_style
-            elements.append(Line(x1=midx ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y1 ^ units, style=style))
-            elements.append(Line(x1=midx ^ units, y1=y1 ^ units, x2=x1 ^ units, y2=y1 ^ units, style=style))
+            elements.append(Line(x1=midx ^ units, y1=y0 ^ units,
+                                 x2=midx ^ units, y2=y1 ^ units,
+                                 style=style))
+            elements.append(Line(x1=midx ^ units, y1=y1 ^ units,
+                                 x2=x1 ^ units, y2=y1 ^ units,
+                                 style=style))
 
         return elements
+
 
 class Plotter(object):
     """Class implementing plotting of the person trees.
@@ -114,18 +130,23 @@ class Plotter(object):
     max_gen : int, optional
         Maximum number of generations to plot, default is 4
     width : str, optional
-        Specification for plot width, accepts any CSS-style lenght, default is "5in"
+        Specification for plot width, accepts any CSS-style lenght,
+        default is "5in"
     gen_dist : str, optional
-        Distance between generations, accepts any CSS-style lenght, default is "12pt"
+        Distance between generations, accepts any CSS-style lenght,
+        default is "12pt"
     font_size : str, optional
         Font size, accepts any CSS-style size, default is "10pt"
     full_xml : boolean, optional
-        If True (default) produce full XML document with headers, otherwise only SVG contents.
+        If True (default) produce full XML document with headers,
+        otherwise only SVG contents.
     refs : boolean, optional
-        If True make person name a link. This parameter is ignored for now, links are always made.
+        If True make person name a link. This parameter is ignored for now,
+        links are always made.
     """
 
-    def __init__(self, max_gen=4, width="5in", gen_dist="12pt", font_size="10pt", fullxml=True, refs=False):
+    def __init__(self, max_gen=4, width="5in", gen_dist="12pt",
+                 font_size="10pt", fullxml=True, refs=False):
         self.max_gen = max_gen
         self.width = Size(width)
         self.gen_dist = Size(gen_dist)
@@ -136,17 +157,19 @@ class Plotter(object):
         self.vmargin2 = Size("6pt")
 
     def parent_tree(self, person, units):
-        """Plot parent tree of a person, max_gen gives the max total number of generations plotted.
+        """Plot parent tree of a person, max_gen gives the max total
+        number of generations plotted.
 
-        If tree cannot be plotted (e.g. when person has no parents) then None is returned,
-        otherwise a four-tuple is returned.
+        If tree cannot be plotted (e.g. when person has no parents) then None
+        is returned, otherwise a four-tuple is returned.
 
         Parameters
         ----------
         person : `Person`
             Person for which to plot the tree.
         units : str
-            Units name for output, e.g. "in" or "px" (all lengths re converted to that unit).
+            Units name for output, e.g. "in" or "px" (all lengths are
+            converted to that unit).
 
         Returns
         -------
@@ -160,15 +183,18 @@ class Plotter(object):
 
         # returns number known generations for a person
         def _genDepth(person):
-            if not person: return 0
+            if not person:
+                return 0
             return max(_genDepth(person.father), _genDepth(person.mother)) + 1
 
         # generator for person parents, returns None for unknown parent
         def _boxes(box):
             yield box
             if box.mother:
-                for p in _boxes(box.mother): yield p
-                for p in _boxes(box.father): yield p
+                for p in _boxes(box.mother):
+                    yield p
+                for p in _boxes(box.father):
+                    yield p
 
         # get the number of generations, limit to 4
         ngen = min(_genDepth(person), self.max_gen)
@@ -176,11 +202,14 @@ class Plotter(object):
         _log.debug('parent_tree: ngen = %d', ngen)
 
         # if no parents then do not plot anything
-        if ngen < 2: return
+        if ngen < 2:
+            return
 
         # calculate horizontal size of each box
-        box_width = (self.width - (ngen - 1) * self.gen_dist - Size('2pt')) / self.max_gen
-        max_box_width = (self.width - (ngen - 1) * self.gen_dist - Size('2pt')) / ngen
+        box_width = (self.width - (ngen - 1) * self.gen_dist -
+                     Size('2pt')) / self.max_gen
+        max_box_width = (self.width - (ngen - 1) * self.gen_dist -
+                         Size('2pt')) / ngen
 
         # build tree of boxes
         boxtree = self._makeTree(person, 0, ngen, box_width, max_box_width)
@@ -191,7 +220,8 @@ class Plotter(object):
         # update box width for every generation and calculate total width
         width = Size('1pt')
         for gen in range(ngen):
-            gen_width = max(pbox.box.width for pbox in _boxes(boxtree) if pbox.generation == gen)
+            gen_width = max(pbox.box.width for pbox in _boxes(boxtree)
+                            if pbox.generation == gen)
             for pbox in _boxes(boxtree):
                 if pbox.generation == gen:
                     pbox.box.width = gen_width
@@ -211,7 +241,6 @@ class Plotter(object):
 
         return xml, 'image/svg', width, height
 
-
     def _makeTree(self, person, gen, max_gen, box_width, max_box_width):
         """Recursively generate tree of _PersonBox instances
         """
@@ -220,7 +249,10 @@ class Plotter(object):
             motherTree = None
             fatherTree = None
             if person and (person.mother or person.father):
-                motherTree = self._makeTree(person.mother, gen + 1, max_gen, box_width, max_box_width)
-                fatherTree = self._makeTree(person.father, gen + 1, max_gen, box_width, max_box_width)
-            box = _PersonBox(person, gen, motherTree, fatherTree, box_width, max_box_width, self.font_size, self.gen_dist)
+                motherTree = self._makeTree(person.mother, gen + 1, max_gen,
+                                            box_width, max_box_width)
+                fatherTree = self._makeTree(person.father, gen + 1, max_gen,
+                                            box_width, max_box_width)
+            box = _PersonBox(person, gen, motherTree, fatherTree, box_width,
+                             max_box_width, self.font_size, self.gen_dist)
             return box

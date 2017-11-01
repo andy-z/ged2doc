@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+
 def resize(size, max_size, reduce_only=True):
     """Resize a box so that it fits into other box and keeps aspect ratio.
 
