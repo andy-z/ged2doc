@@ -121,7 +121,17 @@ class _FSFileSearch(object):
         self._files = None
 
     def find_file(self, name):
-        '''Returns file path for the named file.'''
+        '''Returns file path for the named file.
+
+        One complication here is encoding, `os.walk` is returning stings/bytes
+        of the same type as its argument (self._path) and if `name` has
+        different type then comparison may fail in some cases. To void
+        complications we convert both self._path and `name` to bytes.
+        '''
+
+        bname = name
+        if isinstance(bname, type(u"")):
+            bname = bname.encode("utf_8")
 
         _log.debug("_FSFileSearch.find_file: find file %s", name)
 
@@ -131,10 +141,13 @@ class _FSFileSearch(object):
                 # make the list of files in the directory and all sub-dirs
                 _log.debug("_FSFileSearch.find_file: recursively scan "
                            "directory " + self._path)
-                self._files = list(os.walk(self._path))
+                path = self._path
+                if isinstance(path, type(u"")):
+                    path = path.encode("utf_8")
+                self._files = list(os.walk(path))
 
-        matches = [os.path.join(fldr, name) for fldr, _, files in self._files
-                   if name in files]
+        matches = [os.path.join(fldr, bname) for fldr, _, files in self._files
+                   if bname in files]
         if not matches:
             _log.debug("_FSFileSearch.find_file: nothing found")
             return
@@ -143,7 +156,7 @@ class _FSFileSearch(object):
                        str(matches))
             raise MultipleMatchesError('More than file matches name ' + name)
         else:
-            _log.debug("_FSFileSearch.find_file: found: " + matches[0])
+            _log.debug("_FSFileSearch.find_file: found: %s", matches[0])
             return matches[0]
 
 
