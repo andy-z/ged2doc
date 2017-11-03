@@ -79,7 +79,15 @@ class HtmlWriter(object):
 
         # Index of all INDI records
         _log.debug('Scan all INDI records')
-        indis = list(reader.records0('INDI'))
+
+        # filter out some fake records that some apps add
+        indis = []
+        for indi in reader.records0('INDI'):
+            uid = indi.sub_tag("_UID")
+            if uid and uid.value == "Unassociated photos":
+                continue
+            indis.append(indi)
+
         indis.sort(key=lambda x: x.name.order(model.ORDER_SURNAME_GIVEN))
         for person in indis:
 
@@ -272,56 +280,54 @@ class HtmlWriter(object):
 
     def _getMainImage(self, person):
         '''Returns image for a person, return value is an <img> element.
-
-        Iterates over all OBJE records and tries to find/open files.
-        Returns first file that succeeds.
         '''
 
-        for obje in person.sub_tags('OBJE'):
+        path = utils.personImageFile(person)
+        if path:
 
-            for path, form, media in obje.files:
+            _log.debug('Found media file name %s', path)
 
-                _log.debug('Found media file name %s', path)
+            # For open_image we need basename of the file, trouble here is
+            # that GEDCOM file can be prepared on different type of system.
+            # For now assume that path separator in GEDCOM can be either
+            # slash or backslash
+            basename = path.rsplit('/', 1)[-1]
+            basename = basename.rsplit('\\', 1)[-1]
+            _log.debug('Trying to open image %s', basename)
 
-                # For open_image we need basename of the file, trouble here is
-                # that GEDCOM file can be prepared on different type of system.
-                # For now assume that path separator in GEDCOM can be either
-                # slash or backslash
-                basename = path.rsplit('/', 1)[-1]
-                basename = basename.rsplit('\\', 1)[-1]
-                _log.debug('Trying to open image %s', basename)
+            # find image file, try to open it
+            imgfile = self._floc.open_image(basename)
+            if not imgfile:
+                _log.warn('Failed to locate image file "%s"', basename)
+            else:
+                _log.debug('Opened image file %s', path)
+                imgdata = imgfile.read()
+                imgfile = io.BytesIO(imgdata)
+                img = Image.open(imgfile)
 
-                # find image file, try to open it
-                imgfile = self._floc.open_image(basename)
-                if imgfile:
-                    _log.debug('Opened image file %s', path)
-                    imgdata = imgfile.read()
-                    imgfile = io.BytesIO(imgdata)
-                    img = Image.open(imgfile)
+                # resize it if larger than needed
+                width = Size(self._options.get('html_image_width',
+                                               '300px')).px
+                height = Size(self._options.get('html_image_height',
+                                                '300px')).px
+                maxsize = (width, height)
+                size = utils.resize(img.size, maxsize)
+                size = (int(size[0]), int(size[1]))
+                if size != img.size:
+                    # means size was reduced
+                    _log.debug('Resize image to %s', size)
+                    img = img.resize(size, Image.LANCZOS)
+                    imgsize = ""
+                else:
+                    # means size was not changed and image is smaller
+                    # than box, we may want to extend it
+                    extend = utils.resize(img.size, maxsize, False)
+                    imgsize = ' width="{}" height="{}"'.format(*extend)
 
-                    # resize it if larger than needed
-                    width = Size(self._options.get('html_image_width',
-                                                   '300px')).px
-                    height = Size(self._options.get('html_image_height',
-                                                    '300px')).px
-                    maxsize = (width, height)
-                    size = utils.resize(img.size, maxsize)
-                    size = (int(size[0]), int(size[1]))
-                    if size != img.size:
-                        # means size was reduced
-                        _log.debug('Resize image to %s', size)
-                        img = img.resize(size, Image.LANCZOS)
-                        imgsize = ""
-                    else:
-                        # means size was not changed and image is smaller
-                        # than box, we may want to extend it
-                        extend = utils.resize(img.size, maxsize, False)
-                        imgsize = ' width="{}" height="{}"'.format(*extend)
+                # save to a buffer
+                imgfile = io.BytesIO()
+                img.save(imgfile, 'JPEG')
 
-                    # save to a buffer
-                    imgfile = io.BytesIO()
-                    img.save(imgfile, 'JPEG')
-
-                    return '<img class="personImage"' + imgsize + \
-                        ' src="data:image/jpg;base64,' + \
-                        base64.b64encode(imgfile.getvalue()) + '">'
+                return '<img class="personImage"' + imgsize + \
+                    ' src="data:image/jpg;base64,' + \
+                    base64.b64encode(imgfile.getvalue()) + '">'
