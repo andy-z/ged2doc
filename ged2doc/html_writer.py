@@ -231,20 +231,45 @@ class HtmlWriter(object):
             else:
                 doc += ['<svg width="100%" height="1pt"/>\n']
 
+        # generate some stats
+        if self._options.get('make_stat', True):
+            doc += [u'<h1 id="statistics">{0}</h1>\n'.format(_("Statistics"))]
+            toc += [(1, 'statistics', _("Statistics"))]
+
+            doc += [u'<h2 id="total_statistics">{0}</h2>\n'.format(_("Total Statistics"))]
+            toc += [(2, 'total_statistics', _("Total Statistics"))]
+
+            nmales = len([person for person in indis if person.sex == 'M'])
+            nfemales = len([person for person in indis if person.sex == 'F'])
+            doc += ['<p>%s: %d</p>' % (_('Person count'), len(indis))]
+            doc += ['<p>%s: %d</p>' % (_('Female count'), nfemales)]
+            doc += ['<p>%s: %d</p>' % (_('Male count'), nmales)]
+
+
+            doc += [u'<h2 id="name_statistics">{0}</h2>\n'.format(_("Name Statistics"))]
+            toc += [(2, 'name_statistics', _("Name Statistics"))]
+
+            doc += [u'<h3 id="female_name_freq">{0}</h3>\n'.format(_("Female Name Frequency"))]
+            doc += self._namestat(person for person in indis if person.sex == 'F')
+
+            doc += [u'<h3 id="male_name_freq">{0}</h3>\n'.format(_("Male Name Frequency"))]
+            doc += self._namestat(person for person in indis if person.sex == 'M')
+
         # add table of contents
-        doc += [u'<h1>{0}</h1>\n'.format(_("Table Of Contents"))]
-        lvl = 0
-        for toclvl, tocid, text in toc:
-            while lvl < toclvl:
-                doc += ['<ul>']
-                lvl += 1
-            while lvl > toclvl:
+        if self._options.get('make_toc', True):
+            doc += [u'<h1>{0}</h1>\n'.format(_("Table Of Contents"))]
+            lvl = 0
+            for toclvl, tocid, text in toc:
+                while lvl < toclvl:
+                    doc += ['<ul>']
+                    lvl += 1
+                while lvl > toclvl:
+                    doc += ['</ul>']
+                    lvl -= 1
+                doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid, text)]
+            while lvl > 0:
                 doc += ['</ul>']
                 lvl -= 1
-            doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid, text)]
-        while lvl > 0:
-            doc += ['</ul>']
-            lvl -= 1
 
         # closing
         doc += ['</body>']
@@ -331,3 +356,43 @@ class HtmlWriter(object):
                 return '<img class="personImage"' + imgsize + \
                     ' src="data:image/jpg;base64,' + \
                     base64.b64encode(imgfile.getvalue()) + '">'
+
+    def _namestat(self, people):
+        """Produces name statistics table.
+        """
+        def _gencouples(namefreq):
+            halflen = (len(namefreq) + 1) // 2
+            for i in range(halflen):
+                n1, c1 = namefreq[2 * i]
+                n2, c2 = None, None
+                if 2 * i + 1 < len(namefreq):
+                    n2, c2 = namefreq[2 * i + 1]
+                yield n1, c1, n2, c2
+
+        namefreq = {}
+        for person in people:
+            namefreq.setdefault(person.name.first, 0)
+            namefreq[person.name.first] += 1
+        namefreq = [(key, val) for key, val in namefreq.items()]
+        # sort ascending in name
+        namefreq.sort()
+        total = float(sum(count for _, count in namefreq))
+
+        tbl = ['<table class="statTable">\n']
+
+        for name1, count1, name2, count2 in _gencouples(namefreq):
+
+            tbl += ['<tr>\n']
+
+            tbl += [u'<td width="25%">{0}</td>'.format(name1 or '-')]
+            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count1, count1 / total)]
+
+            if count2 is not None:
+
+                tbl += [u'<td width="25%">{0}</td>'.format(name2 or '-')]
+                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count2, count2 / total)]
+
+            tbl += ['</tr>\n']
+
+        tbl += ['</table>\n']
+        return tbl

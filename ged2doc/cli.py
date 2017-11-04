@@ -38,7 +38,7 @@ def main():
     group.add_argument("--encoding",
                        help="Input file encoding, default is to guess "
                        "from file contents")
-    group.add_argument("--encoding-errors", default="strict",
+    group.add_argument("--encoding-errors", default="strict", metavar="MODE",
                        help="Mode for handling decoding errors, one of strict,"
                        " ignore, or replace; default: %(default)s")
 
@@ -49,6 +49,10 @@ def main():
     group.add_argument('-d', "--date-format", default=None, metavar="FMT",
                        help="Date format in output document, one of "
                        "DMY., YMD-, MDY/; if missing then use system default")
+    group.add_argument("--no-toc", default=False, action="store_true",
+                       help="Disable Table of Contents in output document.")
+    group.add_argument("--no-stat", default=False, action="store_true",
+                       help="Disable Name Statistics in output document.")
 
     group = parser.add_argument_group("HTML Output Options")
     group.add_argument("--html-page-width", default="800px",
@@ -90,6 +94,8 @@ def main():
             html_image_upscale=args.html_image_upscale,
             encoding=args.encoding,
             encoding_errors=args.encoding_errors,
+            make_toc=not args.no_toc,
+            make_stat=not args.no_stat,
             )
         writer = HtmlWriter(flocator, options)
 
