@@ -20,9 +20,9 @@ from ged4py import model, parser
 
 _log = logging.getLogger(__name__)
 
-
-def _(x, sex="U"):
-    return x
+# this is no-op function, only used to mark translatable strings,
+# to extract all strings run "pygettext -k TR ..."
+TR = lambda x: x  # NOQA
 
 
 def _personRef(person, name=None):
@@ -40,10 +40,11 @@ class HtmlWriter(object):
     :param dict options: Dictionary with options
     """
 
-    def __init__(self, flocator, options):
+    def __init__(self, flocator, options, tr):
 
         self._floc = flocator
         self._options = options
+        self._tr = tr
 
     def save(self, output):
         """Produce output at given destination.
@@ -74,8 +75,9 @@ class HtmlWriter(object):
         doc += ['</head>\n', '<body>\n']
         doc += ['<div id="contents_div"/>\n']
 
-        doc += [u'<h1 id="personList">{0}</h1>\n'.format(_("Person List"))]
-        toc += [(1, 'personList', _("Person List"))]
+        title = self._tr.tr(TR(u"Person List"))
+        doc += [u'<h1 id="personList">{0}</h1>\n'.format(title)]
+        toc += [(1, 'personList', title)]
 
         # Index of all INDI records
         _log.debug('Scan all INDI records')
@@ -107,12 +109,12 @@ class HtmlWriter(object):
                 doc += [img]
 
             # birth date and place
-            doc += ['<p>' + _('Born', person.sex) + ": "]
+            doc += ['<p>' + self._tr.tr(TR('Born'), person.sex) + ": "]
             bday = person.sub_tag("BIRT/DATE")
             if bday:
                 doc += [bday.value.fmt()]
             else:
-                doc += [_('Unknown', person.sex)]
+                doc += [self._tr.tr(TR('Date Unknown'), person.sex)]
             bplace = person.sub_tag("BIRT/PLAC")
             if bplace:
                 doc += [", " + bplace.value]
@@ -121,16 +123,19 @@ class HtmlWriter(object):
             # Parents
             pfmt = u'<p>{person}: {ref}</p>\n'
             if person.mother:
-                doc += [pfmt.format(person=_('Mother', person.mother.sex),
+                doc += [pfmt.format(person=self._tr.tr(TR('Mother'),
+                                                       person.mother.sex),
                                     ref=_personRef(person.mother))]
             if person.father:
-                doc += [pfmt.format(person=_('Father', person.father.sex),
+                doc += [pfmt.format(person=self._tr.tr(TR('Father'),
+                                                       person.father.sex),
                                     ref=_personRef(person.father))]
 
             # all families as spouse
             fams = person.sub_tags("FAMS")
             if fams:
-                doc += ['<h3>' + _("Spouses and children", person) + '</h3>\n']
+                doc += ['<h3>' + self._tr.tr(TR("Spouses and children"),
+                                             person.sex) + '</h3>\n']
 
                 own_kids = []
                 for fam in fams:
@@ -153,30 +158,36 @@ class HtmlWriter(object):
                                spouse, children_ids, children)
                     if spouse:
                         pfmt = u'<p>{person}: {ref}'
-                        doc += [pfmt.format(person=_('Spouse', spouse.sex),
+                        doc += [pfmt.format(person=self._tr.tr(TR('Spouse'),
+                                                               spouse.sex),
                                             ref=_personRef(spouse))]
                         if children:
                             kids = [_personRef(c, c.name.first)
                                     for c in children]
-                            doc += ["; " + _('kids') + ': ' + ', '.join(kids)]
+                            doc += ["; " + self._tr.tr(TR('kids')) + ': ' +
+                                    ', '.join(kids)]
                         doc += ['</p>\n']
                     else:
                         own_kids += [_personRef(c, c.name.first)
                                      for c in children]
                 if own_kids:
-                    doc += ['<p>' + _('Kids') + ': ' +
+                    doc += ['<p>' + self._tr.tr(TR('Kids')) + ': ' +
                             ', '.join(own_kids) + '</p>\n']
 
             # collect all events from person and families
             events = []
             for rec in person.sub_records:
+                if rec.tag == 'BIRT':
+                    # this info is laready rendered
+                    continue
                 date = rec.sub_tag('DATE')
                 if not date:
                     continue
                 place = rec.sub_tag('PLAC')
                 if place is not None:
                     place = place.value
-                events += [(date.value, rec.tag, place)]
+                event = self._tr.tr("EVENT." + rec.tag, person.sex)
+                events += [(date.value, event, place)]
 
             for fam in person.sub_tags("FAMS"):
 
@@ -192,21 +203,27 @@ class HtmlWriter(object):
                     if spouses:
                         spouse = spouses[0].ref
                         note = u'{person}: {ref}'.format(
-                            person=_('Spouse', spouse.sex),
+                            person=self._tr.tr(TR('Spouse'), spouse.sex),
                             ref=_personRef(spouse))
                     else:
                         note = None
-                    events += [(date.value, rec.tag, note)]
+                    event = self._tr.tr("FAMEVT." + rec.tag)
+                    events += [(date.value, event, note)]
 
                 for child in fam.sub_tags("CHIL"):
                     bday = child.sub_tag("BIRT/DATE")
                     if bday:
                         note = _personRef(child, child.name.first)
-                        events += [(bday.value, "BORN", note)]
+                        event = self._tr.tr(TR(u"CHILD.BORN {child}"),
+                                            child.sex)
+                        childRef = _personRef(child, child.name.first)
+                        event = event.format(child=childRef)
+                        events += [(bday.value, event, None)]
 
             # order events
             if events:
-                doc += ['<h3>' + _("Events and dates") + '</h3>\n']
+                doc += ['<h3>' + self._tr.tr(TR("Events and dates")) +
+                        '</h3>\n']
             for date, tag, note in sorted(events):
                 doc += ['<p>' + date.fmt() + ": " + tag]
                 if note:
@@ -216,7 +233,7 @@ class HtmlWriter(object):
             # Comments are published as set of paragraphs
             notes = person.sub_tags('NOTE')
             if notes:
-                doc += ['<h3>' + _("Comments", person) + '</h3>\n']
+                doc += ['<h3>' + self._tr.tr(TR("Comments")) + '</h3>\n']
                 for note in notes:
                     for para in note.value.split('\n'):
                         doc += ['<p>' + para + '</p>\n']
@@ -224,7 +241,7 @@ class HtmlWriter(object):
             # plot ancestors tree
             tree_elem = self._getParentTree(person)
             if tree_elem:
-                doc += ['<h3>' + _("Ancestor tree", person) + '</h3>\n']
+                doc += ['<h3>' + self._tr.tr(TR("Ancestor tree")) + '</h3>\n']
                 doc += ['<div class="centered">\n']
                 doc += [tree_elem]
                 doc += ['</div>\n']
@@ -233,31 +250,36 @@ class HtmlWriter(object):
 
         # generate some stats
         if self._options.get('make_stat', True):
-            doc += [u'<h1 id="statistics">{0}</h1>\n'.format(_("Statistics"))]
-            toc += [(1, 'statistics', _("Statistics"))]
+            section = self._tr.tr(TR("Statistics"))
+            doc += [u'<h1 id="statistics">{0}</h1>\n'.format(section)]
+            toc += [(1, 'statistics', section)]
 
-            doc += [u'<h2 id="total_statistics">{0}</h2>\n'.format(_("Total Statistics"))]
-            toc += [(2, 'total_statistics', _("Total Statistics"))]
+            section = self._tr.tr(TR("Total Statistics"))
+            doc += [u'<h2 id="total_statistics">{0}</h2>\n'.format(section)]
+            toc += [(2, 'total_statistics', section)]
 
             nmales = len([person for person in indis if person.sex == 'M'])
             nfemales = len([person for person in indis if person.sex == 'F'])
-            doc += ['<p>%s: %d</p>' % (_('Person count'), len(indis))]
-            doc += ['<p>%s: %d</p>' % (_('Female count'), nfemales)]
-            doc += ['<p>%s: %d</p>' % (_('Male count'), nmales)]
+            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')), len(indis))]
+            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')), nfemales)]
+            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Male count')), nmales)]
 
+            section = self._tr.tr(TR("Name Statistics"))
+            doc += [u'<h2 id="name_statistics">{0}</h2>\n'.format(section)]
+            toc += [(2, 'name_statistics', section)]
 
-            doc += [u'<h2 id="name_statistics">{0}</h2>\n'.format(_("Name Statistics"))]
-            toc += [(2, 'name_statistics', _("Name Statistics"))]
-
-            doc += [u'<h3 id="female_name_freq">{0}</h3>\n'.format(_("Female Name Frequency"))]
+            section = self._tr.tr(TR("Female Name Frequency"))
+            doc += [u'<h3 id="female_name_freq">{0}</h3>\n'.format(section)]
             doc += self._namestat(person for person in indis if person.sex == 'F')
 
-            doc += [u'<h3 id="male_name_freq">{0}</h3>\n'.format(_("Male Name Frequency"))]
+            section = self._tr.tr(TR("Male Name Frequency"))
+            doc += [u'<h3 id="male_name_freq">{0}</h3>\n'.format(section)]
             doc += self._namestat(person for person in indis if person.sex == 'M')
 
         # add table of contents
         if self._options.get('make_toc', True):
-            doc += [u'<h1>{0}</h1>\n'.format(_("Table Of Contents"))]
+            section = self._tr.tr(TR("Table Of Contents"))
+            doc += [u'<h1>{0}</h1>\n'.format(section)]
             lvl = 0
             for toclvl, tocid, text in toc:
                 while lvl < toclvl:

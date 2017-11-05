@@ -5,14 +5,29 @@
 from __future__ import absolute_import, division, print_function
 
 from argparse import ArgumentParser
+import locale
 import logging
 
-from ged2doc.size import String2Size
-from ged2doc.input import make_file_locator
-from ged2doc.html_writer import HtmlWriter
+from .size import String2Size
+from .i18n import I18N
+from .input import make_file_locator
+from .html_writer import HtmlWriter
 
 
 _log = logging.getLogger(__name__)
+
+
+languages = ['en', 'ru']
+
+
+def _system_lang():
+    """Try to guess system language
+    """
+    loclang, _ = locale.getdefaultlocale()
+    for lang in languages:
+        if loclang.startswith(lang):
+            return lang
+    return "en"
 
 
 def main():
@@ -46,6 +61,11 @@ def main():
     group.add_argument('-t', "--type", default='html',
                        help=("Type of the output document, possible values:"
                              " html, odt; default: %(default)s"))
+    group.add_argument('-l', "--language", default=_system_lang(),
+                       metavar="LANG_CODE", choices=languages,
+                       help="Language for output document, supported "
+                       "languages are: %(choices)s. Default is to use "
+                       "system  language (=%(default)s).")
     group.add_argument('-d', "--date-format", default=None, metavar="FMT",
                        help="Date format in output document, one of "
                        "DMY., YMD-, MDY/; if missing then use system default")
@@ -75,7 +95,7 @@ def main():
         log_level = logging.INFO
     else:
         log_level = logging.DEBUG
-    logfmt = "%(asctime)s [%(levelname)s] %(name)s (%(filename)s:%(lineno)d)"\
+    logfmt = "%(levelname)s: %(name)s (%(filename)s:%(lineno)d)"\
              " -- %(message)s"
     logging.basicConfig(level=log_level, format=logfmt)
 
@@ -85,6 +105,8 @@ def main():
                                      args.image_path)
     except Exception as exc:
         parser.error("Error reading input file: {0}".format(exc))
+
+    tr = I18N(args.language, args.date_format)
 
     if args.type == "html":
         options = dict(
@@ -97,10 +119,10 @@ def main():
             make_toc=not args.no_toc,
             make_stat=not args.no_stat,
             )
-        writer = HtmlWriter(flocator, options)
+        writer = HtmlWriter(flocator, options, tr)
 
     try:
         writer.save(args.output)
     except Exception as exc:
-        _log.debug("caught exception: %s", exc, exc_info=True)
-        parser.error("Error while producing a document: {0}".format(exc))
+        _log.error("caught exception: %s", exc, exc_info=True)
+        _log.error("Error while producing a document: {0}".format(exc))

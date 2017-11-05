@@ -1,0 +1,246 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) Andy Salnikov
+# Andy Salnikov <ged4py@py-dev.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ged2doc 0.1\n"
+"POT-Creation-Date: 2017-11-05 01:20+PDT\n"
+"PO-Revision-Date: 2017-11-05 10:00+PDT\n"
+"Last-Translator: Andy Salnikov <ged4py@py-dev.com>\n"
+"Language-Team: Andy Salnikov <ged4py@py-dev.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ged2doc/html_writer.py:78
+msgid "Person List"
+msgstr "Person List"
+
+#: ged2doc/html_writer.py:112
+msgid "Born"
+msgstr "Born"
+
+#: ged2doc/html_writer.py:117
+msgid "Date Unknown"
+msgstr "Unknown"
+
+#: ged2doc/html_writer.py:126
+msgid "Mother"
+msgstr "Mother"
+
+#: ged2doc/html_writer.py:130
+msgid "Father"
+msgstr "Father"
+
+#: ged2doc/html_writer.py:137
+msgid "Spouses and children"
+msgstr "Spouses and children"
+
+#: ged2doc/html_writer.py:161 ged2doc/html_writer.py:203
+msgid "Spouse"
+msgstr "Spouse"
+
+#: ged2doc/html_writer.py:167
+msgid "kids"
+msgstr "kids"
+
+#: ged2doc/html_writer.py:174
+msgid "Kids"
+msgstr "Kids"
+
+#: ged2doc/html_writer.py:214
+msgid "CHILD.BORN {child}"
+msgstr "Born {child}"
+
+msgid "CHILD.BORN {child}#F"
+msgstr "Born daughter {child}"
+
+msgid "CHILD.BORN {child}#M"
+msgstr "Born son {child}"
+
+#: ged2doc/html_writer.py:222
+msgid "Events and dates"
+msgstr "Events and dates"
+
+#: ged2doc/html_writer.py:233
+msgid "Comments"
+msgstr "Comments"
+
+#: ged2doc/html_writer.py:241
+msgid "Ancestor tree"
+msgstr "Ancestor tree"
+
+#: ged2doc/html_writer.py:250
+msgid "Statistics"
+msgstr "Statistics"
+
+#: ged2doc/html_writer.py:254
+msgid "Total Statistics"
+msgstr "Total Statistics"
+
+#: ged2doc/html_writer.py:260
+msgid "Person count"
+msgstr "Person count"
+
+#: ged2doc/html_writer.py:261
+msgid "Female count"
+msgstr "Female count"
+
+#: ged2doc/html_writer.py:262
+msgid "Male count"
+msgstr "Male count"
+
+#: ged2doc/html_writer.py:264
+msgid "Name Statistics"
+msgstr "Name Statistics"
+
+#: ged2doc/html_writer.py:268
+msgid "Female Name Frequency"
+msgstr "Female Name Frequency"
+
+#: ged2doc/html_writer.py:272
+msgid "Male Name Frequency"
+msgstr "Male Name Frequency"
+
+#: ged2doc/html_writer.py:278
+msgid "Table Of Contents"
+msgstr "Table Of Contents"
+
+#: ged2doc/i18n.py:29
+msgid "EVENT.BIRT"
+msgstr "Birth"
+
+#: ged2doc/i18n.py:30
+msgid "EVENT.CHR"
+msgstr "Christening"
+
+#: ged2doc/i18n.py:31
+msgid "EVENT.DEAT"
+msgstr "Death"
+
+#: ged2doc/i18n.py:32
+msgid "EVENT.BURI"
+msgstr "Burial"
+
+#: ged2doc/i18n.py:33
+msgid "EVENT.CREM"
+msgstr "Cremation"
+
+#: ged2doc/i18n.py:34
+msgid "EVENT.ADOP"
+msgstr "Adoption"
+
+#: ged2doc/i18n.py:35
+msgid "EVENT.BAPM"
+msgstr "Baptism"
+
+#: ged2doc/i18n.py:36
+msgid "EVENT.BARM"
+msgstr "Bar-Mitzva"
+
+#: ged2doc/i18n.py:37
+msgid "EVENT.BASM"
+msgstr "Bar-Mitzva"
+
+#: ged2doc/i18n.py:38
+msgid "EVENT.BLES"
+msgstr "Blessing"
+
+#: ged2doc/i18n.py:39
+msgid "EVENT.CHRA"
+msgstr "Christening (adult)"
+
+#: ged2doc/i18n.py:40
+msgid "EVENT.CONF"
+msgstr ""
+
+#: ged2doc/i18n.py:41
+msgid "EVENT.FCOM"
+msgstr "Confirmation"
+
+#: ged2doc/i18n.py:42
+msgid "EVENT.ORDN"
+msgstr "Ordination"
+
+#: ged2doc/i18n.py:43
+msgid "EVENT.NATU"
+msgstr "Naturalization"
+
+#: ged2doc/i18n.py:44
+msgid "EVENT.EMIG"
+msgstr "Emigration"
+
+#: ged2doc/i18n.py:45
+msgid "EVENT.IMMI"
+msgstr "Immigration"
+
+#: ged2doc/i18n.py:46
+msgid "EVENT.CENS"
+msgstr "Census"
+
+#: ged2doc/i18n.py:47
+msgid "EVENT.PROB"
+msgstr "Probate"
+
+#: ged2doc/i18n.py:48
+msgid "EVENT.WILL"
+msgstr "Will signing"
+
+#: ged2doc/i18n.py:49
+msgid "EVENT.GRAD"
+msgstr "Graduation"
+
+#: ged2doc/i18n.py:50
+msgid "EVENT.RETI"
+msgstr "Retirement"
+
+#: ged2doc/i18n.py:51
+msgid "EVENT.EVEN"
+msgstr "Other event"
+
+#: ged2doc/i18n.py:52
+msgid "FAMEVT.ANUL"
+msgstr "Annulment"
+
+#: ged2doc/i18n.py:53
+msgid "FAMEVT.CENS"
+msgstr "Census"
+
+#: ged2doc/i18n.py:54
+msgid "FAMEVT.DIV"
+msgstr "Divorce"
+
+#: ged2doc/i18n.py:55
+msgid "FAMEVT.DIVF"
+msgstr "Divorce filed"
+
+#: ged2doc/i18n.py:56
+msgid "FAMEVT.ENGA"
+msgstr "Engagement"
+
+#: ged2doc/i18n.py:57
+msgid "FAMEVT.MARB"
+msgstr "Marriage Banns"
+
+#: ged2doc/i18n.py:58
+msgid "FAMEVT.MARC"
+msgstr "Marriage contract"
+
+#: ged2doc/i18n.py:59
+msgid "FAMEVT.MARR"
+msgstr "Marriage"
+
+#: ged2doc/i18n.py:60
+msgid "FAMEVT.MARL"
+msgstr "Marriage license"
+
+#: ged2doc/i18n.py:61
+msgid "FAMEVT.MARS"
+msgstr "Marriage settlement"
+
+#: ged2doc/i18n.py:62
+msgid "FAMEVT.RESI"
+msgstr "Residence"

@@ -1,0 +1,256 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) Andy Salnikov
+# Andy Salnikov <ged4py@py-dev.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ged2doc 0.1\n"
+"POT-Creation-Date: 2017-11-05 01:20+PDT\n"
+"PO-Revision-Date: 2017-11-05 10:00+PDT\n"
+"Last-Translator: Andy Salnikov <ged4py@py-dev.com>\n"
+"Language-Team: Andy Salnikov <ged4py@py-dev.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: ged2doc/html_writer.py:78
+msgid "Person List"
+msgstr "Персоналии"
+
+#: ged2doc/html_writer.py:112
+msgid "Born"
+msgstr "Родился"
+
+msgid "Born#F"
+msgstr "Родилась"
+
+#: ged2doc/html_writer.py:117
+msgid "Date Unknown"
+msgstr "Неизвестно"
+
+#: ged2doc/html_writer.py:126
+msgid "Mother"
+msgstr "Мать"
+
+#: ged2doc/html_writer.py:130
+msgid "Father"
+msgstr "Отец"
+
+#: ged2doc/html_writer.py:137
+msgid "Spouses and children"
+msgstr "Супруги и дети"
+
+#: ged2doc/html_writer.py:161 ged2doc/html_writer.py:203
+msgid "Spouse"
+msgstr "Супруг"
+
+msgid "Spouse#F"
+msgstr "Супруга"
+
+#: ged2doc/html_writer.py:167
+msgid "kids"
+msgstr "дети"
+
+#: ged2doc/html_writer.py:174
+msgid "Kids"
+msgstr "Дети"
+
+#: ged2doc/html_writer.py:214
+msgid "CHILD.BORN {child}"
+msgstr "Родился {child}"
+
+msgid "CHILD.BORN {child}#F"
+msgstr "Родилась дочь {child}"
+
+msgid "CHILD.BORN {child}#M"
+msgstr "Родился сын {child}"
+
+#: ged2doc/html_writer.py:222
+msgid "Events and dates"
+msgstr "События и даты"
+
+#: ged2doc/html_writer.py:233
+msgid "Comments"
+msgstr "Комментарии"
+
+#: ged2doc/html_writer.py:241
+msgid "Ancestor tree"
+msgstr "Предки"
+
+#: ged2doc/html_writer.py:250
+msgid "Statistics"
+msgstr "Статистика"
+
+#: ged2doc/html_writer.py:254
+msgid "Total Statistics"
+msgstr "Общая статистика"
+
+#: ged2doc/html_writer.py:260
+msgid "Person count"
+msgstr "Всего персон"
+
+#: ged2doc/html_writer.py:261
+msgid "Female count"
+msgstr "Женского пола"
+
+#: ged2doc/html_writer.py:262
+msgid "Male count"
+msgstr "Мужского пола"
+
+#: ged2doc/html_writer.py:264
+msgid "Name Statistics"
+msgstr "Статистика имен"
+
+#: ged2doc/html_writer.py:268
+msgid "Female Name Frequency"
+msgstr "Частота женских имен"
+
+#: ged2doc/html_writer.py:272
+msgid "Male Name Frequency"
+msgstr "Частота мужских имен"
+
+#: ged2doc/html_writer.py:278
+msgid "Table Of Contents"
+msgstr "Оглавление"
+
+#: ged2doc/i18n.py:29
+msgid "EVENT.BIRT"
+msgstr "Рождение"
+
+#: ged2doc/i18n.py:30
+msgid "EVENT.CHR"
+msgstr "Крещение"
+
+#: ged2doc/i18n.py:31
+msgid "EVENT.DEAT"
+msgstr "Смерть"
+
+#: ged2doc/i18n.py:32
+msgid "EVENT.BURI"
+msgstr "Погребение"
+
+#: ged2doc/i18n.py:33
+msgid "EVENT.CREM"
+msgstr "Кремирование"
+
+#: ged2doc/i18n.py:34
+msgid "EVENT.ADOP"
+msgstr "Усыновление"
+
+msgid "EVENT.ADOP#F"
+msgstr "Удочерение"
+
+#: ged2doc/i18n.py:35
+msgid "EVENT.BAPM"
+msgstr "Крещение"
+
+#: ged2doc/i18n.py:36
+msgid "EVENT.BARM"
+msgstr "Бар-Мицва"
+
+#: ged2doc/i18n.py:37
+msgid "EVENT.BASM"
+msgstr "Бар-Мицва"
+
+#: ged2doc/i18n.py:38
+msgid "EVENT.BLES"
+msgstr "Благословение"
+
+#: ged2doc/i18n.py:39
+msgid "EVENT.CHRA"
+msgstr "Крещение (взрос.)"
+
+#: ged2doc/i18n.py:40
+msgid "EVENT.CONF"
+msgstr "Конфирмация"
+
+#: ged2doc/i18n.py:41
+msgid "EVENT.FCOM"
+msgstr "Коммюнион"
+
+#: ged2doc/i18n.py:42
+msgid "EVENT.ORDN"
+msgstr "Рукоположение"
+
+#: ged2doc/i18n.py:43
+msgid "EVENT.NATU"
+msgstr "Натурализация"
+
+#: ged2doc/i18n.py:44
+msgid "EVENT.EMIG"
+msgstr "Эмиграция"
+
+#: ged2doc/i18n.py:45
+msgid "EVENT.IMMI"
+msgstr "Иммиграция"
+
+#: ged2doc/i18n.py:46
+msgid "EVENT.CENS"
+msgstr "Перепись"
+
+#: ged2doc/i18n.py:47
+msgid "EVENT.PROB"
+msgstr "Утверждение завещания"
+
+#: ged2doc/i18n.py:48
+msgid "EVENT.WILL"
+msgstr "Подписание завещания"
+
+#: ged2doc/i18n.py:49
+msgid "EVENT.GRAD"
+msgstr "Окончание учеб. зав."
+
+#: ged2doc/i18n.py:50
+msgid "EVENT.RETI"
+msgstr "Выход на пенсию"
+
+#: ged2doc/i18n.py:51
+msgid "EVENT.EVEN"
+msgstr "Другое событие"
+
+#: ged2doc/i18n.py:52
+msgid "FAMEVT.ANUL"
+msgstr "Аннулирование брака"
+
+#: ged2doc/i18n.py:53
+msgid "FAMEVT.CENS"
+msgstr "Перепись"
+
+#: ged2doc/i18n.py:54
+msgid "FAMEVT.DIV"
+msgstr "Развод"
+
+#: ged2doc/i18n.py:55
+msgid "FAMEVT.DIVF"
+msgstr "Инициирован развод"
+
+#: ged2doc/i18n.py:56
+msgid "FAMEVT.ENGA"
+msgstr "Помолвка"
+
+#: ged2doc/i18n.py:57
+msgid "FAMEVT.MARB"
+msgstr "Объявление о браке"
+
+#: ged2doc/i18n.py:58
+msgid "FAMEVT.MARC"
+msgstr "Брачный контракт"
+
+#: ged2doc/i18n.py:59
+msgid "FAMEVT.MARR"
+msgstr "Бракосочетание"
+
+#: ged2doc/i18n.py:60
+msgid "FAMEVT.MARL"
+msgstr "Лицензия на брак"
+
+#: ged2doc/i18n.py:61
+msgid "FAMEVT.MARS"
+msgstr "Брачный договор"
+
+#: ged2doc/i18n.py:62
+msgid "FAMEVT.RESI"
+msgstr "Местожительство"
+
