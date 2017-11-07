@@ -10,7 +10,7 @@ from collections import namedtuple
 Event = namedtuple("Event", "tag value type date place note")
 
 _indi_events_tags = set([
-    'BIRT', 'CHR', 'DEAT', 'BURI', 'CREM', 'ADOP', 
+    'BIRT', 'CHR', 'DEAT', 'BURI', 'CREM', 'ADOP',
     'BAPM', 'BARM', 'BASM', 'BLES', 'CHRA', 'CONF', 'FCOM', 'ORDN',
     'NATU', 'EMIG', 'IMMI', 'CENS', 'PROB', 'WILL',
     'GRAD', 'RETI', 'EVEN'])

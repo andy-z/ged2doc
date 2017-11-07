@@ -257,8 +257,10 @@ class HtmlWriter(object):
 
             nmales = len([person for person in indis if person.sex == 'M'])
             nfemales = len([person for person in indis if person.sex == 'F'])
-            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')), len(indis))]
-            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')), nfemales)]
+            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')),
+                                       len(indis))]
+            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')),
+                                       nfemales)]
             doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Male count')), nmales)]
 
             section = self._tr.tr(TR("Name Statistics"))
@@ -267,11 +269,13 @@ class HtmlWriter(object):
 
             section = self._tr.tr(TR("Female Name Frequency"))
             doc += [u'<h3 id="female_name_freq">{0}</h3>\n'.format(section)]
-            doc += self._namestat(person for person in indis if person.sex == 'F')
+            doc += self._namestat(person for person in indis
+                                  if person.sex == 'F')
 
             section = self._tr.tr(TR("Male Name Frequency"))
             doc += [u'<h3 id="male_name_freq">{0}</h3>\n'.format(section)]
-            doc += self._namestat(person for person in indis if person.sex == 'M')
+            doc += self._namestat(person for person in indis
+                                  if person.sex == 'M')
 
         # add table of contents
         if self._options.get('make_toc', True):
@@ -285,7 +289,8 @@ class HtmlWriter(object):
                 while lvl > toclvl:
                     doc += ['</ul>']
                     lvl -= 1
-                doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid, text)]
+                doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid,
+                                                                    text)]
             while lvl > 0:
                 doc += ['</ul>']
                 lvl -= 1
@@ -404,12 +409,14 @@ class HtmlWriter(object):
             tbl += ['<tr>\n']
 
             tbl += [u'<td width="25%">{0}</td>'.format(name1 or '-')]
-            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count1, count1 / total)]
+            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
+                count1, count1 / total)]
 
             if count2 is not None:
 
                 tbl += [u'<td width="25%">{0}</td>'.format(name2 or '-')]
-                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count2, count2 / total)]
+                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
+                    count2, count2 / total)]
 
             tbl += ['</tr>\n']
 
