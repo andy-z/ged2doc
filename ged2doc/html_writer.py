@@ -85,8 +85,7 @@ class HtmlWriter(object):
         # filter out some fake records that some apps add
         indis = []
         for indi in reader.records0('INDI'):
-            uid = indi.sub_tag("_UID")
-            if uid and uid.value == "Unassociated photos":
+            if indi.sub_tag_value("_UID") == "Unassociated photos":
                 continue
             indis.append(indi)
 
@@ -183,9 +182,7 @@ class HtmlWriter(object):
                 date = rec.sub_tag('DATE')
                 if not date:
                     continue
-                place = rec.sub_tag('PLAC')
-                if place is not None:
-                    place = place.value
+                place = rec.sub_tag_value('PLAC')
                 event = self._tr.tr("EVENT." + rec.tag, person.sex)
                 events += [(date.value, event, place)]
 
