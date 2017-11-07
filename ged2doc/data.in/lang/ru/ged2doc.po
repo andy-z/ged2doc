@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# Russian translation for GED2DOC application.
 # Copyright (C) Andy Salnikov
 # Andy Salnikov <ged4py@py-dev.com>, 2017.
 #

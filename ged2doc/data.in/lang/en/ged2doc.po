@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# English translation for GED2DOC application.
 # Copyright (C) Andy Salnikov
 # Andy Salnikov <ged4py@py-dev.com>, 2017.
 #
@@ -13,7 +13,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: utf-8\n"
 "Generated-By: pygettext.py 1.5\n"
-
 
 #: ged2doc/html_writer.py:78
 msgid "Person List"
@@ -155,11 +154,11 @@ msgstr "Christening (adult)"
 
 #: ged2doc/i18n.py:40
 msgid "EVENT.CONF"
-msgstr ""
+msgstr "Confirmation"
 
 #: ged2doc/i18n.py:41
 msgid "EVENT.FCOM"
-msgstr "Confirmation"
+msgstr "First Communion"
 
 #: ged2doc/i18n.py:42
 msgid "EVENT.ORDN"
