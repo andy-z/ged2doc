@@ -12,6 +12,7 @@ import pkg_resources
 import string
 from PIL import Image
 
+from .events import indi_attributes, indi_events, family_events
 from .plotter import Plotter
 from .size import Size
 from . import utils
@@ -31,6 +32,19 @@ def _personRef(person, name=None):
     if name is None:
         name = person.name.format(model.FMT_SURNAME_FIRST | model.FMT_MAIDEN)
     return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)
+
+
+def _spouse(person, fam):
+    """Returns person spouse in a given family
+    """
+    # list of Pointers
+    spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
+    spouses = [rec for rec in spouses
+               if rec.value != person.xref_id]
+    # more than one spouse is odd (from the structural concern)
+    if spouses:
+        return spouses[0].ref
+    return None
 
 
 class HtmlWriter(object):
@@ -130,6 +144,13 @@ class HtmlWriter(object):
                                                        person.father.sex),
                                     ref=_personRef(person.father))]
 
+            # add some extra info
+            attributes = indi_attributes(person)
+            for tag in ['EDUC', 'OCCU', 'RESI', 'NMR', 'NCI']:
+                for attrib in attributes:
+                    if attrib.tag == tag:
+                        doc += [self._formatIndiAttr(person, attrib)]
+
             # all families as spouse
             fams = person.sub_tags("FAMS")
             if fams:
@@ -139,17 +160,7 @@ class HtmlWriter(object):
                 own_kids = []
                 for fam in fams:
 
-                    # list of Pointers
-                    spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-                    spouses = [rec for rec in spouses
-                               if rec.value != person.xref_id]
-
-                    # more than one spouse is odd (from the structural concern)
-                    if spouses:
-                        spouse = spouses[0].ref
-                    else:
-                        spouse = None
-
+                    spouse = _spouse(person, fam)
                     children = fam.sub_tags("CHIL")
                     children_ids = [rec.xref_id for rec in children]
 
@@ -175,57 +186,52 @@ class HtmlWriter(object):
 
             # collect all events from person and families
             events = []
-            for rec in person.sub_records:
-                if rec.tag == 'BIRT':
-                    # this info is laready rendered
-                    continue
-                date = rec.sub_tag('DATE')
-                if not date:
-                    continue
-                place = rec.sub_tag_value('PLAC')
-                event = self._tr.tr("EVENT." + rec.tag, person.sex)
-                events += [(date.value, event, place)]
+            for evt in indi_events(person):
+                # BIRT was already rendered
+                if evt.tag != 'BIRT':
+                    facts = [self._tr.tr("EVENT." + evt.tag, person.sex),
+                             evt.value,
+                             evt.place,
+                             evt.note]
+                    events += [(evt.date, facts)]
 
             for fam in person.sub_tags("FAMS"):
 
-                spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-                spouses = [sps for sps in spouses
-                           if sps.value != person.xref_id]
+                spouse = _spouse(person, fam)
 
-                for rec in fam.sub_records:
-                    date = rec.sub_tag('DATE')
-                    if not date:
-                        continue
-                    # list of Pointers
-                    if spouses:
-                        spouse = spouses[0].ref
-                        note = u'{person}: {ref}'.format(
-                            person=self._tr.tr(TR('Spouse'), spouse.sex),
+                for evt in family_events(fam):
+                    facts = [self._tr.tr("FAMEVT." + evt.tag)]
+                    if spouse:
+                        note = u'{spouse}: {ref}'.format(
+                            spouse=self._tr.tr(TR('Spouse'), spouse.sex),
                             ref=_personRef(spouse))
-                    else:
-                        note = None
-                    event = self._tr.tr("FAMEVT." + rec.tag)
-                    events += [(date.value, event, note)]
+                        facts += [note]
+                    facts += [evt.value,
+                              evt.place,
+                              evt.note]
+                    events += [(evt.date, facts)]
 
                 for child in fam.sub_tags("CHIL"):
-                    bday = child.sub_tag("BIRT/DATE")
-                    if bday:
-                        note = _personRef(child, child.name.first)
-                        event = self._tr.tr(TR(u"CHILD.BORN {child}"),
-                                            child.sex)
-                        childRef = _personRef(child, child.name.first)
-                        event = event.format(child=childRef)
-                        events += [(bday.value, event, None)]
+                    for evt in indi_events(child, ['BIRT']):
+                        pfmt = self._tr.tr(TR(u"CHILD.BORN {child}"),
+                                           child.sex)
+                        facts = [pfmt.format(child=child.name.first),
+                                 evt.value,
+                                 evt.place,
+                                 evt.note]
+                    events += [(evt.date, facts)]
 
-            # order events
+            # only use events with dates
+            events = [evt for evt in events if evt[0]]
+
             if events:
                 doc += ['<h3>' + self._tr.tr(TR("Events and dates")) +
                         '</h3>\n']
-            for date, tag, note in sorted(events):
-                doc += ['<p>' + date.fmt() + ": " + tag]
-                if note:
-                    doc += [', ' + note]
-                doc += ['</p>\n']
+            # order events
+            for date, facts in sorted(events):
+                facts = [fact for fact in facts if fact]
+                facts = u"; ".join(facts)
+                doc += ['<p>' + date.fmt() + ": " + facts + '</p>']
 
             # Comments are published as set of paragraphs
             notes = person.sub_tags('NOTE')
@@ -422,3 +428,25 @@ class HtmlWriter(object):
 
         tbl += ['</table>\n']
         return tbl
+
+    def _formatIndiAttr(self, person, attrib, prefix="ATTR."):
+        """Formatting of the individual's attributes.
+
+        :param Record person: Individual record
+        :param events.Event attrib: Attribute structure.
+        :return: Formatted string.
+        """
+
+        attr = self._tr.tr(prefix + attrib.tag, person.sex)
+
+        props = []
+        if attrib.value:
+            props.append(attrib.value)
+        if attrib.date:
+            props.append(attrib.date.fmt())
+        if attrib.place:
+            props.append(attrib.place)
+        if attrib.note:
+            props.append(attrib.note)
+        props = u", ".join(props)
+        return '<p>' + attr + ": " + props + '</p>'

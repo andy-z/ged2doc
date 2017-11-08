@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+__all__ = ['Event', 'indi_events', 'indi_attributes', 'family_events']
+
 from collections import namedtuple
 
 # Event structure, reflection of <EVENT_DETAIL>. Only releavant
@@ -43,28 +45,31 @@ def _get_events(record, tags):
     return events
 
 
-def indi_events(person):
+def indi_events(person, tags=None):
     """Returns all events for given individual.
 
     :param person: INDI record (:py:class:`ged4py.model.Record` instance)
+    :param list tags: Set of tags to return, default is all event tags.
     :return: List of :py:class:`Event` instances.
     """
-    return _get_events(person, _indi_events_tags)
+    return _get_events(person, tags or _indi_events_tags)
 
 
-def indi_attributes(person):
+def indi_attributes(person, tags=None):
     """Returns all attributes for given individual.
 
     :param person: INDI record (:py:class:`ged4py.model.Record` instance)
+    :param list tags: Set of tags to return, default is all event tags.
     :return: List of :py:class:`Event` instances.
     """
-    return _get_events(person, _indi_attr_tags)
+    return _get_events(person, tags or _indi_attr_tags)
 
 
-def family_events(family):
+def family_events(family, tags=None):
     """Returns all attributes for given family.
 
     :param family: FAM record (:py:class:`ged4py.model.Record` instance)
+    :param list tags: Set of tags to return, default is all event tags.
     :return: List of :py:class:`Event` instances.
     """
-    return _get_events(family, _fam_events_tags)
+    return _get_events(family, tags or _fam_events_tags)

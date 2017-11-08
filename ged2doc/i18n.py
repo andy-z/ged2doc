@@ -49,6 +49,7 @@ _extra_tr = [
     TR("EVENT.GRAD"),
     TR("EVENT.RETI"),
     TR("EVENT.EVEN"),
+
     TR("FAMEVT.ANUL"),
     TR("FAMEVT.CENS"),
     TR("FAMEVT.DIV"),
@@ -60,6 +61,22 @@ _extra_tr = [
     TR("FAMEVT.MARL"),
     TR("FAMEVT.MARS"),
     TR("FAMEVT.RESI"),
+    TR("FAMEVT.EVEN"),
+
+    TR("ATTR.CAST"),
+    TR("ATTR.DSCR"),
+    TR("ATTR.EDUC"),
+    TR("ATTR.IDNO"),
+    TR("ATTR.NATI"),
+    TR("ATTR.NCHI"),
+    TR("ATTR.NMR"),
+    TR("ATTR.OCCU"),
+    TR("ATTR.PROP"),
+    TR("ATTR.RELI"),
+    TR("ATTR.RESI"),
+    TR("ATTR.SSN"),
+    TR("ATTR.TITL"),
+    TR("ATTR.FACT"),
     ]
 
 
