@@ -215,7 +215,8 @@ class HtmlWriter(object):
                     for evt in indi_events(child, ['BIRT']):
                         pfmt = self._tr.tr(TR(u"CHILD.BORN {child}"),
                                            child.sex)
-                        facts = [pfmt.format(child=child.name.first),
+                        childRef = _personRef(child, child.name.first)
+                        facts = [pfmt.format(child=childRef),
                                  evt.value,
                                  evt.place,
                                  evt.note]
