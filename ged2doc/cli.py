@@ -9,7 +9,7 @@ import locale
 import logging
 
 from .size import String2Size
-from .i18n import I18N
+from .i18n import I18N, DATE_FORMATS
 from .input import make_file_locator
 from .html_writer import HtmlWriter
 
@@ -67,8 +67,10 @@ def main():
                        "languages are: %(choices)s. Default is to use "
                        "system  language (=%(default)s).")
     group.add_argument('-d', "--date-format", default=None, metavar="FMT",
+                       choices=DATE_FORMATS,
                        help="Date format in output document, one of "
-                       "DMY., YMD-, MDY/; if missing then use system default")
+                       "%(choices)s; if missing then language-specific "
+                       "format is used.")
     group.add_argument("--no-toc", default=False, action="store_true",
                        help="Disable Table of Contents in output document.")
     group.add_argument("--no-stat", default=False, action="store_true",

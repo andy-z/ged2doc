@@ -242,3 +242,153 @@ msgstr "Титул"
 
 msgid "ATTR.FACT"
 msgstr "Другие факты"
+
+msgid "DATE_VALUE.FROM $date1 TO $date2"
+msgstr "с $date1 до $date2"
+
+msgid "DATE_VALUE.FROM $date"
+msgstr "с $date"
+
+msgid "DATE_VALUE.TO $date"
+msgstr "до $date"
+
+msgid "DATE_VALUE.BETWEEN $date1 AND $date2"
+msgstr "между $date1 и $date2"
+
+msgid "DATE_VALUE.BEFORE $date"
+msgstr "перед $date"
+
+msgid "DATE_VALUE.AFTER $date"
+msgstr "после $date"
+
+msgid "DATE_VALUE.ABOUT $date"
+msgstr "около $date"
+
+msgid "DATE_VALUE.CALCULATED $date"
+msgstr "расчетно $date"
+
+msgid "DATE_VALUE.ESTIMATED $date"
+msgstr "оценочно $date"
+
+msgid "DATE_VALUE.INTERPRETED $date ($phrase)"
+msgstr "по сведениям $date ($phrase)"
+
+msgid "DATE_VALUE.($phrase)"
+msgstr "($phrase)"
+
+msgid "DATE_VALUE.$date"
+msgstr "$date"
+
+msgid "MONTH.JAN"
+msgstr "Янв"
+
+msgid "MONTH.FEB"
+msgstr "Фев"
+
+msgid "MONTH.MAR"
+msgstr "Мар"
+
+msgid "MONTH.APR"
+msgstr "Апр"
+
+msgid "MONTH.MAY"
+msgstr "Май"
+
+msgid "MONTH.JUN"
+msgstr "Июн"
+
+msgid "MONTH.JUL"
+msgstr "Июл"
+
+msgid "MONTH.AUG"
+msgstr "Авг"
+
+msgid "MONTH.SEP"
+msgstr "Сен"
+
+msgid "MONTH.OCT"
+msgstr "Окт"
+
+msgid "MONTH.NOV"
+msgstr "Ноя"
+
+msgid "MONTH.DEC"
+msgstr "Дек"
+
+msgid "MONTH_HEBR.TSH"
+msgstr "Тиш"
+
+msgid "MONTH_HEBR.CSH"
+msgstr "Хеш"
+
+msgid "MONTH_HEBR.KSL"
+msgstr "Кис"
+
+msgid "MONTH_HEBR.TVT"
+msgstr "Тев"
+
+msgid "MONTH_HEBR.SHV"
+msgstr "Шва"
+
+msgid "MONTH_HEBR.ADR"
+msgstr "Ада"
+
+msgid "MONTH_HEBR.ADS"
+msgstr "Aдб"
+
+msgid "MONTH_HEBR.NSN"
+msgstr "Нис"
+
+msgid "MONTH_HEBR.IYR"
+msgstr "Ияр"
+
+msgid "MONTH_HEBR.SVN"
+msgstr "Сив"
+
+msgid "MONTH_HEBR.TMZ"
+msgstr "Там"
+
+msgid "MONTH_HEBR.AAV"
+msgstr "Ав"
+
+msgid "MONTH_HEBR.ELL"
+msgstr "Элу"
+
+msgid "MONTH_FRE.VEND"
+msgstr "Ванд"
+
+msgid "MONTH_FRE.BRUM"
+msgstr "Брюм"
+
+msgid "MONTH_FRE.FRIM"
+msgstr "Фрим"
+
+msgid "MONTH_FRE.NIVO"
+msgstr "Ниво"
+
+msgid "MONTH_FRE.PLUV"
+msgstr "Плюв"
+
+msgid "MONTH_FRE.VENT"
+msgstr "Вант"
+
+msgid "MONTH_FRE.GERM"
+msgstr "Жерм"
+
+msgid "MONTH_FRE.FLOR"
+msgstr "Флор"
+
+msgid "MONTH_FRE.PRAI"
+msgstr "Прер"
+
+msgid "MONTH_FRE.MESS"
+msgstr "Месс"
+
+msgid "MONTH_FRE.THER"
+msgstr "Терм"
+
+msgid "MONTH_FRE.FRUC"
+msgstr "Фрюк"
+
+msgid "MONTH_FRE.COMP"
+msgstr "Санк"

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-11-07 21:15+PST\n"
+"POT-Creation-Date: 2017-11-14 21:41+PST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -227,3 +227,154 @@ msgstr ""
 
 msgid "ATTR.FACT"
 msgstr ""
+
+msgid "DATE_VALUE.FROM $date1 TO $date2"
+msgstr ""
+
+msgid "DATE_VALUE.FROM $date"
+msgstr ""
+
+msgid "DATE_VALUE.TO $date"
+msgstr ""
+
+msgid "DATE_VALUE.BETWEEN $date1 AND $date2"
+msgstr ""
+
+msgid "DATE_VALUE.BEFORE $date"
+msgstr ""
+
+msgid "DATE_VALUE.AFTER $date"
+msgstr ""
+
+msgid "DATE_VALUE.ABOUT $date"
+msgstr ""
+
+msgid "DATE_VALUE.CALCULATED $date"
+msgstr ""
+
+msgid "DATE_VALUE.ESTIMATED $date"
+msgstr ""
+
+msgid "DATE_VALUE.INTERPRETED $date ($phrase)"
+msgstr ""
+
+msgid "DATE_VALUE.($phrase)"
+msgstr ""
+
+msgid "DATE_VALUE.$date"
+msgstr ""
+
+msgid "MONTH.JAN"
+msgstr ""
+
+msgid "MONTH.FEB"
+msgstr ""
+
+msgid "MONTH.MAR"
+msgstr ""
+
+msgid "MONTH.APR"
+msgstr ""
+
+msgid "MONTH.MAY"
+msgstr ""
+
+msgid "MONTH.JUN"
+msgstr ""
+
+msgid "MONTH.JUL"
+msgstr ""
+
+msgid "MONTH.AUG"
+msgstr ""
+
+msgid "MONTH.SEP"
+msgstr ""
+
+msgid "MONTH.OCT"
+msgstr ""
+
+msgid "MONTH.NOV"
+msgstr ""
+
+msgid "MONTH.DEC"
+msgstr ""
+
+msgid "MONTH_HEBR.TSH"
+msgstr ""
+
+msgid "MONTH_HEBR.CSH"
+msgstr ""
+
+msgid "MONTH_HEBR.KSL"
+msgstr ""
+
+msgid "MONTH_HEBR.TVT"
+msgstr ""
+
+msgid "MONTH_HEBR.SHV"
+msgstr ""
+
+msgid "MONTH_HEBR.ADR"
+msgstr ""
+
+msgid "MONTH_HEBR.ADS"
+msgstr ""
+
+msgid "MONTH_HEBR.NSN"
+msgstr ""
+
+msgid "MONTH_HEBR.IYR"
+msgstr ""
+
+msgid "MONTH_HEBR.SVN"
+msgstr ""
+
+msgid "MONTH_HEBR.TMZ"
+msgstr ""
+
+msgid "MONTH_HEBR.AAV"
+msgstr ""
+
+msgid "MONTH_HEBR.ELL"
+msgstr ""
+
+msgid "MONTH_FRE.VEND"
+msgstr ""
+
+msgid "MONTH_FRE.BRUM"
+msgstr ""
+
+msgid "MONTH_FRE.FRIM"
+msgstr ""
+
+msgid "MONTH_FRE.NIVO"
+msgstr ""
+
+msgid "MONTH_FRE.PLUV"
+msgstr ""
+
+msgid "MONTH_FRE.VENT"
+msgstr ""
+
+msgid "MONTH_FRE.GERM"
+msgstr ""
+
+msgid "MONTH_FRE.FLOR"
+msgstr ""
+
+msgid "MONTH_FRE.PRAI"
+msgstr ""
+
+msgid "MONTH_FRE.MESS"
+msgstr ""
+
+msgid "MONTH_FRE.THER"
+msgstr ""
+
+msgid "MONTH_FRE.FRUC"
+msgstr ""
+
+msgid "MONTH_FRE.COMP"
+msgstr ""
+

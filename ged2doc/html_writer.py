@@ -125,7 +125,7 @@ class HtmlWriter(object):
             doc += ['<p>' + self._tr.tr(TR('Born'), person.sex) + ": "]
             bday = person.sub_tag("BIRT/DATE")
             if bday:
-                doc += [bday.value.fmt()]
+                doc += [self._tr.tr_date(bday.value)]
             else:
                 doc += [self._tr.tr(TR('Date Unknown'), person.sex)]
             bplace = person.sub_tag("BIRT/PLAC")
@@ -232,7 +232,7 @@ class HtmlWriter(object):
             for date, facts in sorted(events):
                 facts = [fact for fact in facts if fact]
                 facts = u"; ".join(facts)
-                doc += ['<p>' + date.fmt() + ": " + facts + '</p>']
+                doc += ['<p>' + self._tr.tr_date(date) + ": " + facts + '</p>']
 
             # Comments are published as set of paragraphs
             notes = person.sub_tags('NOTE')
@@ -444,7 +444,7 @@ class HtmlWriter(object):
         if attrib.value:
             props.append(attrib.value)
         if attrib.date:
-            props.append(attrib.date.fmt())
+            props.append(self._tr.tr_date(attrib.date))
         if attrib.place:
             props.append(attrib.place)
         if attrib.note:
