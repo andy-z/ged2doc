@@ -202,7 +202,10 @@ class I18N(object):
             _LOG.debug("variants = %r", variants)
             for txt in variants:
                 _LOG.debug("variant = %r", txt)
-                tr_text = self._tr.ugettext(txt)
+                if hasattr(self._tr, "ugettext"):
+                    tr_text = self._tr.ugettext(txt)
+                else:
+                    tr_text = self._tr.gettext(txt)
                 _LOG.debug("translation = %r", tr_text)
                 if tr_text:
                     return tr_text
@@ -244,7 +247,7 @@ class I18N(object):
                 if '/' in self._datefmt or '.' in self._datefmt:
                     month = date.month_num
                     if month is not None:
-                        month = str(month)
+                        month = "{:02d}".format(month)
                 else:
                     month = self._monthName(date.month)
                 if month is not None:
@@ -252,13 +255,15 @@ class I18N(object):
             elif code == 'D':
                 day = date.day
                 if day is not None and ',' in self._datefmt:
-                    day = str(str(day) + ',')
-                if day is not None:
-                    items += [str(day)]
+                    items += [str("{:02d},".format(day))]
+                elif day is not None:
+                    items += ["{:02d}".format(day)]
         if '/' in self._datefmt:
             sep = '/'
         elif '.' in self._datefmt:
             sep = '.'
+        elif '-' in self._datefmt:
+            sep = '-'
         else:
             sep = ' '
         return sep.join(items)
@@ -272,5 +277,5 @@ class I18N(object):
         :return: Name of this month in destination language
         """
         if month is not None:
-            month = self.tr("MONTH." + month)
+            month = self.tr("MONTH." + month.upper())
         return month
