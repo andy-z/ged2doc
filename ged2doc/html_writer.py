@@ -321,9 +321,9 @@ class HtmlWriter(object):
         '''
 
         width = Size(self._options.get('html_page_width')) ^ 'px'
-
+        max_gen = self._options.get("tree_width")
         plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=False, refs=True)
+                          fullxml=False, refs=True, max_gen=max_gen)
         img = plotter.parent_tree(person, 'px')
         if img is None:
             return

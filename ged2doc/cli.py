@@ -75,6 +75,10 @@ def main():
                        help="Disable Table of Contents in output document.")
     group.add_argument("--no-stat", default=False, action="store_true",
                        help="Disable Name Statistics in output document.")
+    group.add_argument('-w', "--tree-width", default=4, type=int,
+                       metavar="NUMBER",
+                       help="Number of generations in ancestors tree, "
+                       "default: %(default)s")
 
     group = parser.add_argument_group("HTML Output Options")
     group.add_argument("--html-page-width", default="800px",
@@ -120,6 +124,7 @@ def main():
             encoding_errors=args.encoding_errors,
             make_toc=not args.no_toc,
             make_stat=not args.no_stat,
+            tree_width=args.tree_width,
             )
         writer = HtmlWriter(flocator, options, tr)
 
