@@ -13,6 +13,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'ged4py>=0.1.1',
+    "pillow"
 ]
 
 setup_requirements = [
