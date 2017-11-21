@@ -1,5 +1,5 @@
 Welcome to GEDCOM Utilities's documentation!
-======================================
+============================================
 
 Contents:
 

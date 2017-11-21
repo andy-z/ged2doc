@@ -20,19 +20,15 @@ _log = logging.getLogger(__name__)
 class _PersonBox(object):
     """Class implementing "drawing" of SVG box with person name.
 
-    Parameters
-    ----------
-    person : `Person`
-    gen : int
+    :param person: `Person`
+    :param int gen:
         Generation number, 0 for the tree root
-    motherBox : `_PersonBox`
-    fatherBox : `_PersonBox`
-        Boxes for parents
-    box_width : `Size`
-    max_box_width : `Size`
-    font_size : `Size`
-    gen_dist : `Size`
-        Distance between boxes of different generations
+    :param motherBox: `_PersonBox`
+    :param fatherBox: `_PersonBox` Boxes for parents
+    :param box_width: `Size`
+    :param max_box_width: `Size`
+    :param font_size: `Size`
+    :param gen_dist: `Size`,  Distance between boxes of different generations
     """
 
     _margin = Size('1pt')
@@ -125,24 +121,18 @@ class _PersonBox(object):
 class Plotter(object):
     """Class implementing plotting of the person trees.
 
-    Parameters
-    ----------
-    max_gen : int, optional
-        Maximum number of generations to plot, default is 4
-    width : str, optional
-        Specification for plot width, accepts any CSS-style lenght,
-        default is "5in"
-    gen_dist : str, optional
-        Distance between generations, accepts any CSS-style lenght,
-        default is "12pt"
-    font_size : str, optional
-        Font size, accepts any CSS-style size, default is "10pt"
-    full_xml : boolean, optional
-        If True (default) produce full XML document with headers,
-        otherwise only SVG contents.
-    refs : boolean, optional
-        If True make person name a link. This parameter is ignored for now,
-        links are always made.
+    :param int max_gen: Maximum number of generations to plot, default is 4
+    :param str width: Specification for plot width, accepts any CSS-style
+        length, default is "5in"
+    :param str gen_dist: Distance between generations, accepts any CSS-style
+        length, default is "12pt"
+    :param str font_size: Font size, accepts any CSS-style size, default
+        is "10pt"
+    :param boolean full_xml: If True (default) produce full XML document with
+        headers, otherwise only SVG contents.
+    :param boolean refs: If True make person name a link. This parameter is
+        ignored for now, links are always made.
+
     """
 
     def __init__(self, max_gen=4, width="5in", gen_dist="12pt",
@@ -163,22 +153,14 @@ class Plotter(object):
         If tree cannot be plotted (e.g. when person has no parents) then None
         is returned, otherwise a four-tuple is returned.
 
-        Parameters
-        ----------
-        person : `Person`
-            Person for which to plot the tree.
-        units : str
-            Units name for output, e.g. "in" or "px" (all lengths are
-            converted to that unit).
-
-        Returns
-        -------
-        image : bytes
-            Image data (XML contents)
-        mime_type : str
-            Type of produced image (currently image/svg).
-         image_width : `Size`
-         image_height : `Size`
+        :param person: `Person`, Person for which to plot the tree.
+        :param str units: Units name for output, e.g. "in" or "px" (all
+            lengths are converted to that unit).
+        :return:
+            image : bytes, Image data (XML contents)
+            mime_type : str, Type of produced image (currently image/svg).
+            image_width : `Size`
+            image_height : `Size`
         """
 
         # returns number known generations for a person

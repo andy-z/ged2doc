@@ -2,9 +2,10 @@
 
 It covers all aspects that are language- or locale-dependent. In particular
 it does these things:
-- translates short string messages from application language into output
-  language
-- translates dates into printable format according to locale preferences
+
+  - translates short string messages from application language into output
+    language
+  - translates dates into printable format according to locale preferences
 
 Note that we do not use system locale, instead we expect client to provide
 small set of configuration options such as output language and date format.

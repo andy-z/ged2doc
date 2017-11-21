@@ -7,19 +7,12 @@ from __future__ import absolute_import, division, print_function
 def resize(size, max_size, reduce_only=True):
     """Resize a box so that it fits into other box and keeps aspect ratio.
 
-    Parameters
-    ----------
-    size : tuple (width, height)
-        Box to resize.
-    max_size : tuple (width, height)
-        Box to fit new resized box into.
-    reduce_only : boolean, optional
-        If True (default) and size is smaller than max_size then return
-        original box.
-
-    Returns
-    -------
-    Tuple (width, height) representing resized box.
+    :param tuple size: tuple (width, height) - box to resize.
+    :param tuple max_size: tuple (width, height) - box to fit new resized
+        box into.
+    :param boolean reduce_only: If True (default) and size is smaller than
+        max_size then return original box.
+    :return: Tuple (width, height) representing resized box.
     """
 
     w, h = size
@@ -52,8 +45,8 @@ def personImageFile(person):
           +1 TITL <DESCRIPTIVE_TITLE>       {0:1}
           +1 _PRIM {Y|N}                    {0:1}
 
-    Some applications which claim 5.5.1 version still store OBJE record in
-    5.5 format::
+    Some applications which claim to be  5.5.1 version still store OBJE
+    record in 5.5-like format::
 
         OBJE
           +1 FILE <MULTIMEDIA_FILE_REFN>    {1:1}
@@ -62,9 +55,9 @@ def personImageFile(person):
           +1 _PRIM {Y|N}                    {0:1}
 
     This method returns the name of the FILE corresponding to _PRIM=Y, or if
-    there is no _PRIM record the the first FILE record. Potentially we also
+    there is no _PRIM record then the first FILE record. Potentially we also
     need to look at MEDI record to only chose image type, but I have not seen
-    examples of MEDI use yes, so for now I only select FORM which correspond
+    examples of MEDI use yet, so for now I only select FORM which correspond
     to images.
 
     :param person: :py:class:`ged4py.model.Individual` instance

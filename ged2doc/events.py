@@ -46,7 +46,7 @@ def _get_events(record, tags):
 
 
 def indi_events(person, tags=None):
-    """Returns all events for given individual.
+    """Returns all events for a given individual.
 
     :param person: INDI record (:py:class:`ged4py.model.Record` instance)
     :param list tags: Set of tags to return, default is all event tags.
@@ -56,7 +56,7 @@ def indi_events(person, tags=None):
 
 
 def indi_attributes(person, tags=None):
-    """Returns all attributes for given individual.
+    """Returns all attributes for a given individual.
 
     :param person: INDI record (:py:class:`ged4py.model.Record` instance)
     :param list tags: Set of tags to return, default is all event tags.
@@ -66,7 +66,7 @@ def indi_attributes(person, tags=None):
 
 
 def family_events(family, tags=None):
-    """Returns all attributes for given family.
+    """Returns all events for a given family.
 
     :param family: FAM record (:py:class:`ged4py.model.Record` instance)
     :param list tags: Set of tags to return, default is all event tags.

@@ -117,9 +117,10 @@ class HtmlWriter(object):
                                                              name)]
             toc += [(2, 'person.' + person.xref_id, name)]
 
-            img = self._getMainImage(person)
-            if img:
-                doc += [img]
+            if self._options.get("make_images", True):
+                img = self._getMainImage(person)
+                if img:
+                    doc += [img]
 
             # birth date and place
             doc += ['<p>' + self._tr.tr(TR('Born'), person.sex) + ": "]

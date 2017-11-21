@@ -71,6 +71,8 @@ def main():
                        help="Date format in output document, one of "
                        "%(choices)s; if missing then language-specific "
                        "format is used.")
+    group.add_argument("--no-image", default=False, action="store_true",
+                       help="Disable images in output document.")
     group.add_argument("--no-toc", default=False, action="store_true",
                        help="Disable Table of Contents in output document.")
     group.add_argument("--no-stat", default=False, action="store_true",
@@ -124,6 +126,7 @@ def main():
             encoding_errors=args.encoding_errors,
             make_toc=not args.no_toc,
             make_stat=not args.no_stat,
+            make_images=not args.no_image,
             tree_width=args.tree_width,
             )
         writer = HtmlWriter(flocator, options, tr)
