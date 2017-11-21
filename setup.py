@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'ged4py',
+    'ged4py>=0.1.1',
 ]
 
 setup_requirements = [
