@@ -12,7 +12,7 @@ from .size import String2Size
 from .i18n import I18N, DATE_FORMATS
 from .input import make_file_locator
 from .html_writer import HtmlWriter
-
+from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 
 _log = logging.getLogger(__name__)
 
@@ -71,6 +71,14 @@ def main():
                        help="Date format in output document, one of "
                        "%(choices)s; if missing then language-specific "
                        "format is used.")
+    group.add_argument('-s', "--sort-order", default=ORDER_SURNAME_GIVEN,
+                       metavar="ORDER", choices=ORDER_LIST,
+                       help="Ordering of the individuals, one of "
+                       "%(choices)s; default: %(default)s.")
+    group.add_argument('-n', "--name-format", default=None,
+                       metavar="FMT_STRING", choices=ORDER_LIST,
+                       help="Name format string; default is to use "
+                       "")
     group.add_argument("--no-image", default=False, action="store_true",
                        help="Disable images in output document.")
     group.add_argument("--no-toc", default=False, action="store_true",
@@ -124,6 +132,7 @@ def main():
             html_image_upscale=args.html_image_upscale,
             encoding=args.encoding,
             encoding_errors=args.encoding_errors,
+            sort_order=args.sort_order,
             make_toc=not args.no_toc,
             make_stat=not args.no_stat,
             make_images=not args.no_image,

@@ -13,6 +13,8 @@ import string
 from PIL import Image
 
 from .events import indi_attributes, indi_events, family_events
+from .name import (name_fmt, FMT_SURNAME_FIRST, FMT_MAIDEN)
+
 from .plotter import Plotter
 from .size import Size
 from . import utils
@@ -30,7 +32,7 @@ def _personRef(person, name=None):
     """Returns HTML fragment with person name linked to person.
     """
     if name is None:
-        name = person.name.format(model.FMT_SURNAME_FIRST | model.FMT_MAIDEN)
+        name = name_fmt(person, FMT_SURNAME_FIRST | FMT_MAIDEN)
     return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)
 
 
@@ -103,11 +105,11 @@ class HtmlWriter(object):
                 continue
             indis.append(indi)
 
-        indis.sort(key=lambda x: x.name.order(model.ORDER_SURNAME_GIVEN))
+        order = self._options.get("sort_order", model.ORDER_SURNAME_GIVEN)
+        indis.sort(key=lambda x: x.name.order(order))
         for person in indis:
 
-            name = person.name.format(model.FMT_SURNAME_FIRST |
-                                      model.FMT_MAIDEN)
+            name = name_fmt(person, FMT_SURNAME_FIRST | FMT_MAIDEN)
 
             _log.debug('Found INDI: %s', person)
             _log.debug('INDI name: %r', name)
