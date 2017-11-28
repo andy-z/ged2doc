@@ -129,6 +129,11 @@ class HtmlWriter(object):
                 doc += [", " + bplace.value]
             doc += ['</p>\n']
 
+            # maiden name
+            if person.name.maiden:
+                doc += ['<p>' + self._tr.tr(TR('Maiden name'), person.sex) +
+                        ": " + person.name.maiden]
+
             # Parents
             pfmt = u'<p>{person}: {ref}</p>\n'
             if person.mother:
