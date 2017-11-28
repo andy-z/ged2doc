@@ -28,14 +28,6 @@ _log = logging.getLogger(__name__)
 TR = lambda x: x  # NOQA
 
 
-def _personRef(person, name=None):
-    """Returns HTML fragment with person name linked to person.
-    """
-    if name is None:
-        name = name_fmt(person, FMT_SURNAME_FIRST | FMT_MAIDEN)
-    return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)
-
-
 def _spouse(person, fam):
     """Returns person spouse in a given family
     """
@@ -109,7 +101,8 @@ class HtmlWriter(object):
         indis.sort(key=lambda x: x.name.order(order))
         for person in indis:
 
-            name = name_fmt(person, FMT_SURNAME_FIRST | FMT_MAIDEN)
+            fmt_mask = self._options.get('name_fmt', 0)
+            name = name_fmt(person.name, fmt_mask)
 
             _log.debug('Found INDI: %s', person)
             _log.debug('INDI name: %r', name)
@@ -141,11 +134,11 @@ class HtmlWriter(object):
             if person.mother:
                 doc += [pfmt.format(person=self._tr.tr(TR('Mother'),
                                                        person.mother.sex),
-                                    ref=_personRef(person.mother))]
+                                    ref=self._personRef(person.mother))]
             if person.father:
                 doc += [pfmt.format(person=self._tr.tr(TR('Father'),
                                                        person.father.sex),
-                                    ref=_personRef(person.father))]
+                                    ref=self._personRef(person.father))]
 
             # add some extra info
             attributes = indi_attributes(person)
@@ -173,15 +166,15 @@ class HtmlWriter(object):
                         pfmt = u'<p>{person}: {ref}'
                         doc += [pfmt.format(person=self._tr.tr(TR('Spouse'),
                                                                spouse.sex),
-                                            ref=_personRef(spouse))]
+                                            ref=self._personRef(spouse))]
                         if children:
-                            kids = [_personRef(c, c.name.first)
+                            kids = [self._personRef(c, c.name.first)
                                     for c in children]
                             doc += ["; " + self._tr.tr(TR('kids')) + ': ' +
                                     ', '.join(kids)]
                         doc += ['</p>\n']
                     else:
-                        own_kids += [_personRef(c, c.name.first)
+                        own_kids += [self._personRef(c, c.name.first)
                                      for c in children]
                 if own_kids:
                     doc += ['<p>' + self._tr.tr(TR('Kids')) + ': ' +
@@ -207,7 +200,7 @@ class HtmlWriter(object):
                     if spouse:
                         note = u'{spouse}: {ref}'.format(
                             spouse=self._tr.tr(TR('Spouse'), spouse.sex),
-                            ref=_personRef(spouse))
+                            ref=self._personRef(spouse))
                         facts += [note]
                     facts += [evt.value,
                               evt.place,
@@ -218,7 +211,7 @@ class HtmlWriter(object):
                     for evt in indi_events(child, ['BIRT']):
                         pfmt = self._tr.tr(TR(u"CHILD.BORN {child}"),
                                            child.sex)
-                        childRef = _personRef(child, child.name.first)
+                        childRef = self._personRef(child, child.name.first)
                         facts = [pfmt.format(child=childRef),
                                  evt.value,
                                  evt.place,
@@ -454,3 +447,11 @@ class HtmlWriter(object):
             props.append(attrib.note)
         props = u", ".join(props)
         return '<p>' + attr + ": " + props + '</p>'
+
+    def _personRef(self, person, name=None):
+        """Returns HTML fragment with person name linked to person.
+        """
+        if name is None:
+            fmt_mask = self._options.get('name_fmt', 0)
+            name = name_fmt(person.name, fmt_mask)
+        return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)

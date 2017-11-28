@@ -12,6 +12,8 @@ from .size import String2Size
 from .i18n import I18N, DATE_FORMATS
 from .input import make_file_locator
 from .html_writer import HtmlWriter
+from .name import (FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
+                   FMT_MAIDEN_ONLY, FMT_CAPITAL)
 from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 
 _log = logging.getLogger(__name__)
@@ -75,10 +77,6 @@ def main():
                        metavar="ORDER", choices=ORDER_LIST,
                        help="Ordering of the individuals, one of "
                        "%(choices)s; default: %(default)s.")
-    group.add_argument('-n', "--name-format", default=None,
-                       metavar="FMT_STRING", choices=ORDER_LIST,
-                       help="Name format string; default is to use "
-                       "")
     group.add_argument("--no-image", default=False, action="store_true",
                        help="Disable images in output document.")
     group.add_argument("--no-toc", default=False, action="store_true",
@@ -89,6 +87,26 @@ def main():
                        metavar="NUMBER",
                        help="Number of generations in ancestors tree, "
                        "default: %(default)s")
+
+    group = parser.add_argument_group("Name Format Options")
+    group.add_argument("--name-surname-first", dest='name_fmt',
+                       action='append_const', const=FMT_SURNAME_FIRST,
+                       help="Format names with surname in leading position.")
+    group.add_argument("--name-comma", dest='name_fmt',
+                       action='append_const', const=FMT_COMMA,
+                       help="Format names with surname followed by comma "
+                       "(only if surname is in leading position).")
+    group.add_argument("--name-maiden", dest='name_fmt',
+                       action='append_const', const=FMT_MAIDEN,
+                       help="Format names with surname followed by maiden "
+                       "name in parentheses.")
+    group.add_argument("--name-maiden-only", dest='name_fmt',
+                       action='append_const', const=FMT_MAIDEN_ONLY,
+                       help="Format names with maiden name for surname.")
+    group.add_argument("--name-capital", dest='name_fmt',
+                       action='append_const', const=FMT_CAPITAL,
+                       help="Format names with surname and maiden name in "
+                       "all capital.")
 
     group = parser.add_argument_group("HTML Output Options")
     group.add_argument("--html-page-width", default="800px",
@@ -124,6 +142,10 @@ def main():
 
     tr = I18N(args.language, args.date_format)
 
+    name_fmt = 0
+    for option in args.name_fmt or []:
+        name_fmt |= option
+
     if args.type == "html":
         options = dict(
             html_page_width=args.html_page_width,
@@ -137,6 +159,7 @@ def main():
             make_stat=not args.no_stat,
             make_images=not args.no_image,
             tree_width=args.tree_width,
+            name_fmt=name_fmt,
             )
         writer = HtmlWriter(flocator, options, tr)
 
