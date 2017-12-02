@@ -5,7 +5,6 @@
 from __future__ import absolute_import, division, print_function
 
 from argparse import ArgumentParser
-import locale
 import logging
 
 from .size import String2Size
@@ -14,22 +13,10 @@ from .input import make_file_locator
 from .html_writer import HtmlWriter
 from .name import (FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
                    FMT_MAIDEN_ONLY, FMT_CAPITAL)
+from .utils import languages, system_lang
 from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 
 _log = logging.getLogger(__name__)
-
-
-languages = ['en', 'ru']
-
-
-def _system_lang():
-    """Try to guess system language
-    """
-    loclang, _ = locale.getdefaultlocale()
-    for lang in languages:
-        if loclang.startswith(lang):
-            return lang
-    return "en"
 
 
 def main():
@@ -63,8 +50,8 @@ def main():
     group.add_argument('-t', "--type", default='html',
                        help=("Type of the output document, possible values:"
                              " html, odt; default: %(default)s"))
-    group.add_argument('-l', "--language", default=_system_lang(),
-                       metavar="LANG_CODE", choices=languages,
+    group.add_argument('-l', "--language", default=system_lang(),
+                       metavar="LANG_CODE", choices=languages(),
                        help="Language for output document, supported "
                        "languages are: %(choices)s. Default is to use "
                        "system  language (=%(default)s).")

@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import locale
+
 
 def resize(size, max_size, reduce_only=True):
     """Resize a box so that it fits into other box and keeps aspect ratio.
@@ -86,3 +88,21 @@ def personImageFile(person):
                     first = file.value
 
     return first
+
+
+def languages():
+    """Returns list of supported languages.
+
+    This should correspond to the existing translations
+    """
+    return ['en', 'ru']
+
+
+def system_lang():
+    """Try to guess system language.
+    """
+    loclang, _ = locale.getdefaultlocale()
+    for lang in languages():
+        if loclang.startswith(lang):
+            return lang
+    return "en"
