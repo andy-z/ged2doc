@@ -106,3 +106,37 @@ def system_lang():
         if loclang.startswith(lang):
             return lang
     return "en"
+
+
+def embed_ref(xref_id, name):
+    """Returns encoded person reference.
+
+    Encoded reference consists of ASCII character SOH (\001) followed by
+    reference ID, STX (\002), person name, and ETX (\003)
+    """
+    return "\001" + "person." + xref_id + "\002" + name + "\003"
+
+
+def split_refs(text):
+    """Split text with embedded references into a sequence of text
+    and references.
+
+    Reference is returned as tuple (id, name).
+
+    :returns: iterator over pieces of text and references.
+    """
+    while True:
+        pos = text.find("\x01")
+        if pos < 0:
+            if text:
+                yield text
+            break
+        else:
+            if pos > 0:
+                yield text[:pos]
+            text = text[pos + 1:]
+            pos = text.find("\x03")
+            ref_text = text[:pos]
+            text = text[pos + 1:]
+            ref, _, name = ref_text.partition("\x02")
+            yield (ref, name)

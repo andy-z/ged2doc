@@ -148,10 +148,10 @@ def main():
             tree_width=args.tree_width,
             name_fmt=name_fmt,
             )
-        writer = HtmlWriter(flocator, options, tr)
+        writer = HtmlWriter(flocator, args.output, options, tr)
 
     try:
-        writer.save(args.output)
+        writer.save()
     except Exception as exc:
         _log.error("caught exception: %s", exc, exc_info=True)
         _log.error("Error while producing a document: {0}".format(exc))
