@@ -13,10 +13,10 @@ import pkg_resources
 import string
 from PIL import Image
 
+from .plotter import Plotter
 from .size import Size
 from . import utils
 from . import writer
-from ged4py import model, parser
 
 
 _log = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ class HtmlWriter(writer.Writer):
                 result += cgi.escape(piece)
         return result
 
-    def _render_section(self, level, ref_id, title):
+    def _render_section(self, level, ref_id, title, newpage=False):
         """Produces new section in the output document.
 
         This method should also save section reference so that TOC can be
@@ -95,7 +95,7 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _render_person(self, person, image_data, attributes, families,
-                       events, notes, tree_svg):
+                       events, notes):
         """Output person information.
 
         TExtual information in parameters to this method can include
@@ -117,8 +117,6 @@ class HtmlWriter(writer.Writer):
                 formatting.
         :param list notes: List of strings, each string should be rendered
                 as separate paragraph.
-        :param str tree_svg: `None` or string containing SVG element with 
-                ancestor tree (only <svg> but no XML header).
         """
 
         doc = []
@@ -156,6 +154,8 @@ class HtmlWriter(writer.Writer):
                 note = self._interpolate(note)
                 doc += ['<p>' + note + '</p>\n']
 
+        # plot ancestors tree
+        tree_svg = self._make_ancestor_tree(person)
         if tree_svg:
             hdr = self._tr.tr(TR("Ancestor tree"))
             doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
@@ -283,11 +283,18 @@ class HtmlWriter(writer.Writer):
             ' src="data:image/jpg;base64,' + \
             base64.b64encode(imgfile.getvalue()) + '">'
 
-    def _ancestor_tree_width(self):
-        """Returns width of the rendered ancestor tree.
+    def _make_ancestor_tree(self, person):
+        """"Returns SVG picture for parent tree or None.
 
-        :return: CSS-style string containing dimension, e.g. "800px" or "5in".
+        :param person: Individual record
+        :return: Image data (XML contents), bytes
         """
-        # for HTML output we use pixels
         width = Size(self._options.get('html_page_width'))
-        return width ^ 'px'
+        width = width ^ 'px'
+        max_gen = self._options.get("tree_width")
+        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
+                          fullxml=False, refs=True, max_gen=max_gen)
+        img = plotter.parent_tree(person, 'px')
+        if img is not None:
+            return img[0]
+        return None

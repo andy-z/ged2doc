@@ -6,13 +6,10 @@ from __future__ import absolute_import, division, print_function
 __all__ = ["Writer"]
 
 import logging
-from collections import namedtuple
 
 from .events import indi_attributes, indi_events, family_events
-from .name import (name_fmt, FMT_SURNAME_FIRST, FMT_MAIDEN)
+from .name import name_fmt
 
-from .plotter import Plotter
-from .size import Size
 from . import utils
 from ged4py import model, parser
 
@@ -102,7 +99,7 @@ class Writer(object):
             name = name_fmt(person.name, fmt_mask)
 
             person_id = "person." + person.xref_id
-            self._render_section(2, person_id, name)
+            self._render_section(2, person_id, name, True)
 
             _log.debug('Found INDI: %s', person)
             _log.debug('INDI name: %r', name)
@@ -174,7 +171,7 @@ class Writer(object):
                     own_kids += [self._person_ref(c, c.name.first)
                                  for c in children]
             if own_kids:
-                family += self._tr.tr(TR('Kids')) + ': ' + ', '.join(own_kids)
+                family = self._tr.tr(TR('Kids')) + ': ' + ', '.join(own_kids)
                 families += [family]
 
             # collect all events from person and families
@@ -185,14 +182,9 @@ class Writer(object):
             for note in person.sub_tags('NOTE'):
                 notes += note.value.split('\n')
 
-            # plot ancestors tree
-            tree_svg = self._make_ancestor_tree(person)
-            if not tree_svg:
-                tree_svg = '<svg width="100%" height="1pt"/>'
-
             # render whole person info
             self._render_person(person, image_data, attributes, families,
-                                events, notes, tree_svg)
+                                events, notes)
 
         # generate some stats
         if self._options.get('make_stat', True):
@@ -282,23 +274,6 @@ class Writer(object):
             sevents += [(self._tr.tr_date(date), facts)]
 
         return sevents
-
-    def _make_ancestor_tree(self, person):
-        """"Returns SVG picture for parent tree or None.
-
-        :param person: Individual record
-        :return: Unicode string with SVG or None.
-        """
-        width = self._ancestor_tree_width()
-        max_gen = self._options.get("tree_width")
-        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=False, refs=True, max_gen=max_gen)
-        img = plotter.parent_tree(person, 'px')
-        if img is None:
-            return
-
-        # if not None then 4-tuple, first element is a unicode string with SVG
-        return img[0]
 
     def _make_main_image(self, person):
         '''Returns image for a person.
@@ -392,7 +367,7 @@ class Writer(object):
         """
         raise NotImplemented()
 
-    def _render_section(self, level, ref_id, title):
+    def _render_section(self, level, ref_id, title, newpage=False):
         """Produces new section in the output document.
 
         This method should also save section reference so that TOC can be
@@ -401,11 +376,13 @@ class Writer(object):
         :param int level: Section level (1, 2, 3, etc.).
         :param str ref_id: Unique section identifier.
         :param str title: Printable section name.
+        :param newpage: If ``True`` then start new page (for documents that
+                support pagination).
         """
         raise NotImplemented()
 
     def _render_person(self, person, image_data, attributes, families,
-                       events, notes, tree_svg):
+                       events, notes):
         """Output person information.
 
         TExtual information in parameters to this method can include
@@ -427,8 +404,6 @@ class Writer(object):
                 formatting.
         :param list notes: List of strings, each string should be rendered
                 as separate paragraph.
-        :param str tree_svg: `None` or string containing SVG element with 
-                ancestor tree (only <svg> but no XML header).
         """
         raise NotImplemented()
 
@@ -458,12 +433,5 @@ class Writer(object):
 
     def _finalize(self):
         """Finalize output.
-        """
-        raise NotImplemented()
-
-    def _ancestor_tree_width(self):
-        """Returns width of the rendered ancestor tree.
-
-        :return: CSS-style string containing dimension, e.g. "800px" or "5in".
         """
         raise NotImplemented()
