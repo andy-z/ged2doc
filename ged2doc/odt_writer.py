@@ -52,9 +52,9 @@ class OdtWriter(writer.Writer):
         self.layout = PageLayout(
             width=Size(self._options.get("odt_page_width", "6in")),
             height=Size(self._options.get("odt_page_height", "9in")),
-            left=Size(self._options.get("odt_margin_left", "0.25in")),
-            right=Size(self._options.get("odt_margin_right", "0.25in")),
-            top=Size(self._options.get("odt_margin_top", "0.25in")),
+            left=Size(self._options.get("odt_margin_left", "0.5in")),
+            right=Size(self._options.get("odt_margin_right", "0.5in")),
+            top=Size(self._options.get("odt_margin_top", "0.5in")),
             bottom=Size(self._options.get("odt_margin_bottom", "0.25in")))
         # starting page number
         firstpage = self._options.get('first_page', 1)
@@ -191,7 +191,7 @@ class OdtWriter(writer.Writer):
             else:
                 result += piece
         return result
-    
+
     def _render_prolog(self):
         """Generate initial document header/title.
         """
@@ -239,7 +239,7 @@ class OdtWriter(writer.Writer):
                 formatting.
         :param list notes: List of strings, each string should be rendered
                 as separate paragraph.
-        :param tuple tree_svg: `None` or tuple containing SVG element with 
+        :param tuple tree_svg: `None` or tuple containing SVG element with
                 ancestor tree (only <svg> but no XML header), MIME type of
                 data, and image width and height
         """
@@ -262,14 +262,15 @@ class OdtWriter(writer.Writer):
             hdr = self._tr.tr(TR("Spouses and children"), person.sex)
             self._render_section(3, "", hdr)
             for family in families:
-                self.doc.text.addElement(text.P(text=self._interpolate(family)))
+                family = self._interpolate(family)
+                self.doc.text.addElement(text.P(text=family))
 
         if events:
             hdr = self._tr.tr(TR("Events and dates"))
             self._render_section(3, "", hdr)
             for date, facts in events:
-                self.doc.text.addElement(text.P(text=date + ": " + 
-                                                self._interpolate(facts)))
+                facts = self._interpolate(facts)
+                self.doc.text.addElement(text.P(text=date + ": " + facts))
 
         if notes:
             hdr = self._tr.tr(TR("Comments"))
@@ -308,14 +309,62 @@ class OdtWriter(writer.Writer):
         :param int n_females: Number of female individuals.
         :param int n_males: Number of male individuals.
         """
-        pass
+        items = ((TR('Person count'), n_total),
+                 (TR('Female count'), n_females),
+                 (TR('Male count'), n_males))
+        for key, val in items:
+            p = text.P(text='%s: %d' % (self._tr.tr(key), val))
+            self.doc.text.addElement(p)
 
     def _render_name_freq(self, freq_table):
         """Produces name statistics table.
 
         :param freq_table: list of (name, count) tuples.
         """
-        pass
+        def _gencouples(namefreq):
+            halflen = (len(namefreq) + 1) // 2
+            for i in range(halflen):
+                n1, c1 = namefreq[2 * i]
+                n2, c2 = None, None
+                if 2 * i + 1 < len(namefreq):
+                    n2, c2 = namefreq[2 * i + 1]
+                yield n1, c1, n2, c2
+
+        total = float(sum(count for _, count in freq_table))
+
+        tbl = table.Table()
+        tbl.addElement(table.TableColumn())
+        tbl.addElement(table.TableColumn())
+        tbl.addElement(table.TableColumn())
+        tbl.addElement(table.TableColumn())
+
+        for name1, count1, name2, count2 in _gencouples(freq_table):
+
+            row = table.TableRow()
+
+            cell = table.TableCell()
+            cell.addElement(text.P(text=name1 or '-'))
+            row.addElement(cell)
+
+            cell = table.TableCell()
+            cell.addElement(text.P(text='%d (%.1f%%)' %
+                                   (count1, count1 / total * 100)))
+            row.addElement(cell)
+
+            if count2 is not None:
+
+                cell = table.TableCell()
+                cell.addElement(text.P(text=name2 or '-'))
+                row.addElement(cell)
+
+                cell = table.TableCell()
+                cell.addElement(text.P(text='%d (%.1f%%)' %
+                                       (count2, count2 / total * 100)))
+                row.addElement(cell)
+
+            tbl.addElement(row)
+
+        self.doc.text.addElement(tbl)
 
     def _render_toc(self):
         """Produce table of contents using info collected in _render_section().
@@ -323,8 +372,8 @@ class OdtWriter(writer.Writer):
         self.doc.text.addElement(text.P(text='', stylename=self.styles['br']))
         toc = text.TableOfContent(name='TOC')
         tocsrc = text.TableOfContentSource(outlinelevel=2)
-        section = self._tr.tr(TR("Table Of Contents"))
-        toctitle = text.IndexTitleTemplate(text=section)
+        title = self._tr.tr(TR("Table Of Contents"))
+        toctitle = text.IndexTitleTemplate(text=title)
         tocsrc.addElement(toctitle)
         toc.addElement(tocsrc)
         self.doc.text.addElement(toc)
@@ -361,12 +410,12 @@ class OdtWriter(writer.Writer):
         """"Returns SVG picture for parent tree or None.
 
         :param person: Individual record
-        :return: `None` or tuple containing SVG element with ancestor tree 
+        :return: `None` or tuple containing SVG element with ancestor tree
             MIME type of data, and image width and height
         """
         width = self.layout.width - self.layout.left - self.layout.right
         width = width ^ 'in'
-        max_gen = self._options.get("tree_width")
+        max_gen = self._options.get("tree_width", 4)
         plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
                           fullxml=True, refs=False, max_gen=max_gen)
         img = plotter.parent_tree(person, 'in')

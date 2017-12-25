@@ -116,18 +116,20 @@ def main():
     group.add_argument("--odt-page-height", default="9in",
                        metavar="SIZE", type=String2Size("in"),
                        help="ODT page height in inches; default: %(default)s")
-    group.add_argument("--odt-margin-left", default="0.25in",
+    group.add_argument("--odt-margin-left", default="0.5in",
                        metavar="SIZE", type=String2Size("in"),
                        help="Page left margin in inches; default: %(default)s")
-    group.add_argument("--odt-margin-right", default="0.25in",
+    group.add_argument("--odt-margin-right", default="0.5in",
                        metavar="SIZE", type=String2Size("in"),
-                       help="Page right margin in inches; default: %(default)s")
-    group.add_argument("--odt-margin-top", default="0.25in",
+                       help="Page right margin in inches; "
+                       "default: %(default)s")
+    group.add_argument("--odt-margin-top", default="0.5in",
                        metavar="SIZE", type=String2Size("in"),
                        help="Page top margin in inches; default: %(default)s")
     group.add_argument("--odt-margin-bottom", default="0.25in",
                        metavar="SIZE", type=String2Size("in"),
-                       help="Page bottom margin in inches; default: %(default)s")
+                       help="Page bottom margin in inches; "
+                       "default: %(default)s")
     group.add_argument("--odt-image-width", default="2in",
                        metavar="SIZE", type=String2Size("in"),
                        help="Image width in inches; default: %(default)s")
@@ -163,24 +165,26 @@ def main():
     for option in args.name_fmt or []:
         name_fmt |= option
 
+    options = dict(
+        encoding=args.encoding,
+        encoding_errors=args.encoding_errors,
+        sort_order=args.sort_order,
+        make_toc=not args.no_toc,
+        make_stat=not args.no_stat,
+        make_images=not args.no_image,
+        tree_width=args.tree_width,
+        name_fmt=name_fmt,
+    )
     if args.type == "html":
-        options = dict(
+        options.update(dict(
             html_page_width=args.html_page_width,
             html_image_width=args.html_image_width,
             html_image_height=args.html_image_height,
             html_image_upscale=args.html_image_upscale,
-            encoding=args.encoding,
-            encoding_errors=args.encoding_errors,
-            sort_order=args.sort_order,
-            make_toc=not args.no_toc,
-            make_stat=not args.no_stat,
-            make_images=not args.no_image,
-            tree_width=args.tree_width,
-            name_fmt=name_fmt,
-        )
+        ))
         writer = HtmlWriter(flocator, args.output, options, tr)
     elif args.type == "odt":
-        options = dict(
+        options.update(dict(
             odt_page_width=args.odt_page_width,
             odt_page_height=args.odt_page_height,
             odt_margin_left=args.odt_margin_left,
@@ -190,15 +194,7 @@ def main():
             odt_image_width=args.odt_image_width,
             odt_image_height=args.odt_image_height,
             first_page=args.first_page,
-            encoding=args.encoding,
-            encoding_errors=args.encoding_errors,
-            sort_order=args.sort_order,
-            make_toc=not args.no_toc,
-            make_stat=not args.no_stat,
-            make_images=not args.no_image,
-            tree_width=args.tree_width,
-            name_fmt=name_fmt,
-        )
+        ))
         writer = OdtWriter(flocator, args.output, options, tr)
 
     try:
