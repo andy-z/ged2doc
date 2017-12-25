@@ -42,6 +42,23 @@ import ged2doc
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
+
+def run_apidoc(_):
+    from sphinx.apidoc import main
+    parentFolder = os.path.join(os.path.dirname(__file__), '..')
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(parentFolder)
+    module = os.path.join(parentFolder, 'ged2doc')
+    main(['-e', '-f', '-o', cur_dir, module])
+
+
+def setup(app):
+    # overrides for wide tables in RTD theme
+    app.add_stylesheet('theme_overrides.css')
+    # trigger the run_apidoc
+    app.connect('builder-inited', run_apidoc)
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
