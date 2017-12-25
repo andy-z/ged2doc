@@ -6,72 +6,51 @@ from __future__ import absolute_import, division, print_function
 __all__ = ["HtmlWriter"]
 
 import base64
+import cgi
 import io
 import logging
 import pkg_resources
 import string
 from PIL import Image
 
-from .events import indi_attributes, indi_events, family_events
-from .name import (name_fmt, FMT_SURNAME_FIRST, FMT_MAIDEN)
-
 from .plotter import Plotter
 from .size import Size
 from . import utils
-from ged4py import model, parser
+from . import writer
 
 
 _log = logging.getLogger(__name__)
 
 # this is no-op function, only used to mark translatable strings,
 # to extract all strings run "pygettext -k TR ..."
-TR = lambda x: x  # NOQA
 
 
-def _spouse(person, fam):
-    """Returns person spouse in a given family
-    """
-    # list of Pointers
-    spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-    spouses = [rec for rec in spouses
-               if rec.value != person.xref_id]
-    # more than one spouse is odd (from the structural concern)
-    if spouses:
-        return spouses[0].ref
-    return None
+def TR(x): return x  # NOQA
 
 
-class HtmlWriter(object):
+class HtmlWriter(writer.Writer):
     """Format tree as HTML document.
 
     :param flocator: Instance of :py:class:`input.FileLocator`
+    :param str output: Name for the output file or file object
     :param dict options: Dictionary with options
+    :param tr: Instance of :py:class:`i18n.I18N` class
     """
 
-    def __init__(self, flocator, options, tr):
+    def __init__(self, flocator, output, options, tr):
+        writer.Writer.__init__(self, flocator, options, tr)
 
-        self._floc = flocator
-        self._options = options
-        self._tr = tr
+        if hasattr(output, 'write'):
+            self._output = output
+            self._close = False
+        else:
+            self._output = open(output, 'wb')
+            self._close = True
+        self._toc = []
 
-    def save(self, output):
-        """Produce output at given destination.
-
-        :param str output: Location of output file.
+    def _render_prolog(self):
+        """Generate initial document header/title.
         """
-
-        gfile = self._floc.open_gedcom()
-        if not gfile:
-            raise OSError("Failed to locate input file")
-
-        encoding = self._options.get('encoding')
-        errors = self._options.get('encoding_errors', 'strict')
-        reader = parser.GedcomReader(gfile, encoding=encoding, errors=errors)
-
-        # List of TOC entries
-        toc = []
-
-        # generate header
         doc = ['<!DOCTYPE html>']
         doc += ['<html>', '<head>']
         doc += ['<meta http-equiv="Content-Type" content="text/html;'
@@ -82,315 +61,133 @@ class HtmlWriter(object):
         doc += [string.Template(style).substitute(d)]
         doc += ['</head>\n', '<body>\n']
         doc += ['<div id="contents_div"/>\n']
+        for line in doc:
+            self._output.write(line.encode('utf-8'))
 
-        title = self._tr.tr(TR(u"Person List"))
-        doc += [u'<h1 id="personList">{0}</h1>\n'.format(title)]
-        toc += [(1, 'personList', title)]
-
-        # Index of all INDI records
-        _log.debug('Scan all INDI records')
-
-        # filter out some fake records that some apps add
-        indis = []
-        for indi in reader.records0('INDI'):
-            if indi.sub_tag_value("_UID") == "Unassociated photos":
-                continue
-            indis.append(indi)
-
-        order = self._options.get("sort_order", model.ORDER_SURNAME_GIVEN)
-        indis.sort(key=lambda x: x.name.order(order))
-        for person in indis:
-
-            fmt_mask = self._options.get('name_fmt', 0)
-            name = name_fmt(person.name, fmt_mask)
-
-            _log.debug('Found INDI: %s', person)
-            _log.debug('INDI name: %r', name)
-
-            # page title
-            doc += [u'<h2 id="person.{0}">{1}</h2>\n'.format(person.xref_id,
-                                                             name)]
-            toc += [(2, 'person.' + person.xref_id, name)]
-
-            if self._options.get("make_images", True):
-                img = self._getMainImage(person)
-                if img:
-                    doc += [img]
-
-            # birth date and place
-            doc += ['<p>' + self._tr.tr(TR('Born'), person.sex) + ": "]
-            bday = person.sub_tag("BIRT/DATE")
-            if bday:
-                doc += [self._tr.tr_date(bday.value)]
+    def _interpolate(self, text):
+        """Takes text with embedded references and returns proporly
+        escaped text with HTML links.
+        """
+        result = ""
+        for piece in utils.split_refs(text):
+            if isinstance(piece, tuple):
+                xref, name = piece
+                result += u'<a href="#{0}">{1}</a>'.format(cgi.escape(xref),
+                                                           cgi.escape(name))
             else:
-                doc += [self._tr.tr(TR('Date Unknown'), person.sex)]
-            bplace = person.sub_tag("BIRT/PLAC")
-            if bplace:
-                doc += [", " + bplace.value]
-            doc += ['</p>\n']
+                result += cgi.escape(piece)
+        return result
 
-            # maiden name
-            if person.name.maiden:
-                doc += ['<p>' + self._tr.tr(TR('Maiden name'), person.sex) +
-                        ": " + person.name.maiden]
+    def _render_section(self, level, ref_id, title, newpage=False):
+        """Produces new section in the output document.
 
-            # Parents
-            pfmt = u'<p>{person}: {ref}</p>\n'
-            if person.mother:
-                doc += [pfmt.format(person=self._tr.tr(TR('Mother'),
-                                                       person.mother.sex),
-                                    ref=self._personRef(person.mother))]
-            if person.father:
-                doc += [pfmt.format(person=self._tr.tr(TR('Father'),
-                                                       person.father.sex),
-                                    ref=self._personRef(person.father))]
+        This method should also save section reference so that TOC can be
+        later produced when :py:meth:`_render_toc` method is called.
 
-            # add some extra info
-            attributes = indi_attributes(person)
-            for tag in ['EDUC', 'OCCU', 'RESI', 'NMR', 'NCI']:
-                for attrib in attributes:
-                    if attrib.tag == tag:
-                        doc += [self._formatIndiAttr(person, attrib)]
+        :param int level: Section level (1, 2, 3, etc.).
+        :param str ref_id: Unique section identifier.
+        :param str title: Printable section name.
+        """
+        self._toc += [(level, ref_id, title)]
+        doc = [u'<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
+                                                     cgi.escape(title))]
+        for line in doc:
+            self._output.write(line.encode('utf-8'))
 
-            # all families as spouse
-            fams = person.sub_tags("FAMS")
-            if fams:
-                doc += ['<h3>' + self._tr.tr(TR("Spouses and children"),
-                                             person.sex) + '</h3>\n']
+    def _render_person(self, person, image_data, attributes, families,
+                       events, notes):
+        """Output person information.
 
-                own_kids = []
-                for fam in fams:
+        TExtual information in parameters to this method can include
+        references to other persons (e.g. moter/father). Such references are
+        embedded into text in encoded format determined by
+        :py:meth:`_person_ref` method. It is responsibility of the subclasses
+        to extract these references from text and re-encode them using proper
+        bacenf representation.
 
-                    spouse = _spouse(person, fam)
-                    children = fam.sub_tags("CHIL")
-                    children_ids = [rec.xref_id for rec in children]
+        :param person: :py:class:`ged4py.Individual` instance
+        :param bytes image_data: Either `None` or binary image data (typically
+                content of JPEG image)
+        :param list attributes: List of (attr_name, text) tuples, may be empty.
+        :param list families: List of strings (possibly empty), each string
+                contains description of one family and should be typically
+                rendered as a separate paragraph.
+        :param list events: List of (date, text) tuples, may be empty. Date
+                is properly formatted string and does not need any other
+                formatting.
+        :param list notes: List of strings, each string should be rendered
+                as separate paragraph.
+        """
 
-                    _log.debug('spouse = %s; children ids = %s; children = %s',
-                               spouse, children_ids, children)
-                    if spouse:
-                        pfmt = u'<p>{person}: {ref}'
-                        doc += [pfmt.format(person=self._tr.tr(TR('Spouse'),
-                                                               spouse.sex),
-                                            ref=self._personRef(spouse))]
-                        if children:
-                            kids = [self._personRef(c, c.name.first)
-                                    for c in children]
-                            doc += ["; " + self._tr.tr(TR('kids')) + ': ' +
-                                    ', '.join(kids)]
-                        doc += ['</p>\n']
-                    else:
-                        own_kids += [self._personRef(c, c.name.first)
-                                     for c in children]
-                if own_kids:
-                    doc += ['<p>' + self._tr.tr(TR('Kids')) + ': ' +
-                            ', '.join(own_kids) + '</p>\n']
+        doc = []
 
-            # collect all events from person and families
-            events = []
-            for evt in indi_events(person):
-                # BIRT was already rendered
-                if evt.tag != 'BIRT':
-                    facts = [self._tr.tr("EVENT." + evt.tag, person.sex),
-                             evt.value,
-                             evt.place,
-                             evt.note]
-                    events += [(evt.date, facts)]
+        # image if present
+        if image_data:
+            img = self._getImageFragment(image_data)
+            if img:
+                doc += [img]
 
-            for fam in person.sub_tags("FAMS"):
+        # all attributes follow
+        for attr, value in attributes:
+            doc += ['<p>' + self._interpolate(attr) + ": " +
+                    self._interpolate(value) + '</p>\n']
 
-                spouse = _spouse(person, fam)
+        if families:
+            hdr = self._tr.tr(TR("Spouses and children"), person.sex)
+            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            for family in families:
+                family = self._interpolate(family)
+                doc += ['<p>' + family + '</p>\n']
 
-                for evt in family_events(fam):
-                    facts = [self._tr.tr("FAMEVT." + evt.tag)]
-                    if spouse:
-                        note = u'{spouse}: {ref}'.format(
-                            spouse=self._tr.tr(TR('Spouse'), spouse.sex),
-                            ref=self._personRef(spouse))
-                        facts += [note]
-                    facts += [evt.value,
-                              evt.place,
-                              evt.note]
-                    events += [(evt.date, facts)]
+        if events:
+            hdr = self._tr.tr(TR("Events and dates"))
+            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            for date, facts in events:
+                facts = self._interpolate(facts)
+                doc += ['<p>' + cgi.escape(date) + ": " + facts +
+                        '</p>\n']
 
-                for child in fam.sub_tags("CHIL"):
-                    for evt in indi_events(child, ['BIRT']):
-                        pfmt = self._tr.tr(TR(u"CHILD.BORN {child}"),
-                                           child.sex)
-                        childRef = self._personRef(child, child.name.first)
-                        facts = [pfmt.format(child=childRef),
-                                 evt.value,
-                                 evt.place,
-                                 evt.note]
-                    events += [(evt.date, facts)]
+        if notes:
+            hdr = self._tr.tr(TR("Comments"))
+            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            for note in notes:
+                note = self._interpolate(note)
+                doc += ['<p>' + note + '</p>\n']
 
-            # only use events with dates
-            events = [evt for evt in events if evt[0]]
-
-            if events:
-                doc += ['<h3>' + self._tr.tr(TR("Events and dates")) +
-                        '</h3>\n']
-            # order events
-            for date, facts in sorted(events):
-                facts = [fact for fact in facts if fact]
-                facts = u"; ".join(facts)
-                doc += ['<p>' + self._tr.tr_date(date) + ": " + facts + '</p>']
-
-            # Comments are published as set of paragraphs
-            notes = person.sub_tags('NOTE')
-            if notes:
-                doc += ['<h3>' + self._tr.tr(TR("Comments")) + '</h3>\n']
-                for note in notes:
-                    for para in note.value.split('\n'):
-                        doc += ['<p>' + para + '</p>\n']
-
-            # plot ancestors tree
-            tree_elem = self._getParentTree(person)
-            if tree_elem:
-                doc += ['<h3>' + self._tr.tr(TR("Ancestor tree")) + '</h3>\n']
-                doc += ['<div class="centered">\n']
-                doc += [tree_elem]
-                doc += ['</div>\n']
-            else:
-                doc += ['<svg width="100%" height="1pt"/>\n']
-
-        # generate some stats
-        if self._options.get('make_stat', True):
-            section = self._tr.tr(TR("Statistics"))
-            doc += [u'<h1 id="statistics">{0}</h1>\n'.format(section)]
-            toc += [(1, 'statistics', section)]
-
-            section = self._tr.tr(TR("Total Statistics"))
-            doc += [u'<h2 id="total_statistics">{0}</h2>\n'.format(section)]
-            toc += [(2, 'total_statistics', section)]
-
-            nmales = len([person for person in indis if person.sex == 'M'])
-            nfemales = len([person for person in indis if person.sex == 'F'])
-            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')),
-                                       len(indis))]
-            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')),
-                                       nfemales)]
-            doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Male count')), nmales)]
-
-            section = self._tr.tr(TR("Name Statistics"))
-            doc += [u'<h2 id="name_statistics">{0}</h2>\n'.format(section)]
-            toc += [(2, 'name_statistics', section)]
-
-            section = self._tr.tr(TR("Female Name Frequency"))
-            doc += [u'<h3 id="female_name_freq">{0}</h3>\n'.format(section)]
-            doc += self._namestat(person for person in indis
-                                  if person.sex == 'F')
-
-            section = self._tr.tr(TR("Male Name Frequency"))
-            doc += [u'<h3 id="male_name_freq">{0}</h3>\n'.format(section)]
-            doc += self._namestat(person for person in indis
-                                  if person.sex == 'M')
-
-        # add table of contents
-        if self._options.get('make_toc', True):
-            section = self._tr.tr(TR("Table Of Contents"))
-            doc += [u'<h1>{0}</h1>\n'.format(section)]
-            lvl = 0
-            for toclvl, tocid, text in toc:
-                while lvl < toclvl:
-                    doc += ['<ul>']
-                    lvl += 1
-                while lvl > toclvl:
-                    doc += ['</ul>']
-                    lvl -= 1
-                doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid,
-                                                                    text)]
-            while lvl > 0:
-                doc += ['</ul>']
-                lvl -= 1
-
-        # closing
-        doc += ['</body>']
-        doc += ['</html>']
-
-        if hasattr(output, 'write'):
-            for line in doc:
-                output.write(line.encode('utf-8'))
+        # plot ancestors tree
+        tree_svg = self._make_ancestor_tree(person)
+        if tree_svg:
+            hdr = self._tr.tr(TR("Ancestor tree"))
+            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            doc += ['<div class="centered">\n']
+            doc += [tree_svg]
+            doc += ['</div>\n']
         else:
-            out = open(output, 'wb')
-            for line in doc:
-                out.write(line.encode('utf-8'))
-            out.close()
+            doc += ['<svg width="100%" height="1pt"/>\n']
+        for line in doc:
+            self._output.write(line.encode('utf-8'))
 
-    def _getParentTree(self, person):
-        '''
-        Returns element containg parent tree or None
-        '''
+    def _render_name_stat(self, n_total, n_females, n_males):
+        """Produces summary table.
 
-        width = Size(self._options.get('html_page_width')) ^ 'px'
-        max_gen = self._options.get("tree_width")
-        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=False, refs=True, max_gen=max_gen)
-        img = plotter.parent_tree(person, 'px')
-        if img is None:
-            return
+        Sum of male and female counters can be lower than total count due to
+        individuals with unknown/unspecified gender.
 
-        # if not None then 4-tuple
-        imgdata, imgtype, width, height = img
+        :param int n_total: Total number of individuals.
+        :param int n_females: Number of female individuals.
+        :param int n_males: Number of male individuals.
+        """
+        doc = []
+        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')), n_total)]
+        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')), n_females)]
+        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Male count')), n_males)]
+        for line in doc:
+            self._output.write(line.encode('utf-8'))
 
-        # return unicode string
-        return imgdata
-
-    def _getMainImage(self, person):
-        '''Returns image for a person, return value is an <img> element.
-        '''
-
-        path = utils.personImageFile(person)
-        if path:
-
-            _log.debug('Found media file name %s', path)
-
-            # For open_image we need basename of the file, trouble here is
-            # that GEDCOM file can be prepared on different type of system.
-            # For now assume that path separator in GEDCOM can be either
-            # slash or backslash
-            basename = path.rsplit('/', 1)[-1]
-            basename = basename.rsplit('\\', 1)[-1]
-            _log.debug('Trying to open image %s', basename)
-
-            # find image file, try to open it
-            imgfile = self._floc.open_image(basename)
-            if not imgfile:
-                _log.warn('Failed to locate image file "%s"', basename)
-            else:
-                _log.debug('Opened image file %s', path)
-                imgdata = imgfile.read()
-                imgfile = io.BytesIO(imgdata)
-                img = Image.open(imgfile)
-
-                # resize it if larger than needed
-                width = Size(self._options.get('html_image_width',
-                                               '300px')).px
-                height = Size(self._options.get('html_image_height',
-                                                '300px')).px
-                maxsize = (width, height)
-                size = utils.resize(img.size, maxsize)
-                size = (int(size[0]), int(size[1]))
-                if size != img.size:
-                    # means size was reduced
-                    _log.debug('Resize image to %s', size)
-                    img = img.resize(size, Image.LANCZOS)
-                    imgsize = ""
-                else:
-                    # means size was not changed and image is smaller
-                    # than box, we may want to extend it
-                    extend = utils.resize(img.size, maxsize, False)
-                    imgsize = ' width="{}" height="{}"'.format(*extend)
-
-                # save to a buffer
-                imgfile = io.BytesIO()
-                img.save(imgfile, 'JPEG')
-
-                return '<img class="personImage"' + imgsize + \
-                    ' src="data:image/jpg;base64,' + \
-                    base64.b64encode(imgfile.getvalue()) + '">'
-
-    def _namestat(self, people):
+    def _render_name_freq(self, freq_table):
         """Produces name statistics table.
+
+        :param freq_table: list of (name, count) tuples.
         """
         def _gencouples(namefreq):
             halflen = (len(namefreq) + 1) // 2
@@ -401,62 +198,103 @@ class HtmlWriter(object):
                     n2, c2 = namefreq[2 * i + 1]
                 yield n1, c1, n2, c2
 
-        namefreq = {}
-        for person in people:
-            namefreq.setdefault(person.name.first, 0)
-            namefreq[person.name.first] += 1
-        namefreq = [(key, val) for key, val in namefreq.items()]
-        # sort ascending in name
-        namefreq.sort()
-        total = float(sum(count for _, count in namefreq))
+        total = float(sum(count for _, count in freq_table))
 
-        tbl = ['<table class="statTable">\n']
+        tbl = [u'<table class="statTable">\n']
 
-        for name1, count1, name2, count2 in _gencouples(namefreq):
+        for name1, count1, name2, count2 in _gencouples(freq_table):
 
-            tbl += ['<tr>\n']
+            tbl += [u'<tr>\n']
 
             tbl += [u'<td width="25%">{0}</td>'.format(name1 or '-')]
-            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
+            tbl += [u'<td width="20%">{0} ({1:.1%})</td>'.format(
                 count1, count1 / total)]
 
             if count2 is not None:
 
                 tbl += [u'<td width="25%">{0}</td>'.format(name2 or '-')]
-                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
+                tbl += [u'<td width="20%">{0} ({1:.1%})</td>'.format(
                     count2, count2 / total)]
 
-            tbl += ['</tr>\n']
+            tbl += [u'</tr>\n']
 
-        tbl += ['</table>\n']
-        return tbl
+        tbl += [u'</table>\n']
+        for line in tbl:
+            self._output.write(line.encode('utf-8'))
 
-    def _formatIndiAttr(self, person, attrib, prefix="ATTR."):
-        """Formatting of the individual's attributes.
-
-        :param Record person: Individual record
-        :param events.Event attrib: Attribute structure.
-        :return: Formatted string.
+    def _render_toc(self):
+        """Produce table of contents using info collected in _render_section().
         """
+        section = self._tr.tr(TR("Table Of Contents"))
+        doc = [u'<h1>{0}</h1>\n'.format(cgi.escape(section))]
+        lvl = 0
+        for toclvl, tocid, text in self._toc:
+            while lvl < toclvl:
+                doc += ['<ul>']
+                lvl += 1
+            while lvl > toclvl:
+                doc += ['</ul>']
+                lvl -= 1
+            doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid,
+                                                                text)]
+        while lvl > 0:
+            doc += ['</ul>']
+            lvl -= 1
+        for line in doc:
+            self._output.write(line.encode('utf-8'))
 
-        attr = self._tr.tr(prefix + attrib.tag, person.sex)
-
-        props = []
-        if attrib.value:
-            props.append(attrib.value)
-        if attrib.date:
-            props.append(self._tr.tr_date(attrib.date))
-        if attrib.place:
-            props.append(attrib.place)
-        if attrib.note:
-            props.append(attrib.note)
-        props = u", ".join(props)
-        return '<p>' + attr + ": " + props + '</p>'
-
-    def _personRef(self, person, name=None):
-        """Returns HTML fragment with person name linked to person.
+    def _finalize(self):
+        """Finalize output.
         """
-        if name is None:
-            fmt_mask = self._options.get('name_fmt', 0)
-            name = name_fmt(person.name, fmt_mask)
-        return u'<a href="#person.{0}">{1}</a>'.format(person.xref_id, name)
+        if self._close:
+            self._output.close()
+
+    def _getImageFragment(self, image_data):
+        '''Returns <img> HTML fragment for given image data (byte array).
+        '''
+
+        imgfile = io.BytesIO(image_data)
+        img = Image.open(imgfile)
+
+        # resize it if larger than needed
+        width = Size(self._options.get('html_image_width',
+                                       '300px')).px
+        height = Size(self._options.get('html_image_height',
+                                        '300px')).px
+        maxsize = (width, height)
+        size = utils.resize(img.size, maxsize)
+        size = (int(size[0]), int(size[1]))
+        if size != img.size:
+            # means size was reduced
+            _log.debug('Resize image to %s', size)
+            img = img.resize(size, Image.LANCZOS)
+            imgsize = ""
+        else:
+            # means size was not changed and image is smaller
+            # than box, we may want to extend it
+            extend = utils.resize(img.size, maxsize, False)
+            imgsize = ' width="{}" height="{}"'.format(*extend)
+
+        # save to a buffer
+        imgfile = io.BytesIO()
+        img.save(imgfile, 'JPEG')
+
+        return '<img class="personImage"' + imgsize + \
+            ' src="data:image/jpg;base64,' + \
+            base64.b64encode(imgfile.getvalue()) + '">'
+
+    def _make_ancestor_tree(self, person):
+        """"Returns SVG picture for parent tree or None.
+
+        :param person: Individual record
+        :return: Image data (XML contents), bytes
+        """
+        width = Size(self._options.get('html_page_width'))
+        width = width ^ 'px'
+        max_gen = self._options.get("tree_width")
+        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
+                          fullxml=False, refs=True, max_gen=max_gen)
+        img = plotter.parent_tree(person, 'px')
+        if img is not None:
+            return img[0]
+        return None
