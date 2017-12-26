@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 from argparse import ArgumentParser
 import logging
+import os
 
 from .size import String2Size
 from .i18n import I18N, DATE_FORMATS
@@ -48,9 +49,11 @@ def main():
                        " ignore, or replace; default: %(default)s")
 
     group = parser.add_argument_group("Output Options")
-    group.add_argument('-t', "--type", default='html', choices=['html', 'odt'],
+    group.add_argument('-t', "--type", default=None, choices=['html', 'odt'],
                        help=("Type of the output document, possible values:"
-                             " %(choices)s; default: %(default)s"))
+                             " %(choices)s; by default type is determined by"
+                             " output file extension (*.odt, *.html, or *.htm"
+                             " are recognized)"))
     group.add_argument('-l', "--language", default=system_lang(),
                        metavar="LANG_CODE", choices=languages(),
                        help="Language for output document, supported "
@@ -164,6 +167,17 @@ def main():
     name_fmt = 0
     for option in args.name_fmt or []:
         name_fmt |= option
+
+    # guess output type if not set
+    if args.type is None:
+        ext = os.path.splitext(args.output)[1]
+        if ext.lower() == ".odt":
+            args.type = "odt"
+        elif ext.lower() in (".htm", ".html"):
+            args.type = "html"
+        else:
+            parser.error("Cannot determine document type from file extension,"
+                         " use --type option to specify document type")
 
     options = dict(
         encoding=args.encoding,
