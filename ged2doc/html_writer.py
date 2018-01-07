@@ -13,6 +13,7 @@ import pkg_resources
 import string
 from PIL import Image
 
+from ged4py import model
 from .plotter import Plotter
 from .size import Size
 from . import utils
@@ -29,16 +30,58 @@ def TR(x): return x  # NOQA
 
 
 class HtmlWriter(writer.Writer):
-    """Format tree as HTML document.
+    """Transforms GEDCOM file into nicely formatted HTML page.
 
-    :param flocator: Instance of :py:class:`input.FileLocator`
+    This is a sub-class of :py:class:`~ged2doc.writer.Writer` class providing
+    implementation for rendering methods which transform GEDCOM info into
+    HTML constructs. Constructor takes a large number of arguments which
+    configure appearance of the resulting HTML page. After instantiating
+    an object of this type one has to call
+    :py:meth:`~ged2doc.writer.Writer.save` method to produce output file.
+
+    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
     :param str output: Name for the output file or file object
-    :param dict options: Dictionary with options
-    :param tr: Instance of :py:class:`i18n.I18N` class
+    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
+    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
+        determined from file itself
+    :param str encoding_errors: Controls error handling behavior during string
+        decoding, one of "strict" (default), "ignore", or "replace".
+    :param sort_order: Determines ordering of person in output file, one of
+        the constants defined in :py:mod:`ged4py.model` module.
+    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
+    :param bool make_images: If ``True`` (default) then generate images for
+        persons.
+    :param bool make_stat: If ``True`` (default) then generate statistics
+        section.
+    :param bool make_toc: If ``True`` (default) then generate Table of
+        Contents.
+    :param Size page_width: Width of the produced HTML page.
+    :param Size image_width: Size of the images.
+    :param Size image_height: Size of the images.
+    :param bool image_upscale: If True then smaller images will be
+        re-scaled to extend to image size.
+    :param int tree_width: Number of generations in ancestor tree.
     """
 
-    def __init__(self, flocator, output, options, tr):
-        writer.Writer.__init__(self, flocator, options, tr)
+    def __init__(self, flocator, output, tr, encoding=None,
+                 encoding_errors="strict",
+                 sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
+                 make_images=True, make_stat=True, make_toc=True,
+                 page_width="800px", image_width="300px",
+                 image_height="300px", image_upscale=False,
+                 tree_width=4):
+
+        writer.Writer.__init__(self, flocator, tr, encoding=encoding,
+                               encoding_errors=encoding_errors,
+                               sort_order=sort_order, name_fmt=name_fmt,
+                               make_images=make_images, make_stat=make_stat,
+                               make_toc=make_toc)
+
+        self._page_width = Size(page_width)
+        self._image_width = Size(image_width)
+        self._image_height = Size(image_height)
+        self._image_upscale = image_upscale
+        self._tree_width = tree_width
 
         if hasattr(output, 'write'):
             self._output = output
@@ -56,7 +99,7 @@ class HtmlWriter(writer.Writer):
         doc += ['<meta http-equiv="Content-Type" content="text/html;'
                 ' charset=utf-8">\n']
         doc += ['<title>', 'Family Tree', '</title>\n']
-        d = dict(page_width=Size(self._options.get('html_page_width')) ^ 'px')
+        d = dict(page_width=self._page_width ^ 'px')
         style = pkg_resources.resource_string(__name__, "data/styles/default")
         doc += [string.Template(style).substitute(d)]
         doc += ['</head>\n', '<body>\n']
@@ -257,10 +300,8 @@ class HtmlWriter(writer.Writer):
         img = Image.open(imgfile)
 
         # resize it if larger than needed
-        width = Size(self._options.get('html_image_width',
-                                       '300px')).px
-        height = Size(self._options.get('html_image_height',
-                                        '300px')).px
+        width = self._image_width.px
+        height = self._image_height.px
         maxsize = (width, height)
         size = utils.resize(img.size, maxsize)
         size = (int(size[0]), int(size[1]))
@@ -269,7 +310,7 @@ class HtmlWriter(writer.Writer):
             _log.debug('Resize image to %s', size)
             img = img.resize(size, Image.LANCZOS)
             imgsize = ""
-        else:
+        elif self._image_upscale:
             # means size was not changed and image is smaller
             # than box, we may want to extend it
             extend = utils.resize(img.size, maxsize, False)
@@ -289,11 +330,9 @@ class HtmlWriter(writer.Writer):
         :param person: Individual record
         :return: Image data (XML contents), bytes
         """
-        width = Size(self._options.get('html_page_width'))
-        width = width ^ 'px'
-        max_gen = self._options.get("tree_width")
+        width = self._page_width ^ 'px'
         plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=False, refs=True, max_gen=max_gen)
+                          fullxml=False, refs=True, max_gen=self._tree_width)
         img = plotter.parent_tree(person, 'px')
         if img is not None:
             return img[0]

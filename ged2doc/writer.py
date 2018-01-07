@@ -46,15 +46,35 @@ class Writer(object):
     into document-specific format. Subclasses will need to implement small set
     of methods (see _render methods below).
 
-    :param flocator: Instance of :py:class:`input.FileLocator`
-    :param dict options: Dictionary with options
-    :param tr: Instance of :py:class:`i18n.I18N` class
+    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
+    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
+    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
+        determined from file itself
+    :param str encoding_errors: Controls error handling behavior during string
+        decoding, one of "strict" (default), "ignore", or "replace".
+    :param sort_order: Determines ordering of person in output file, one of
+        the constants defined in :py:mod:`ged4py.model` module.
+    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
+    :param bool make_images: If ``True`` (default) then generate images for
+        persons.
+    :param bool make_stat: If ``True`` (default) then generate statistics
+        section.
+    :param bool make_toc: If ``True`` (default) then generate Table of
+        Contents.
     """
 
-    def __init__(self, flocator, options, tr):
+    def __init__(self, flocator, tr, encoding=None, encoding_errors="strict",
+                 sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
+                 make_images=True, make_stat=True, make_toc=True):
 
         self._floc = flocator
-        self._options = options
+        self._encoding = encoding
+        self._encoding_errors = encoding_errors
+        self._sort_order = sort_order
+        self._name_fmt = name_fmt
+        self._make_images = make_images
+        self._make_stat = make_stat
+        self._make_toc = make_toc
         self._tr = tr
 
     def save(self):
@@ -69,9 +89,8 @@ class Writer(object):
         if not gfile:
             raise OSError("Failed to locate input file")
 
-        encoding = self._options.get('encoding')
-        errors = self._options.get('encoding_errors', 'strict')
-        reader = parser.GedcomReader(gfile, encoding=encoding, errors=errors)
+        reader = parser.GedcomReader(gfile, encoding=self._encoding,
+                                     errors=self._encoding_errors)
 
         # generate starting sequence
         self._render_prolog()
@@ -91,12 +110,10 @@ class Writer(object):
             indis.append(indi)
 
         # loop over all individuals
-        order = self._options.get("sort_order", model.ORDER_SURNAME_GIVEN)
-        indis.sort(key=lambda x: x.name.order(order))
-        fmt_mask = self._options.get('name_fmt', 0)
+        indis.sort(key=lambda x: x.name.order(self._sort_order))
         for person in indis:
 
-            name = name_fmt(person.name, fmt_mask)
+            name = name_fmt(person.name, self._name_fmt)
 
             person_id = "person." + person.xref_id
             self._render_section(2, person_id, name, True)
@@ -187,7 +204,7 @@ class Writer(object):
                                 events, notes)
 
         # generate some stats
-        if self._options.get('make_stat', True):
+        if self._make_stat:
             section = self._tr.tr(TR("Statistics"))
             self._render_section(1, 'statistics', section)
 
@@ -214,7 +231,7 @@ class Writer(object):
             self._render_name_freq(name_freq)
 
         # add table of contents
-        if self._options.get('make_toc', True):
+        if self._make_toc:
             self._render_toc()
 
         # finish
@@ -282,7 +299,7 @@ class Writer(object):
         :return: Bytes of the image data or None.
         '''
 
-        if not self._options.get("make_images", True):
+        if not self._make_images:
             return None
 
         path = utils.personImageFile(person)
@@ -358,8 +375,7 @@ class Writer(object):
         if person is None:
             return None
         if name is None:
-            fmt_mask = self._options.get('name_fmt', 0)
-            name = name_fmt(person.name, fmt_mask)
+            name = name_fmt(person.name, self._name_fmt)
         return utils.embed_ref(person.xref_id, name)
 
     def _render_prolog(self):

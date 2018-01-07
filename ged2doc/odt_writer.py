@@ -11,6 +11,7 @@ import io
 import logging
 from PIL import Image
 
+from ged4py import model
 from .plotter import Plotter
 from .size import Size
 from . import utils
@@ -33,32 +34,77 @@ def TR(x): return x  # NOQA
 
 
 class OdtWriter(writer.Writer):
-    """Format tree as HTML document.
+    """Transforms GEDCOM file into nicely formatted OpenDocument Text (ODT).
 
-    :param flocator: Instance of :py:class:`input.FileLocator`
+    This is a sub-class of :py:class:`~ged2doc.writer.Writer` class providing
+    implementation for rendering methods which transform GEDCOM info into
+    ODT structures. Constructor takes a large number of arguments which
+    configure appearance of the resulting HTML page. After instantiating
+    an object of this type one has to call
+    :py:meth:`~ged2doc.writer.Writer.save` method to produce output file.
+
+    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
     :param str output: Name for the output file or file object
-    :param dict options: Dictionary with options
-    :param tr: Instance of :py:class:`i18n.I18N` class
+    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
+    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
+        determined from file itself
+    :param str encoding_errors: Controls error handling behavior during string
+        decoding, one of "strict" (default), "ignore", or "replace".
+    :param sort_order: Determines ordering of person in output file, one of
+        the constants defined in :py:mod:`ged4py.model` module.
+    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
+    :param bool make_images: If ``True`` (default) then generate images for
+        persons.
+    :param bool make_stat: If ``True`` (default) then generate statistics
+        section.
+    :param bool make_toc: If ``True`` (default) then generate Table of
+        Contents.
+    :param Size page_width: Page width of the produced document.
+    :param Size page_height: Page height of the produced document.
+    :param Size margin_left: Left page margin of the produced document.
+    :param Size margin_right: Right page margin of the produced document.
+    :param Size margin_top: Top page margin of the produced document.
+    :param Size margin_bottom: Bottom page margin of the produced document.
+    :param Size image_width: Size of the images.
+    :param Size image_height: Size of the images.
+    :param int tree_width: Number of generations in ancestor tree.
+    :param int first_page: Number of the first generated page.
     """
 
-    def __init__(self, flocator, output, options, tr):
-        writer.Writer.__init__(self, flocator, options, tr)
+    def __init__(self, flocator, output, tr, encoding=None,
+                 encoding_errors="strict",
+                 sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
+                 make_images=True, make_stat=True, make_toc=True,
+                 page_width="6in", page_height="9in",
+                 margin_left="0.5in", margin_right="0.5in",
+                 margin_top="0.5in", margin_bottom="0.25in",
+                 image_width="2in", image_height="2in",
+                 tree_width=4, first_page=1):
+
+        writer.Writer.__init__(self, flocator, tr, encoding=encoding,
+                               encoding_errors=encoding_errors,
+                               sort_order=sort_order, name_fmt=name_fmt,
+                               make_images=make_images, make_stat=make_stat,
+                               make_toc=make_toc)
 
         self._output = output
+        self._image_width = Size(image_width)
+        self._image_height = Size(image_height)
+        self._tree_width = tree_width
+        self._first_page = first_page
 
         doc = OpenDocumentText()
 
         # page layout
         self.layout = PageLayout(
-            width=Size(self._options.get("odt_page_width", "6in")),
-            height=Size(self._options.get("odt_page_height", "9in")),
-            left=Size(self._options.get("odt_margin_left", "0.5in")),
-            right=Size(self._options.get("odt_margin_right", "0.5in")),
-            top=Size(self._options.get("odt_margin_top", "0.5in")),
-            bottom=Size(self._options.get("odt_margin_bottom", "0.25in")))
+            width=Size(page_width),
+            height=Size(page_height),
+            left=Size(margin_left),
+            right=Size(margin_right),
+            top=Size(margin_top),
+            bottom=Size(margin_bottom))
         # starting page number
-        firstpage = self._options.get('first_page', 1)
-        self._make_layout(doc, self.layout, firstpage)
+        self._make_layout(doc, self.layout, self._first_page)
 
         self.styles = self._make_styles(doc, self.layout)
 
@@ -397,8 +443,8 @@ class OdtWriter(writer.Writer):
             hashlib.sha1(image_data).hexdigest() + '.' + img.format
 
         # calculate size of the frame
-        maxsize = (Size(self._options.get('odt_image_width')).inches,
-                   Size(self._options.get('odt_image_height')).inches)
+        maxsize = (self._image_width.inches,
+                   self._image_height.inches)
         w, h = utils.resize(img.size, maxsize)
         frame = draw.Frame(width="%.3fin" % w, height="%.3fin" % h)
         imgref = self.doc.addPicture(filename, "image/" + img.format,
@@ -415,8 +461,7 @@ class OdtWriter(writer.Writer):
         """
         width = self.layout.width - self.layout.left - self.layout.right
         width = width ^ 'in'
-        max_gen = self._options.get("tree_width", 4)
         plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=True, refs=False, max_gen=max_gen)
+                          fullxml=True, refs=False, max_gen=self._tree_width)
         img = plotter.parent_tree(person, 'in')
         return img
