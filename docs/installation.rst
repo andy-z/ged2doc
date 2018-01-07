@@ -8,16 +8,17 @@ Installation
 Stable release
 --------------
 
-To install GEDCOM Utilities, run this command in your terminal:
+To install ged2doc, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install ged2doc
 
-This is the preferred method to install GEDCOM Utilities, as it will always install the most recent stable release. 
+This is the preferred method to install GEDCOM Utilities, as it will always
+install the most recent stable release.
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
+If you don't have `pip`_ installed, this `Python installation guide`_ can
+guide you through the process.
 
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
@@ -26,9 +27,9 @@ you through the process.
 From sources
 ------------
 
-The sources for GEDCOM Utilities can be downloaded from the `Github repo`_.
+The sources for ged2doc can be downloaded from the `Github repo`_.
 
-You can either clone the public repository:
+You can either clone the repository:
 
 .. code-block:: console
 
