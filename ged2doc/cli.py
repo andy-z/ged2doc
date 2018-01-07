@@ -179,37 +179,39 @@ def main():
             parser.error("Cannot determine document type from file extension,"
                          " use --type option to specify document type")
 
-    options = dict(
-        encoding=args.encoding,
-        encoding_errors=args.encoding_errors,
-        sort_order=args.sort_order,
-        make_toc=not args.no_toc,
-        make_stat=not args.no_stat,
-        make_images=not args.no_image,
-        tree_width=args.tree_width,
-        name_fmt=name_fmt,
-    )
     if args.type == "html":
-        options.update(dict(
-            html_page_width=args.html_page_width,
-            html_image_width=args.html_image_width,
-            html_image_height=args.html_image_height,
-            html_image_upscale=args.html_image_upscale,
-        ))
-        writer = HtmlWriter(flocator, args.output, options, tr)
+        writer = HtmlWriter(flocator, args.output, tr,
+                            encoding=args.encoding,
+                            encoding_errors=args.encoding_errors,
+                            sort_order=args.sort_order,
+                            name_fmt=name_fmt,
+                            make_toc=not args.no_toc,
+                            make_stat=not args.no_stat,
+                            make_images=not args.no_image,
+                            tree_width=args.tree_width,
+                            page_width=args.html_page_width,
+                            image_width=args.html_image_width,
+                            image_height=args.html_image_height,
+                            image_upscale=args.html_image_upscale)
     elif args.type == "odt":
-        options.update(dict(
-            odt_page_width=args.odt_page_width,
-            odt_page_height=args.odt_page_height,
-            odt_margin_left=args.odt_margin_left,
-            odt_margin_right=args.odt_margin_right,
-            odt_margin_top=args.odt_margin_top,
-            odt_margin_bottom=args.odt_margin_bottom,
-            odt_image_width=args.odt_image_width,
-            odt_image_height=args.odt_image_height,
-            first_page=args.first_page,
-        ))
-        writer = OdtWriter(flocator, args.output, options, tr)
+        writer = OdtWriter(flocator, args.output, tr,
+                           encoding=args.encoding,
+                           encoding_errors=args.encoding_errors,
+                           sort_order=args.sort_order,
+                           make_toc=not args.no_toc,
+                           make_stat=not args.no_stat,
+                           make_images=not args.no_image,
+                           tree_width=args.tree_width,
+                           name_fmt=name_fmt,
+                           page_width=args.odt_page_width,
+                           page_height=args.odt_page_height,
+                           margin_left=args.odt_margin_left,
+                           margin_right=args.odt_margin_right,
+                           margin_top=args.odt_margin_top,
+                           margin_bottom=args.odt_margin_bottom,
+                           image_width=args.odt_image_width,
+                           image_height=args.odt_image_height,
+                           first_page=args.first_page)
 
     try:
         writer.save()
