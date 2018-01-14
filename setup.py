@@ -37,7 +37,6 @@ setup(
     entry_points={
         'console_scripts': [
             'ged2doc=ged2doc.cli:main',
-            'ged2doc-gui=ged2doc.gui:main'
         ]
     },
     include_package_data=True,
