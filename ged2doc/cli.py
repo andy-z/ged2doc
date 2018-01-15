@@ -16,6 +16,8 @@ from .name import (FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
                    FMT_MAIDEN_ONLY, FMT_CAPITAL)
 from .odt_writer import OdtWriter
 from .utils import languages, system_lang
+import ged2doc
+import ged4py
 from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 
 _log = logging.getLogger(__name__)
@@ -24,10 +26,15 @@ _log = logging.getLogger(__name__)
 def main():
     """Console script for ged2doc."""
 
+    version = "ged2doc {0} (ged4py {1})".format(ged2doc.__version__,
+                                                ged4py.__version__)
+
     parser = ArgumentParser(description='Convert GEDCOM file into document.')
     parser.add_argument('-v', "--verbose", action="count", default=0,
                         help="Print some info to standard output, "
                         "-vv prints debug info.")
+    parser.add_argument("--version", action="version", version=version,
+                        help="Print version information and exit")
     parser.add_argument("input",
                         help="Location of input file, input file can be "
                         "either GEDCOM file or ZIP archive which can also "
