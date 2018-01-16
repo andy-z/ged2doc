@@ -190,10 +190,33 @@ class _FSLocator(FileLocator):
         return io.open(self._input_file, 'rb')
 
     def open_image(self, name):
-        '''Returns file object for the named image file.'''
+        '''Returns file object for the named image file.
+
+        `name` could be an absolute or relative path name, usually this is
+        the name given in GEDCOM file. GEDCOM file can be prepared on a
+        a different type of system where file names can use different
+        separators. This method first tries to open the file using argument
+        as a file name, if that does not succeed then it strips folder part
+        from file name and tries to search recursively for that file name
+        in the configured folder.
+        '''
 
         _log.debug("_FSLocator.open_image: find image %s", name)
-        fname = self._fsearch.find_file(name)
+
+        # first try unmodified name
+        try:
+            return open(name, 'rb')
+        except IOError:
+            pass
+
+        # We need basename of the file, trouble here is that GEDCOM file can
+        # be prepared on different type of system. For now assume that path
+        # separator in GEDCOM can be either slash or backslash
+        basename = name.rsplit('/', 1)[-1]
+        basename = basename.rsplit('\\', 1)[-1]
+        _log.debug('_FSLocator.open_image: Trying base name %s', basename)
+
+        fname = self._fsearch.find_file(basename)
         if fname is not None:
             return open(fname, 'rb')
 
@@ -242,6 +265,13 @@ class _ZipLocator(FileLocator):
         '''Returns file object for the named image file.'''
 
         _log.debug("_ZipLocator.open_image: find image %s", name)
+
+        # We need basename of the file, trouble here is that GEDCOM file can
+        # be prepared on different type of system. For now assume that path
+        # separator in GEDCOM can be either slash or backslash
+        name = name.rsplit('/', 1)[-1]
+        name = name.rsplit('\\', 1)[-1]
+        _log.debug('_FSLocator.open_image: Trying base name %s', name)
 
         paths = [f for f in self._toc if os.path.basename(f) == name]
         if len(paths) > 1:

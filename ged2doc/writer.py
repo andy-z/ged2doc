@@ -307,18 +307,10 @@ class Writer(object):
 
             _log.debug('Found media file name %s', path)
 
-            # For open_image we need basename of the file, trouble here is
-            # that GEDCOM file can be prepared on different type of system.
-            # For now assume that path separator in GEDCOM can be either
-            # slash or backslash
-            basename = path.rsplit('/', 1)[-1]
-            basename = basename.rsplit('\\', 1)[-1]
-            _log.debug('Trying to open image %s', basename)
-
             # find image file, try to open it
-            imgfile = self._floc.open_image(basename)
+            imgfile = self._floc.open_image(path)
             if not imgfile:
-                _log.warn('Failed to locate image file "%s"', basename)
+                _log.warn('Failed to locate image file "%s"', path)
             else:
                 _log.debug('Opened image file %s', path)
                 imgdata = imgfile.read()
