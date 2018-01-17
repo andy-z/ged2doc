@@ -101,6 +101,7 @@ class HtmlWriter(writer.Writer):
         doc += ['<title>', 'Family Tree', '</title>\n']
         d = dict(page_width=self._page_width ^ 'px')
         style = pkg_resources.resource_string(__name__, "data/styles/default")
+        style = style.decode('utf-8')
         doc += [string.Template(style).substitute(d)]
         doc += ['</head>\n', '<body>\n']
         doc += ['<div id="contents_div"/>\n']
@@ -322,7 +323,7 @@ class HtmlWriter(writer.Writer):
 
         return '<img class="personImage"' + imgsize + \
             ' src="data:image/jpg;base64,' + \
-            base64.b64encode(imgfile.getvalue()) + '">'
+            base64.b64encode(imgfile.getvalue()).decode('ascii') + '">'
 
     def _make_ancestor_tree(self, person):
         """"Returns SVG picture for parent tree or None.
