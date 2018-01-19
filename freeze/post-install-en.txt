@@ -1,0 +1,1 @@
+ged2doc was successfully installed on your computer. Use program menu or desktop icon to launch shell window, type "ged2doc --help" in that window for full list of options.
