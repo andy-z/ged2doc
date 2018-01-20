@@ -205,6 +205,7 @@ class _FSLocator(FileLocator):
 
         # first try unmodified name
         try:
+            _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
             return open(name, 'rb')
         except IOError:
             pass
@@ -269,20 +270,29 @@ class _ZipLocator(FileLocator):
         # We need basename of the file, trouble here is that GEDCOM file can
         # be prepared on different type of system. For now assume that path
         # separator in GEDCOM can be either slash or backslash
-        name = name.rsplit('/', 1)[-1]
-        name = name.rsplit('\\', 1)[-1]
-        _log.debug('_FSLocator.open_image: Trying base name %s', name)
+        basename = name.rsplit('/', 1)[-1]
+        basename = basename.rsplit('\\', 1)[-1]
 
-        paths = [f for f in self._toc if os.path.basename(f) == name]
+        # file names in _toc have slash as separator
+        _log.debug('_ZipLocator.open_image: Trying base name %s', basename)
+        paths = [f for f in self._toc if f.rsplit('/')[-1] == basename]
         if len(paths) > 1:
             raise MultipleMatchesError('Multiple image files found in archive '
                                        'matching name ' + name)
         if paths:
-            _log.debug("_ZipLocator.open_image: " + paths[0])
+            _log.debug("_ZipLocator.open_image: found in ZIP: " + paths[0])
             return self._zip.open(paths[0], 'r')
 
+        # first try unmodified name
+        try:
+            _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
+            return open(name, 'rb')
+        except IOError:
+            pass
+
         # search on filesystem
-        fname = self._fsearch.find_file(name)
+        _log.debug('_ZipLocator.open_image: Trying base name %s', basename)
+        fname = self._fsearch.find_file(basename)
         if fname is not None:
             return open(fname, 'rb')
 
