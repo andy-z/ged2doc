@@ -28,10 +28,13 @@ Tools for converting GEDCOM data into document formats.
 Features
 --------
 
-* TODO
+* Conversion of GEDCOM files into nicely formatted HTML or ODT (OpenDocument Text) format
+* Output includes most textual information, images/photos, an segments of genealogical tree
+* Support for English and Russian output translations, more translations can be added easily
+* Can be used as standalone command-line application or as a Python API
 
 Credits
----------
+-------
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 

@@ -90,14 +90,14 @@ to provide more exact match, e.g.::
 
 GEDCOM file may contain references to images which can be included into
 resulting document (in current implementation only one main image is included
-per person). For that |ged2doc| needs to know the location of the images
-referenced in a file (because files can be copied between systems the location
-specified in a GEDCOM file may not be valid). Use ``-i PATH`` option to specify
-folder with the images, |ged2doc| will scan that folder recursively to find a
-match for image name specified in GEDCOM file, match is based on base file name
-(does not include folder names). If input file is an archive then archive is
-searched for images first and then folder given in ``-i`` option. If ``-i``
-option is not given at all then disk is not searched for images.
+per person). |ged2doc| tries to locate image file by first using unchanged
+path directly from GEDCOM file (if the path is relative then it is resolved
+relative to current working directory). If image file cannot be found and
+``-i PATH`` is given then |ged2doc| tries to locate image using only base
+name of the image path by recursively scanning ``PATH`` given in ``-i``
+option. If input file is an archive then archive is searched for images first
+using base name of the path from GEDCOM file, if image is not found in archive
+then above logic is used to search for image on disk.
 
 Output file
 ^^^^^^^^^^^
