@@ -50,3 +50,16 @@ Once you have a copy of the source, you can install it with:
 
 .. _Github repo: https://github.com/andy-z/ged2doc
 .. _tarball: https://github.com/andy-z/ged2doc/tarball/master
+
+Binary install on Windows
+-------------------------
+
+Both previous variants can be used on Windows platform if you install Python
+first, any reasonable Python distribution can work. Alternative variant that
+does not require Python installation is to install ged2doc as a separate
+Windows application which includes all necessary components. Download an
+installer (EXE file) from 
+`latest release <https://github.com/andy-z/ged2doc/releases/latest>`_ and
+execute it on your computer. After installation Program Menu and Desktop will
+show a ``ged2doc`` shortcut which starts a command prompt with access to
+``ged2doc`` command line application.
