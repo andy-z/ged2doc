@@ -59,7 +59,7 @@ first, any reasonable Python distribution can work. Alternative variant that
 does not require Python installation is to install ged2doc as a separate
 Windows application which includes all necessary components. Download an
 installer (EXE file) from 
-`latest release <https://github.com/andy-z/ged2doc/releases/latest>`_ and
-execute it on your computer. After installation Program Menu and Desktop will
-show a ``ged2doc`` shortcut which starts a command prompt with access to
-``ged2doc`` command line application.
+`latest release <https://github.com/andy-z/ged2doc/releases/latest>`_
+(or any specific release) and execute it on your computer. After installation
+Program Menu and Desktop will show a ``ged2doc`` shortcut which starts a
+command prompt with access to ``ged2doc`` command line application.
