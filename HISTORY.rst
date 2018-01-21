@@ -34,3 +34,8 @@ History
 ------------------
 
 * Try to open images using full path
+
+0.1.6 (2018-01-21)
+------------------
+
+* Update docs, add russian translation for usage/installation
