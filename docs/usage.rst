@@ -27,18 +27,18 @@ appearance of the produced output document. To get a brief description of
 all options run the command with ``--help`` or ``-h`` option::
 
     % ged2doc --help
-    usage: ged2doc [-h] [-v] [-i PATH] [-p PATTERN] [--encoding ENCODING]
-                  [--encoding-errors MODE] [-t {html,odt}] [-l LANG_CODE]
-                  [-d FMT] [-s ORDER] [--no-image] [--no-toc] [--no-stat]
-                  [-w NUMBER] [--name-surname-first] [--name-comma]
-                  [--name-maiden] [--name-maiden-only] [--name-capital]
-                  [--html-page-width SIZE] [--html-image-width SIZE]
-                  [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
-                  [--odt-page-height SIZE] [--odt-margin-left SIZE]
-                  [--odt-margin-right SIZE] [--odt-margin-top SIZE]
-                  [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
-                  [--odt-image-height SIZE] [--first-page NUMBER]
-                  input output
+    usage: ged2doc [-h] [-v] [--version] [-i PATH] [-p PATTERN]
+                   [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
+                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-image] [--no-toc]
+                   [--no-stat] [-w NUMBER] [--name-surname-first] [--name-comma]
+                   [--name-maiden] [--name-maiden-only] [--name-capital]
+                   [--html-page-width SIZE] [--html-image-width SIZE]
+                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
+                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
+                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
+                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
+                   [--odt-image-height SIZE] [--first-page NUMBER]
+                   input output
 
     Convert GEDCOM file into document.
 
@@ -52,6 +52,7 @@ all options run the command with ``--help`` or ``-h`` option::
       -h, --help            show this help message and exit
       -v, --verbose         Print some info to standard output, -vv prints debug
                             info.
+      --version             Print version information and exit
 
     ... description of all other options ...
 
@@ -303,9 +304,9 @@ Supported units are:
 
 ``cm``
     Size is given in centimeters, typically used for print dimensions.
-    1 in = 2.54 mm. Example: ``10cm``.
+    1 in = 2.54 cm. Example: ``10cm``.
 
-Options that accept size as value have default size type, if option type is
+Options that accept size as value have default unit type, if option unit is
 pixels then giving it value of ``300`` is the same as giving ``300px``.
 
 HTML Options
@@ -340,8 +341,7 @@ Options specific to ODT output:
 Examples
 ^^^^^^^^
 
-To produce HTML page from GEDCOM file with default settings (no images will
-appear in output)::
+To produce HTML page from GEDCOM file with default settings::
 
     $ ged2doc input.ged page.html
 
