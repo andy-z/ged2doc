@@ -46,6 +46,6 @@ Source: "ged2doc.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdocs}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdocs}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon 
+Name: "{commonprograms}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"
+Name: "{commondesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon 
 
