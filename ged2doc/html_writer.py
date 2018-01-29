@@ -306,11 +306,11 @@ class HtmlWriter(writer.Writer):
         maxsize = (width, height)
         size = utils.resize(img.size, maxsize)
         size = (int(size[0]), int(size[1]))
+        imgsize = ""
         if size != img.size:
             # means size was reduced
             _log.debug('Resize image to %s', size)
             img = img.resize(size, Image.LANCZOS)
-            imgsize = ""
         elif self._image_upscale:
             # means size was not changed and image is smaller
             # than box, we may want to extend it

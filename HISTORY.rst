@@ -39,3 +39,9 @@ History
 ------------------
 
 * Update docs, add russian translation for usage/installation
+
+0.1.7 (2018-01-28)
+------------------
+
+* Fixed bug causing exception for small images:
+  UnboundLocalError: local variable 'imgsize' referenced before assignment
