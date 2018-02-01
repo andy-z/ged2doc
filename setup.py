@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'ged4py>=0.1.1',
+    'ged4py>=0.1.4',
     "pillow",
     "odfpy"
 ]

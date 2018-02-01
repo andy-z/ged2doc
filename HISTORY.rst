@@ -45,3 +45,9 @@ History
 
 * Fixed bug causing exception for small images:
   UnboundLocalError: local variable 'imgsize' referenced before assignment
+
+0.1.8 (2018-01-31)
+------------------
+
+* Require ged4py 0.1.4 or later
+* This improves name parsing for ALTREE dialect

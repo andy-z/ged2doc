@@ -24,6 +24,6 @@ deploy:
   password:
     secure: PLEASE_REPLACE_ME
   on:
-    tags: true
+    tags: false
     repo: andy-z/ged2doc
     python: 2.7
