@@ -154,7 +154,8 @@ class Writer(object):
 
             # add some extra info
             indi_attr = indi_attributes(person)
-            for tag in ['EDUC', 'OCCU', 'RESI', 'NMR', 'NCI']:
+            for tag in ['EDUC', 'OCCU', 'RESI', 'NMR', 'NCHI', 'TITL', 'DSCR',
+                        'RELI', 'FACT']:
                 for attrib in indi_attr:
                     if attrib.tag == tag:
                         attributes += [self._formatIndiAttr(person, attrib)]
@@ -247,10 +248,19 @@ class Writer(object):
         for evt in indi_events(person):
             # BIRT was already rendered
             if evt.tag != 'BIRT':
-                facts = [self._tr.tr("EVENT." + evt.tag, person.sex),
+                # for generic EVEN event, use TYPE as even name, we cannot
+                # translate it because it can be anything
+                if evt.tag == 'EVEN' and evt.type:
+                    event = evt.type
+                else:
+                    event = self._tr.tr("EVENT." + evt.tag, person.sex)
+                facts = [event,
                          evt.value,
                          evt.place,
                          evt.note]
+                if evt.cause:
+                    pfmt = self._tr.tr(TR("EVENT.CAUSE: {cause}"), person.sex)
+                    facts.append(pfmt.format(cause=evt.cause))
                 events += [(evt.date, facts)]
 
         for fam in person.sub_tags("FAMS"):
@@ -278,7 +288,7 @@ class Writer(object):
                              evt.value,
                              evt.place,
                              evt.note]
-                events += [(evt.date, facts)]
+                    events += [(evt.date, facts)]
 
         # only use events with dates
         events = [evt for evt in events if evt[0]]
@@ -338,7 +348,12 @@ class Writer(object):
         :return: Tuple (attribute, value).
         """
 
-        attr = self._tr.tr(prefix + attrib.tag, person.sex)
+        # for generic FACT attribute, use TYPE as fact name, we cannot
+        # translate it because it can be anything
+        if attrib.tag == 'FACT' and attrib.type:
+            attr = attrib.type
+        else:
+            attr = self._tr.tr(prefix + attrib.tag, person.sex)
 
         props = []
         if attrib.value:

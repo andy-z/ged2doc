@@ -89,6 +89,9 @@ msgstr "Male Name Frequency"
 msgid "Table Of Contents"
 msgstr "Table Of Contents"
 
+msgid "EVENT.CAUSE: {cause}"
+msgstr "cause: {cause}"
+
 msgid "EVENT.BIRT"
 msgstr "Birth"
 

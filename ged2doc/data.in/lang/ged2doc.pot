@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-11-27 23:22+PST\n"
+"POT-Creation-Date: 2018-02-03 10:17+PST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,37 +15,7 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-msgid "Person List"
-msgstr ""
-
-msgid "Born"
-msgstr ""
-
-msgid "Date Unknown"
-msgstr ""
-
-msgid "Maiden name"
-msgstr ""
-
-msgid "Mother"
-msgstr ""
-
-msgid "Father"
-msgstr ""
-
 msgid "Spouses and children"
-msgstr ""
-
-msgid "Spouse"
-msgstr ""
-
-msgid "kids"
-msgstr ""
-
-msgid "Kids"
-msgstr ""
-
-msgid "CHILD.BORN {child}"
 msgstr ""
 
 msgid "Events and dates"
@@ -57,12 +27,6 @@ msgstr ""
 msgid "Ancestor tree"
 msgstr ""
 
-msgid "Statistics"
-msgstr ""
-
-msgid "Total Statistics"
-msgstr ""
-
 msgid "Person count"
 msgstr ""
 
@@ -70,15 +34,6 @@ msgid "Female count"
 msgstr ""
 
 msgid "Male count"
-msgstr ""
-
-msgid "Name Statistics"
-msgstr ""
-
-msgid "Female Name Frequency"
-msgstr ""
-
-msgid "Male Name Frequency"
 msgstr ""
 
 msgid "Table Of Contents"
@@ -379,5 +334,53 @@ msgid "MONTH_FRE.FRUC"
 msgstr ""
 
 msgid "MONTH_FRE.COMP"
+msgstr ""
+
+msgid "Person List"
+msgstr ""
+
+msgid "Date Unknown"
+msgstr ""
+
+msgid "Born"
+msgstr ""
+
+msgid "Maiden name"
+msgstr ""
+
+msgid "Mother"
+msgstr ""
+
+msgid "Father"
+msgstr ""
+
+msgid "Spouse"
+msgstr ""
+
+msgid "kids"
+msgstr ""
+
+msgid "Kids"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Total Statistics"
+msgstr ""
+
+msgid "Name Statistics"
+msgstr ""
+
+msgid "Female Name Frequency"
+msgstr ""
+
+msgid "Male Name Frequency"
+msgstr ""
+
+msgid "EVENT.CAUSE: {cause}"
+msgstr ""
+
+msgid "CHILD.BORN {child}"
 msgstr ""
 

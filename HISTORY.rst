@@ -51,3 +51,9 @@ History
 
 * Require ged4py 0.1.4 or later
 * This improves name parsing for ALTREE dialect
+
+0.1.9 (2018-02-03)
+------------------
+
+* Improve format of generic events and attributes, use TYPE as event type
+* Add "cause" to formatted event if "CAUS" tag is present

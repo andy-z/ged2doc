@@ -15,7 +15,8 @@ def test_001_indi_events():
     rtype = model.make_record(2, None, "TYPE", "SomeType", [], 0, dialect, None).freeze()
     rec1 = model.make_record(1, None, "BIRT", "", [rtype], 0, dialect, None).freeze()
     plac = model.make_record(2, None, "PLAC", "Some Place", [], 0, dialect, None).freeze()
-    rec2 = model.make_record(1, None, "DEAT", "Y", [plac], 0, dialect, None).freeze()
+    caus = model.make_record(2, None, "CAUS", "Some cause", [], 0, dialect, None).freeze()
+    rec2 = model.make_record(1, None, "DEAT", "Y", [plac, caus], 0, dialect, None).freeze()
     rec3 = model.make_record(1, None, "OCCU", "", [], 0, dialect, None).freeze()
     rec4 = model.make_record(1, None, "EDUC", "", [], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [rec1, rec2, rec3, rec4], 0, dialect, None).freeze()
@@ -25,10 +26,12 @@ def test_001_indi_events():
     assert evts[0].value == ''
     assert evts[0].type == 'SomeType'
     assert evts[0].place is None
+    assert evts[0].cause is None
     assert evts[1].tag == 'DEAT'
     assert evts[1].value == 'Y'
     assert evts[1].type is None
     assert evts[1].place == 'Some Place'
+    assert evts[1].cause == 'Some cause'
 
     evts = events.indi_events(person, ['BIRT'])
     assert len(evts) == 1

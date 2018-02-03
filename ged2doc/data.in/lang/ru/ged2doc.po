@@ -96,6 +96,9 @@ msgstr "Частота мужских имен"
 msgid "Table Of Contents"
 msgstr "Оглавление"
 
+msgid "EVENT.CAUSE: {cause}"
+msgstr "причина: {cause}"
+
 msgid "EVENT.BIRT"
 msgstr "Рождение"
 

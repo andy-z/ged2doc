@@ -7,9 +7,9 @@ __all__ = ['Event', 'indi_events', 'indi_attributes', 'family_events']
 
 from collections import namedtuple
 
-# Event structure, reflection of <EVENT_DETAIL>. Only releavant
+# Event structure, reflection of <EVENT_DETAIL>. Only relevant
 # pieces appear here.
-Event = namedtuple("Event", "tag value type date place note")
+Event = namedtuple("Event", "tag value type date place note cause")
 
 _indi_events_tags = set([
     'BIRT', 'CHR', 'DEAT', 'BURI', 'CREM', 'ADOP',
@@ -41,7 +41,8 @@ def _get_events(record, tags):
                                 type=rec.sub_tag_value('TYPE'),
                                 date=rec.sub_tag_value('DATE'),
                                 place=rec.sub_tag_value('PLAC'),
-                                note=rec.sub_tag_value('NOTE')))
+                                note=rec.sub_tag_value('NOTE'),
+                                cause=rec.sub_tag_value('CAUS')))
     return events
 
 
