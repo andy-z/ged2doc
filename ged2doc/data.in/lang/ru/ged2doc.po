@@ -28,7 +28,7 @@ msgid "Date Unknown"
 msgstr "Неизвестно"
 
 msgid "Maiden name"
-msgstr "Девичье имя"
+msgstr "Девичья фамилия"
 
 msgid "Mother"
 msgstr "Мать"

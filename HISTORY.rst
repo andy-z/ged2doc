@@ -57,3 +57,8 @@ History
 
 * Improve format of generic events and attributes, use TYPE as event type
 * Add "cause" to formatted event if "CAUS" tag is present
+
+0.1.10 (2018-04-02)
+------------------
+
+* Changed Russian translation for "Maiden name"
