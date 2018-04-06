@@ -59,6 +59,8 @@ class OdtWriter(writer.Writer):
         section.
     :param bool make_toc: If ``True`` (default) then generate Table of
         Contents.
+    :param bool events_without_dates: If ``True`` (default) then show events
+        that have no associated dates.
     :param Size page_width: Page width of the produced document.
     :param Size page_height: Page height of the produced document.
     :param Size margin_left: Left page margin of the produced document.
@@ -75,6 +77,7 @@ class OdtWriter(writer.Writer):
                  encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
                  make_images=True, make_stat=True, make_toc=True,
+                 events_without_dates=True,
                  page_width="6in", page_height="9in",
                  margin_left="0.5in", margin_right="0.5in",
                  margin_top="0.5in", margin_bottom="0.25in",
@@ -85,7 +88,8 @@ class OdtWriter(writer.Writer):
                                encoding_errors=encoding_errors,
                                sort_order=sort_order, name_fmt=name_fmt,
                                make_images=make_images, make_stat=make_stat,
-                               make_toc=make_toc)
+                               make_toc=make_toc,
+                               events_without_dates=events_without_dates)
 
         self._output = output
         self._image_width = Size(image_width)

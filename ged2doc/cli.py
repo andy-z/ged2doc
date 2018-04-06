@@ -75,6 +75,8 @@ def main():
                        metavar="ORDER", choices=ORDER_LIST,
                        help="Ordering of the individuals, one of "
                        "%(choices)s; default: %(default)s.")
+    group.add_argument("--no-missing-date", default=False, action="store_true",
+                       help="Do not output events if they have no dates.")
     group.add_argument("--no-image", default=False, action="store_true",
                        help="Disable images in output document.")
     group.add_argument("--no-toc", default=False, action="store_true",
@@ -192,6 +194,7 @@ def main():
                             encoding_errors=args.encoding_errors,
                             sort_order=args.sort_order,
                             name_fmt=name_fmt,
+                            events_without_dates=not args.no_missing_date,
                             make_toc=not args.no_toc,
                             make_stat=not args.no_stat,
                             make_images=not args.no_image,
@@ -205,6 +208,7 @@ def main():
                            encoding=args.encoding,
                            encoding_errors=args.encoding_errors,
                            sort_order=args.sort_order,
+                           events_without_dates=not args.no_missing_date,
                            make_toc=not args.no_toc,
                            make_stat=not args.no_stat,
                            make_images=not args.no_image,

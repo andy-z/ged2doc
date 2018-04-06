@@ -388,3 +388,6 @@ msgstr "Fruc"
 
 msgid "MONTH_FRE.COMP"
 msgstr "Comp"
+
+msgid "Event Date Unknown"
+msgstr "Date unknown"

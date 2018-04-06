@@ -155,7 +155,8 @@ class _FSFileSearch(object):
         elif len(matches) > 1:
             _log.debug("_FSFileSearch.find_file: many files found: " +
                        str(matches))
-            raise MultipleMatchesError('More than file matches name ' + name)
+            raise MultipleMatchesError('More than one file matches name ' +
+                                       name)
         else:
             _log.debug("_FSFileSearch.find_file: found: %s", matches[0])
             return matches[0]

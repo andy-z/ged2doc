@@ -29,15 +29,16 @@ all options run the command with ``--help`` or ``-h`` option::
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-image] [--no-toc]
-                   [--no-stat] [-w NUMBER] [--name-surname-first] [--name-comma]
-                   [--name-maiden] [--name-maiden-only] [--name-capital]
-                   [--html-page-width SIZE] [--html-image-width SIZE]
-                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
-                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
-                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
-                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
-                   [--odt-image-height SIZE] [--first-page NUMBER]
+                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
+                   [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
+                   [--name-surname-first] [--name-comma] [--name-maiden]
+                   [--name-maiden-only] [--name-capital] [--html-page-width SIZE]
+                   [--html-image-width SIZE] [--html-image-height SIZE] [-u]
+                   [--odt-page-width SIZE] [--odt-page-height SIZE]
+                   [--odt-margin-left SIZE] [--odt-margin-right SIZE]
+                   [--odt-margin-top SIZE] [--odt-margin-bottom SIZE]
+                   [--odt-image-width SIZE] [--odt-image-height SIZE]
+                   [--first-page NUMBER]
                    input output
 
     Convert GEDCOM file into document.
@@ -224,6 +225,13 @@ option, ``ORDER`` is one of:
 
 ``first+maiden``
     Persons are ordered according to given name and family (maiden) name.
+
+Events without dates
+""""""""""""""""""""
+
+By default |ged2doc| outputs all events including those events that do not
+have associated dates (events are prefixed with "Date unknown"). To disable
+printing of those events use ``--no-missing-date`` option.
 
 Images
 """"""
