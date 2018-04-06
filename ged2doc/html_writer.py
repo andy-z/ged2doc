@@ -55,6 +55,8 @@ class HtmlWriter(writer.Writer):
         section.
     :param bool make_toc: If ``True`` (default) then generate Table of
         Contents.
+    :param bool events_without_dates: If ``True`` (default) then show events
+        that have no associated dates.
     :param Size page_width: Width of the produced HTML page.
     :param Size image_width: Size of the images.
     :param Size image_height: Size of the images.
@@ -67,6 +69,7 @@ class HtmlWriter(writer.Writer):
                  encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
                  make_images=True, make_stat=True, make_toc=True,
+                 events_without_dates=True,
                  page_width="800px", image_width="300px",
                  image_height="300px", image_upscale=False,
                  tree_width=4):
@@ -75,7 +78,8 @@ class HtmlWriter(writer.Writer):
                                encoding_errors=encoding_errors,
                                sort_order=sort_order, name_fmt=name_fmt,
                                make_images=make_images, make_stat=make_stat,
-                               make_toc=make_toc)
+                               make_toc=make_toc,
+                               events_without_dates=events_without_dates)
 
         self._page_width = Size(page_width)
         self._image_width = Size(image_width)

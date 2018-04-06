@@ -398,3 +398,6 @@ msgstr "Фрюк"
 
 msgid "MONTH_FRE.COMP"
 msgstr "Санк"
+
+msgid "Event Date Unknown"
+msgstr "Дата неизвестна"

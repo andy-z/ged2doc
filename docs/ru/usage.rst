@@ -29,15 +29,16 @@
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-image] [--no-toc]
-                   [--no-stat] [-w NUMBER] [--name-surname-first] [--name-comma]
-                   [--name-maiden] [--name-maiden-only] [--name-capital]
-                   [--html-page-width SIZE] [--html-image-width SIZE]
-                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
-                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
-                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
-                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
-                   [--odt-image-height SIZE] [--first-page NUMBER]
+                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
+                   [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
+                   [--name-surname-first] [--name-comma] [--name-maiden]
+                   [--name-maiden-only] [--name-capital] [--html-page-width SIZE]
+                   [--html-image-width SIZE] [--html-image-height SIZE] [-u]
+                   [--odt-page-width SIZE] [--odt-page-height SIZE]
+                   [--odt-margin-left SIZE] [--odt-margin-right SIZE]
+                   [--odt-margin-top SIZE] [--odt-margin-bottom SIZE]
+                   [--odt-image-width SIZE] [--odt-image-height SIZE]
+                   [--first-page NUMBER]
                    input output
 
     Convert GEDCOM file into document.
@@ -227,6 +228,14 @@ utf-8, но заменяет неправильно закодированные
 
 ``first+maiden``
     Персоны упорядочены в соответствии с именем и фамилией (до брака).
+
+События без дат
+"""""""""""""""
+
+По умолчанию |ged2doc| выводит все события, относящиеся к персоне, включая
+события, для которых не определены даты (события выводятся с префиксом
+"Дата неизвестна"). Чтобы отключить вывод таких событий используйте опцию
+``--no-missing-date``.
 
 Изображения
 """""""""""

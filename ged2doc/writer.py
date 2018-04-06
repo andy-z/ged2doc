@@ -61,11 +61,14 @@ class Writer(object):
         section.
     :param bool make_toc: If ``True`` (default) then generate Table of
         Contents.
+    :param bool events_without_dates: If ``True`` (default) then show events
+        that have no associated dates.
     """
 
     def __init__(self, flocator, tr, encoding=None, encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
-                 make_images=True, make_stat=True, make_toc=True):
+                 make_images=True, make_stat=True, make_toc=True,
+                 events_without_dates=True):
 
         self._floc = flocator
         self._encoding = encoding
@@ -75,6 +78,7 @@ class Writer(object):
         self._make_images = make_images
         self._make_stat = make_stat
         self._make_toc = make_toc
+        self._events_without_dates = events_without_dates
         self._tr = tr
 
     def save(self):
@@ -290,15 +294,20 @@ class Writer(object):
                              evt.note]
                     events += [(evt.date, facts)]
 
-        # only use events with dates
-        events = [evt for evt in events if evt[0]]
-
-        # order events
+        # order events (only those with dates)
         sevents = []
-        for date, facts in sorted(events):
+        for date, facts in sorted(evt for evt in events if evt[0]):
             facts = [fact for fact in facts if fact]
             facts = u"; ".join(facts)
             sevents += [(self._tr.tr_date(date), facts)]
+
+        # but also list events without dates
+        if self._events_without_dates:
+            for date, facts in events:
+                if not date:
+                    facts = [fact for fact in facts if fact]
+                    facts = u"; ".join(facts)
+                    sevents += [(self._tr.tr(TR("Event Date Unknown")), facts)]
 
         return sevents
 
