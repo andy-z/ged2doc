@@ -40,6 +40,7 @@ Freezing ged2doc as a standalone executable, make sure that Python is in
 the PATH::
 
     cd ged2doc
+    rmdir /s build\exe.win32-3.6
     python freeze\setup.py build_exe
 
 Resulting binaries and all other needed files will appear in the folder
