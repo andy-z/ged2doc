@@ -2,8 +2,8 @@
 History
 =======
 
-<For next release>
-------------------
+0.1.11 (2018-04-07)
+-------------------
 
 * Output events without dates, and add option to disable it
 
