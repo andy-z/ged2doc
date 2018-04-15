@@ -188,6 +188,8 @@ def main():
             parser.error("Cannot determine document type from file extension,"
                          " use --type option to specify document type")
 
+    _log.debug("args: %s", args)
+
     if args.type == "html":
         writer = HtmlWriter(flocator, args.output, tr,
                             encoding=args.encoding,
