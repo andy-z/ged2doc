@@ -110,6 +110,64 @@ class FileLocator(object):
         raise NotImplementedError("Method open_image() is not implemented")
 
 
+class _Path(object):
+    """Internal representation of the (relative) file path.
+
+    In this representation path is a just a sequence of path components -
+    zero or more folders and a file name.
+
+    :param list components: List of (unicode) strings representing path
+    :param str dirname: optional prefix directory
+    """
+
+    def __init__(self, components, dirname=None):
+        self.components = components[:]
+        self.dirname = dirname
+
+    @classmethod
+    def from_path(cls, path, dirname=None):
+        """Construct instance of this type from full path name.
+
+        :param str: (unicode) string representing path
+        :param str dirname: optional prefix directory
+        """
+        # Trouble here is that GEDCOM file can be prepared on different type
+        # of system with different path separator. First try to convert path
+        # into canonical form using slashes as separators and stripping
+        # Windows drive.
+        if len(path) > 2 and path[0].isalpha() and path[1] == ':':
+            # strip windows drive name
+            path = path[2:]
+        path = path.replace('\\', '/').lstrip('/')
+
+        # split file name into components
+        return cls(path.split('/'), dirname)
+
+    def match_rank(self, other):
+        """Returns match "rank" with the other path.
+
+        Rank is a count of identical matching components at the end of paths.
+        """
+        if self.components[-1] != other.components[-1]:
+            return 0
+        rank = 0
+        for comp1, comp2 in zip(reversed(self.components),
+                                reversed(other.components)):
+            if comp1 != comp2:
+                break
+            rank += 1
+        return rank
+
+    def os_path(self):
+        if self.dirname:
+            return os.path.join(self.dirname, *self.components)
+        else:
+            return os.path.join(*self.components)
+
+    def __str__(self):
+        return "/".join(self.components)
+
+
 class _FileSearch(object):
     """Implementation of recursive file search in a folder tree.
 
@@ -135,84 +193,48 @@ class _FileSearch(object):
     def find_file(self, name):
         '''Returns file path for the named file.
 
-        One complication here is encoding, `os.walk` is returning stings/bytes
-        of the same type as its argument (self._path) and if `name` has
-        different type then comparison may fail in some cases. To avoid
-        complications we convert both self._path and `name` to bytes using
-        UTF-8 encoding. This still can be problematic in case when filesystem
-        native encoding is different from UTF-8.
-
         :param str name: File name to search, this is usually the path as
                 it comes directly from GEDCOM file.
         '''
-        def rank(path1, path2):
-            """Counts the number of matching trailing components"""
-            rank = 0
-            for comp1, comp2 in zip(reversed(path1), reversed(path2)):
-                if comp1 != comp2:
-                    break
-                rank += 1
-            return rank
 
-        # Trouble here is that GEDCOM file can be prepared on different type
-        # of system with different path separator. First try to convert path
-        # into canonical form using slashes as separators and stripping
-        # Windows drive.
-        if len(name) > 2 and name[0].isalpha() and name[1] == ':':
-            # strip windows drive name
-            name = name[2:]
-        name = name.replace('\\', '/').lstrip('/')
+        path = _Path.from_path(name)
 
-        # split file name into components
-        name_comp = [self._enc(comp) for comp in name.split('/') if comp]
-        _log.debug("_FileSearch.find_file: find file %s", name)
+        # for each match assign its rank
+        matches = []
+        max_rank = 1  # need at least basename match
+        for cand in self.paths:
+            rank = path.match_rank(cand)
+#             _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
+            if rank > max_rank:
+                matches = [cand]
+                max_rank = rank
+            elif rank == max_rank:
+                matches += [cand]
 
-        # select all files with matching base name
-        matches = [path for path in self.paths if path[-1] == name_comp[-1]]
         if not matches:
             _log.debug("_FileSearch.find_file: nothing found")
             return
-
-        # for each match assign its rank
-        matches = sorted((rank(name_comp, path), path) for path in matches)
-
-        # select all best matches
-        max_rank = matches[-1][0]
-        matches = [path for r, path in matches if r == max_rank]
-
-        if len(matches) > 1:
-            matches = [b'/'.join(path) for path in matches]
-            matches = [path.decode('utf_8') for path in matches]
+        elif len(matches) > 1:
             _log.debug("_FileSearch.find_file: many files found: %s",
                        matches)
             raise MultipleMatchesError('More than one file matches name ' +
-                                       name + ": " + ', '.join(matches))
+                                       str(path) + ": " +
+                                       ', '.join(str(m) for m in matches))
         else:
             _log.debug("_FileSearch.find_file: found: %s", matches[0])
-            return self._make_path(matches[0])
+            return matches[0]
 
     @property
     def paths(self):
-        """The list of all path names inside image search directory.
-        Each path is represented as a relative path split at separator
-        character.
+        """The list of all path names (_Path instances) to use for matching.
         """
         if self._path_cache is None:
-            # make sure that paths are all bytes
-            self._path_cache = [self._enc_list(path) for path in self._paths()]
+            self._path_cache = self._paths()
         return self._path_cache
 
     def _paths(self):
-        """Return list of file paths.
-
-        Each path in a tree should be returned as a liast which is a path
-        name split at the separator character, e.g. "a/b/data.txt" should
-        be represented as ["a", "b", "data.txt"]
-        """
-        raise NotImplementedError()
-
-    def _make_path(self, components):
-        """Make file paths out of components.
+        """Return list of file paths (_Path instances), must be implemented
+        in a subclass.
         """
         raise NotImplementedError()
 
@@ -220,27 +242,29 @@ class _FileSearch(object):
 class _FSFileSearch(_FileSearch):
     """Implementation of recursive file search on file system.
 
+    One complication here is encoding, `os.listdir` is returning stings/bytes
+    of the same type as its argument (self._path). To avoid complications we
+    convert self._path to unicode using UTF-8 encoding. This could fail in
+    some cases.
+
     :param str path: Directory on a file system to search for files.
     """
 
     def __init__(self, path):
 
+        if path is not None and not isinstance(path, type(u"")):
+            path = path.decode("utf_8")
         self._path = path
 
     def _paths(self):
-        """Return list of file paths.
-
-        Each path in a tree should be returned as a liast which is a path
-        name split at the separator character, e.g. "a/b/data.txt" should
-        be represented as ["a", "b", "data.txt"]
+        """Return list of file paths (_Path instances).
         """
         _log.debug("_FSFileSearch.find_file: recursively scan "
                    "directory %r", self._path)
         if self._path is None:
             # do not search
             return []
-        path = self._enc(self._path)
-        return list(self._scan(path))
+        return list(self._scan(self._path))
 
     def _scan(self, path, current=None):
         """Recursively scan folder, return each file path as a list of
@@ -254,12 +278,9 @@ class _FSFileSearch(_FileSearch):
                 for p in self._scan(fpath, components):
                     yield p
             elif os.path.isfile(fpath):
-                yield components
-
-    def _make_path(self, components):
-        """Make file paths out of components.
-        """
-        return os.path.join(self._enc(self._path), *components)
+                p = _Path(components, self._path)
+#                 _log.debug("_scan: %s", p)
+                yield p
 
 
 class _ZIPFileSearch(_FileSearch):
@@ -273,23 +294,12 @@ class _ZIPFileSearch(_FileSearch):
         self._toc = toc
 
     def _paths(self):
-        """Return list of file paths.
-
-        Each path in a tree should be returned as a liast which is a path
-        name split at the separator character, e.g. "a/b/data.txt" should
-        be represented as ["a", "b", "data.txt"]
+        """Return list of file paths (_Path instances).
         """
         paths = []
         for entry in self._toc:
-            entry = [comp for comp in entry.split('/') if comp]
-            paths.append(entry)
+            paths.append(_Path([comp for comp in entry.split('/') if comp]))
         return paths
-
-    def _make_path(self, components):
-        """Make file paths out of components.
-        """
-        components = [comp.decode('utf_8') for comp in components]
-        return '/'.join(components)
 
 
 class _FSLocator(FileLocator):
@@ -368,7 +378,7 @@ class _FSLocator(FileLocator):
         # Otherwise try to search in the image folder.
         fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname, 'rb')
+            return open(fname.os_path(), 'rb')
 
 
 class _ZipLocator(FileLocator):
@@ -421,7 +431,7 @@ class _ZipLocator(FileLocator):
         fname = self._zipsearch.find_file(name)
         if fname:
             _log.debug("_ZipLocator.open_image: found in ZIP: %r", fname)
-            return self._zip.open(fname, 'r')
+            return self._zip.open(str(fname), 'r')
 
         # if file name looks like absolute path (on current OS)
         # try unmodified name
@@ -436,7 +446,7 @@ class _ZipLocator(FileLocator):
         _log.debug('_ZipLocator.open_image: Trying FS name %s', name)
         fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname, 'rb')
+            return open(fname.os_path(), 'rb')
 
 
 def make_file_locator(input_file, file_name_pattern, image_path):
