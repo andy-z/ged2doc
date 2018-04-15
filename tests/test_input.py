@@ -20,15 +20,20 @@ def files_on_disk():
     tmpdir = tempfile.mkdtemp()
     files = [("xxx.ged",),
              ("dir1", "one.jpg"),
-             ("dir2", "two.gif"),
-             ("two.gif",)]
+             ("dir1", "dir2", "one.jpg"),
+             ("dir1", "two.gif"),
+             ("dir2", "two.gif")]
     for fname in files:
         fdir = os.path.join(tmpdir, *fname[:-1])
         if fdir != tmpdir:
-            os.makedirs(os.path.join(tmpdir, *fname[:-1]))
+            try:
+                os.makedirs(os.path.join(tmpdir, *fname[:-1]))
+            except OSError:
+                pass
         path = os.path.join(tmpdir, *fname)
         with open(path, "wb") as fobj:
-            fobj.write(fname[-1].encode('ascii'))
+            data = '/'.join(fname).encode('ascii')
+            fobj.write(data)
 
     yield tmpdir
 
@@ -44,11 +49,13 @@ def files_in_zip():
     with zipfile.ZipFile(aname, "w") as archive:
         files = [("xxx.ged",),
                  ("dir1", "one.jpg"),
-                 ("dir2", "two.gif"),
-                 ("two.gif",)]
+                 ("dir1", "dir2", "one.jpg"),
+                 ("dir1", "two.gif"),
+                 ("dir2", "two.gif")]
         for fname in files:
             path = '/'.join(fname)
-            archive.writestr(path, fname[-1].encode('ascii'))
+            data = path.encode('ascii')
+            archive.writestr(path, data)
 
     yield aname
 
@@ -59,14 +66,32 @@ def checkFilesLoc(loc):
     ged = loc.open_gedcom()
     assert ged.read() == b"xxx.ged"
 
-    img = loc.open_image("one.jpg")
-    assert img.read() == b"one.jpg"
+    with pytest.raises(ged2doc_input.MultipleMatchesError):
+        img = loc.open_image("one.jpg")
 
     with pytest.raises(ged2doc_input.MultipleMatchesError):
         img = loc.open_image("two.gif")
 
-    img = loc.open_image("one.jpg")
-    assert img.read() == b"one.jpg"
+    img = loc.open_image("dir1/one.jpg")
+    assert img.read() == b"dir1/one.jpg"
+
+    img = loc.open_image("dir2/one.jpg")
+    assert img.read() == b"dir1/dir2/one.jpg"
+
+    img = loc.open_image("dir1/dir2/one.jpg")
+    assert img.read() == b"dir1/dir2/one.jpg"
+
+    img = loc.open_image(r"d:\x\y\z\dir2\one.jpg")
+    assert img.read() == b"dir1/dir2/one.jpg"
+
+    img = loc.open_image("dir1/two.gif")
+    assert img.read() == b"dir1/two.gif"
+
+    img = loc.open_image("dir2/two.gif")
+    assert img.read() == b"dir2/two.gif"
+
+    img = loc.open_image("/home/joe/Pictures/dir2/two.gif")
+    assert img.read() == b"dir2/two.gif"
 
     assert loc.open_image("three.pdf") is None
 

@@ -110,65 +110,205 @@ class FileLocator(object):
         raise NotImplementedError("Method open_image() is not implemented")
 
 
-class _FSFileSearch(object):
-    """Implementation of recursive file search on file system.
+class _Path(object):
+    """Internal representation of the (relative) file path.
 
-    :param str path: Directory on a file system to search for files.
+    In this representation path is a just a sequence of path components -
+    zero or more folders and a file name.
+
+    :param list components: List of (unicode) strings representing path
+    :param str dirname: optional prefix directory
     """
 
-    def __init__(self, path=None):
+    def __init__(self, components, dirname=None):
+        self.components = components[:]
+        self.dirname = dirname
 
-        self._path = path
-        self._files = None
+    @classmethod
+    def from_path(cls, path, dirname=None):
+        """Construct instance of this type from full path name.
+
+        :param str: (unicode) string representing path
+        :param str dirname: optional prefix directory
+        """
+        # Trouble here is that GEDCOM file can be prepared on different type
+        # of system with different path separator. First try to convert path
+        # into canonical form using slashes as separators and stripping
+        # Windows drive.
+        if len(path) > 2 and path[0].isalpha() and path[1] == ':':
+            # strip windows drive name
+            path = path[2:]
+        path = path.replace('\\', '/').lstrip('/')
+
+        # split file name into components
+        return cls(path.split('/'), dirname)
+
+    def match_rank(self, other):
+        """Returns match "rank" with the other path.
+
+        Rank is a count of identical matching components at the end of paths.
+        """
+        if self.components[-1] != other.components[-1]:
+            return 0
+        rank = 0
+        for comp1, comp2 in zip(reversed(self.components),
+                                reversed(other.components)):
+            if comp1 != comp2:
+                break
+            rank += 1
+        return rank
+
+    def os_path(self):
+        if self.dirname:
+            return os.path.join(self.dirname, *self.components)
+        else:
+            return os.path.join(*self.components)
+
+    def __str__(self):
+        return "/".join(self.components)
+
+
+class _FileSearch(object):
+    """Implementation of recursive file search in a folder tree.
+
+    This is an abstract class which can match files but does not know how
+    to build folder tree. Sub classes must implement _paths() method which
+    returns the list of file "paths" to match.
+    """
+
+    _path_cache = None
+
+    @staticmethod
+    def _enc(name):
+        """If string is Unicode encode it into UTF-8"""
+        if isinstance(name, type(u"")):
+            name = name.encode("utf_8")
+        return name
+
+    @staticmethod
+    def _enc_list(path):
+        """If strings are Unicode encode them into UTF-8"""
+        return [_FileSearch._enc(comp) for comp in path]
 
     def find_file(self, name):
         '''Returns file path for the named file.
 
-        One complication here is encoding, `os.walk` is returning stings/bytes
-        of the same type as its argument (self._path) and if `name` has
-        different type then comparison may fail in some cases. To void
-        complications we convert both self._path and `name` to bytes.
+        :param str name: File name to search, this is usually the path as
+                it comes directly from GEDCOM file.
         '''
 
-        bname = name
-        if isinstance(bname, type(u"")):
-            bname = bname.encode("utf_8")
+        path = _Path.from_path(name)
 
-        _log.debug("_FSFileSearch.find_file: find file %s", name)
+        # for each match assign its rank
+        matches = []
+        max_rank = 1  # need at least basename match
+        for cand in self.paths:
+            rank = path.match_rank(cand)
+#             _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
+            if rank > max_rank:
+                matches = [cand]
+                max_rank = rank
+            elif rank == max_rank:
+                matches += [cand]
 
-        if self._files is None:
-            self._files = []
-            if self._path:
-                # make the list of files in the directory and all sub-dirs
-                _log.debug("_FSFileSearch.find_file: recursively scan "
-                           "directory " + self._path)
-                path = self._path
-                if isinstance(path, type(u"")):
-                    path = path.encode("utf_8")
-                self._files = list(os.walk(path))
-
-        matches = [os.path.join(fldr, bname) for fldr, _, files in self._files
-                   if bname in files]
         if not matches:
-            _log.debug("_FSFileSearch.find_file: nothing found")
+            _log.debug("_FileSearch.find_file: nothing found")
             return
         elif len(matches) > 1:
-            _log.debug("_FSFileSearch.find_file: many files found: " +
-                       str(matches))
+            _log.debug("_FileSearch.find_file: many files found: %s",
+                       matches)
             raise MultipleMatchesError('More than one file matches name ' +
-                                       name)
+                                       str(path) + ": " +
+                                       ', '.join(str(m) for m in matches))
         else:
-            _log.debug("_FSFileSearch.find_file: found: %s", matches[0])
+            _log.debug("_FileSearch.find_file: found: %s", matches[0])
             return matches[0]
+
+    @property
+    def paths(self):
+        """The list of all path names (_Path instances) to use for matching.
+        """
+        if self._path_cache is None:
+            self._path_cache = self._paths()
+        return self._path_cache
+
+    def _paths(self):
+        """Return list of file paths (_Path instances), must be implemented
+        in a subclass.
+        """
+        raise NotImplementedError()
+
+
+class _FSFileSearch(_FileSearch):
+    """Implementation of recursive file search on file system.
+
+    One complication here is encoding, `os.listdir` is returning stings/bytes
+    of the same type as its argument (self._path). To avoid complications we
+    convert self._path to unicode using UTF-8 encoding. This could fail in
+    some cases.
+
+    :param str path: Directory on a file system to search for files.
+    """
+
+    def __init__(self, path):
+
+        if path is not None and not isinstance(path, type(u"")):
+            path = path.decode("utf_8")
+        self._path = path
+
+    def _paths(self):
+        """Return list of file paths (_Path instances).
+        """
+        _log.debug("_FSFileSearch.find_file: recursively scan "
+                   "directory %r", self._path)
+        if self._path is None:
+            # do not search
+            return []
+        return list(self._scan(self._path))
+
+    def _scan(self, path, current=None):
+        """Recursively scan folder, return each file path as a list of
+        its components.
+        """
+        for fname in os.listdir(path):
+            fpath = os.path.join(path, fname)
+            components = (current or []) + [fname]
+            if os.path.isdir(fpath):
+                # scan recursively
+                for p in self._scan(fpath, components):
+                    yield p
+            elif os.path.isfile(fpath):
+                p = _Path(components, self._path)
+#                 _log.debug("_scan: %s", p)
+                yield p
+
+
+class _ZIPFileSearch(_FileSearch):
+    """Implementation of recursive file search on file system.
+
+    :param list toc: list of entries in ZIP archive.
+    """
+
+    def __init__(self, toc):
+
+        self._toc = toc
+
+    def _paths(self):
+        """Return list of file paths (_Path instances).
+        """
+        paths = []
+        for entry in self._toc:
+            paths.append(_Path([comp for comp in entry.split('/') if comp]))
+        return paths
 
 
 class _FSLocator(FileLocator):
     """Implementation of FileLocator interface which can find files located
     on a regular file system.
 
-    :param str input_file: Path of the input file or file object, can be a ZIP
-            archive or a GEDCOM file. If argument is a file object then it
-            must support ``seek()`` method and be open in a binary mode.
+    :param str input_file: Path of the input GEDCOM file or file object.
+            If argument is a file object then it must support ``seek()``
+            method and be open in a binary mode.
     :param str image_path: Directory on a file system where images are found.
             Images could be located in sub-directories of the given path.
             If ``image_path`` is ``None`` then file system is not searched for
@@ -179,6 +319,17 @@ class _FSLocator(FileLocator):
     def __init__(self, input_file, image_path=None):
 
         self._input_file = input_file
+        if image_path is None:
+            # use parent folder of GEDCOM file for image search
+            if hasattr(input_file, 'read'):
+                # it's probably a file
+                image_path = getattr(input_file, "name", None)
+            else:
+                image_path = input_file
+            if image_path:
+                image_path = os.path.dirname(os.path.abspath(image_path))
+            _log.debug("_FSLocator: use image folder: %r", image_path)
+        self._image_path = image_path
         self._fsearch = _FSFileSearch(image_path)
 
     def open_gedcom(self):
@@ -204,30 +355,37 @@ class _FSLocator(FileLocator):
 
         _log.debug("_FSLocator.open_image: find image %s", name)
 
-        # first try unmodified name
-        try:
-            _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
-            return open(name, 'rb')
-        except IOError:
-            pass
+        # first, if file name looks like absolute path (on current OS)
+        # try unmodified name
+        if os.path.isabs(name):
+            try:
+                _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
+                return open(name, 'rb')
+            except IOError:
+                pass
+        else:
+            # if path looks like relative path try to open it relative to image
+            # search path
+            if self._image_path:
+                try:
+                    path = os.path.join(self._image_path, name)
+                    _log.debug('_ZipLocator.open_image: Trying FS path %s',
+                               name)
+                    return open(path, 'rb')
+                except IOError:
+                    pass
 
-        # We need basename of the file, trouble here is that GEDCOM file can
-        # be prepared on different type of system. For now assume that path
-        # separator in GEDCOM can be either slash or backslash
-        basename = name.rsplit('/', 1)[-1]
-        basename = basename.rsplit('\\', 1)[-1]
-        _log.debug('_FSLocator.open_image: Trying base name %s', basename)
-
-        fname = self._fsearch.find_file(basename)
+        # Otherwise try to search in the image folder.
+        fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname, 'rb')
+            return open(fname.os_path(), 'rb')
 
 
 class _ZipLocator(FileLocator):
     """Implementation of FileLocator interface which can find files located
     in zip archive.
 
-    :param str file_name: Path of the input ZIP archive
+    :param str input_file: Path of the input ZIP file or file object.
     :param str file_name_pattern: name pattern to search for a GEDCOM file
     :param str image_path: Directory on a filesystem where images are found.
             Images could be located in sub-directories of the given path.
@@ -237,10 +395,11 @@ class _ZipLocator(FileLocator):
             directory is searched.
     """
 
-    def __init__(self, file_name, file_name_pattern, image_path):
-        self._zip = zipfile.ZipFile(file_name, 'r')
+    def __init__(self, input_file, file_name_pattern, image_path):
+        self._zip = zipfile.ZipFile(input_file, 'r')
         self._toc = self._zip.namelist()
         self._pattern = file_name_pattern
+        self._zipsearch = _ZIPFileSearch(self._toc)
         self._fsearch = _FSFileSearch(image_path)
 
     def open_gedcom(self):
@@ -253,7 +412,7 @@ class _ZipLocator(FileLocator):
             raise MultipleMatchesError('Multiple matching files found in '
                                        'archive: ' + ' '.join(matches))
         member = matches[0]
-        _log.debug("_ZipLocator.open_gedcom: " + member)
+        _log.debug("_ZipLocator.open_gedcom: %r", member)
 
         # wee need a file on disk which supports seek, open in binary mode
         fobj = tempfile.NamedTemporaryFile("w+b",
@@ -268,34 +427,26 @@ class _ZipLocator(FileLocator):
 
         _log.debug("_ZipLocator.open_image: find image %s", name)
 
-        # We need basename of the file, trouble here is that GEDCOM file can
-        # be prepared on different type of system. For now assume that path
-        # separator in GEDCOM can be either slash or backslash
-        basename = name.rsplit('/', 1)[-1]
-        basename = basename.rsplit('\\', 1)[-1]
+        _log.debug('_ZipLocator.open_image: Trying archive name %r', name)
+        fname = self._zipsearch.find_file(name)
+        if fname:
+            _log.debug("_ZipLocator.open_image: found in ZIP: %r", fname)
+            return self._zip.open(str(fname), 'r')
 
-        # file names in _toc have slash as separator
-        _log.debug('_ZipLocator.open_image: Trying base name %s', basename)
-        paths = [f for f in self._toc if f.rsplit('/')[-1] == basename]
-        if len(paths) > 1:
-            raise MultipleMatchesError('Multiple image files found in archive '
-                                       'matching name ' + name)
-        if paths:
-            _log.debug("_ZipLocator.open_image: found in ZIP: " + paths[0])
-            return self._zip.open(paths[0], 'r')
-
-        # first try unmodified name
-        try:
-            _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
-            return open(name, 'rb')
-        except IOError:
-            pass
+        # if file name looks like absolute path (on current OS)
+        # try unmodified name
+        if os.path.isabs(name):
+            try:
+                _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
+                return open(name, 'rb')
+            except IOError:
+                pass
 
         # search on filesystem
-        _log.debug('_ZipLocator.open_image: Trying base name %s', basename)
-        fname = self._fsearch.find_file(basename)
+        _log.debug('_ZipLocator.open_image: Trying FS name %s', name)
+        fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname, 'rb')
+            return open(fname.os_path(), 'rb')
 
 
 def make_file_locator(input_file, file_name_pattern, image_path):
