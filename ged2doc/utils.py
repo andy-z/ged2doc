@@ -95,7 +95,7 @@ def languages():
 
     This should correspond to the existing translations
     """
-    return ['en', 'ru']
+    return ['en', 'ru', 'pl']
 
 
 def system_lang():
