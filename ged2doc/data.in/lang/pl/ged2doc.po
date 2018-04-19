@@ -1,0 +1,389 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ged2doc 0.1\n"
+"PO-Revision-Date: 2017-11-05 10:00+PDT\n"
+"Last-Translator: Dariusz Kania <voyager212@wp.pl>\n"
+"Language-Team: Andy Salnikov <ged4py@py-dev.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: utf-8\n"
+"Generated-By: pygettext.py 1.5\n"
+
+msgid "ATTR.CAST"
+msgstr "Status społeczny"
+
+msgid "ATTR.DSCR"
+msgstr "Opis"
+
+msgid "ATTR.EDUC"
+msgstr "Wykształcenie"
+
+msgid "ATTR.FACT"
+msgstr "Inne informacje"
+
+msgid "ATTR.IDNO"
+msgstr "Tożsamość"
+
+msgid "ATTR.NATI"
+msgstr "Narodowość"
+
+msgid "ATTR.NCHI"
+msgstr "Liczba potomków"
+
+msgid "ATTR.NMR"
+msgstr "Liczba związków małżeńskich"
+
+msgid "ATTR.OCCU"
+msgstr "Zawód"
+
+msgid "ATTR.PROP"
+msgstr "Nieruchomości"
+
+msgid "ATTR.RELI"
+msgstr "Wyznanie"
+
+msgid "ATTR.RESI"
+msgstr "Miejsce pobytu"
+
+msgid "ATTR.SSN"
+msgstr "SSN (PESEL)"
+
+msgid "ATTR.TITL"
+msgstr "Tytuł"
+
+msgid "Ancestor tree"
+msgstr "Drzewo przodków"
+
+msgid "Born"
+msgstr "Data urodzenia"
+
+msgid "CHILD.BORN {child}"
+msgstr "Data urodzenia {child}"
+
+msgid "CHILD.BORN {child}#F"
+msgstr "Data urodzenia córki {child}"
+
+msgid "CHILD.BORN {child}#M"
+msgstr "Data urodzenia syna {child}"
+
+msgid "Comments"
+msgstr "Uwagi"
+
+msgid "DATE_VALUE.$date"
+msgstr "$date"
+
+msgid "DATE_VALUE.($phrase)"
+msgstr "($phrase)"
+
+msgid "DATE_VALUE.ABOUT $date"
+msgstr "około $date"
+
+msgid "DATE_VALUE.AFTER $date"
+msgstr "po $date"
+
+msgid "DATE_VALUE.BEFORE $date"
+msgstr "przed $date"
+
+msgid "DATE_VALUE.BETWEEN $date1 AND $date2"
+msgstr "pomiędzy $date1 and $date2"
+
+msgid "DATE_VALUE.CALCULATED $date"
+msgstr "wyliczony $date"
+
+msgid "DATE_VALUE.ESTIMATED $date"
+msgstr "oszacowany $date"
+
+msgid "DATE_VALUE.FROM $date"
+msgstr "od $date"
+
+msgid "DATE_VALUE.FROM $date1 TO $date2"
+msgstr "od $date1 do $date2"
+
+msgid "DATE_VALUE.INTERPRETED $date ($phrase)"
+msgstr "zinterpretowany $date ($phrase)"
+
+msgid "DATE_VALUE.TO $date"
+msgstr "do $date"
+
+msgid "Date Unknown"
+msgstr "Nieznany"
+
+msgid "EVENT.ADOP"
+msgstr "Adopcja"
+
+msgid "EVENT.BAPM"
+msgstr "Chrzest"
+
+msgid "EVENT.BARM"
+msgstr "Bar-Mitzva"
+
+msgid "EVENT.BASM"
+msgstr "Bar-Mitzva"
+
+msgid "EVENT.BIRT"
+msgstr "Narodziny"
+
+msgid "EVENT.BLES"
+msgstr "Błogosławieństwo"
+
+msgid "EVENT.BURI"
+msgstr "Pogrzeb"
+
+msgid "EVENT.CAUSE: {cause}"
+msgstr "przyczyna: {cause}"
+
+msgid "EVENT.CENS"
+msgstr "Spis ludności"
+
+msgid "EVENT.CHR"
+msgstr "Chrzest"
+
+msgid "EVENT.CHRA"
+msgstr "Chrzest (dorosłego)"
+
+msgid "EVENT.CONF"
+msgstr "Bierzmowanie"
+
+msgid "EVENT.CREM"
+msgstr "Kremacja"
+
+msgid "EVENT.DEAT"
+msgstr "Śmierć"
+
+msgid "EVENT.EMIG"
+msgstr "Emigracja"
+
+msgid "EVENT.EVEN"
+msgstr "Inne zdarzenie"
+
+msgid "EVENT.FCOM"
+msgstr "Pierwsza Komunia"
+
+msgid "EVENT.GRAD"
+msgstr "Ukończenie szkoły"
+
+msgid "EVENT.IMMI"
+msgstr "Imigracja"
+
+msgid "EVENT.NATU"
+msgstr "Naturalizacja"
+
+msgid "EVENT.ORDN"
+msgstr "Wyświęcenie"
+
+msgid "EVENT.PROB"
+msgstr "Potwierdzenie testamentu"
+
+msgid "EVENT.RETI"
+msgstr "Przejście na emeryturę"
+
+msgid "EVENT.WILL"
+msgstr "Podpisanie testamentu"
+
+msgid "Events and dates"
+msgstr "Wydarzenia i daty"
+
+msgid "FAMEVT.ANUL"
+msgstr "Stwierdzenie nieważności"
+
+msgid "FAMEVT.CENS"
+msgstr "Spis ludności"
+
+msgid "FAMEVT.DIV"
+msgstr "Rozwód"
+
+msgid "FAMEVT.DIVF"
+msgstr "Pozew rozwodowy"
+
+msgid "FAMEVT.ENGA"
+msgstr "Zaręczyny"
+
+msgid "FAMEVT.EVEN"
+msgstr "Wydarzenie rodzinne"
+
+msgid "FAMEVT.MARB"
+msgstr "Zapowiedzi przedmałżeńskie"
+
+msgid "FAMEVT.MARC"
+msgstr "Kontakt małżeński"
+
+msgid "FAMEVT.MARL"
+msgstr "Zezwolenie na zawarcie związku małżeńskiego"
+
+msgid "FAMEVT.MARR"
+msgstr "Małżeństwo"
+
+msgid "FAMEVT.MARS"
+msgstr "Umowa małżeńska"
+
+msgid "FAMEVT.RESI"
+msgstr "Miejsce zamieszkania"
+
+msgid "Father"
+msgstr "Ojciec"
+
+msgid "Female Name Frequency"
+msgstr "Częstość występowania imion żeńskich"
+
+msgid "Female count"
+msgstr "Liczba kobiet"
+
+msgid "Kids"
+msgstr "Dzieci"
+
+msgid "MONTH.APR"
+msgstr "Kwi"
+
+msgid "MONTH.AUG"
+msgstr "Sie"
+
+msgid "MONTH.DEC"
+msgstr "Gru"
+
+msgid "MONTH.FEB"
+msgstr "Lut"
+
+msgid "MONTH.JAN"
+msgstr "Sty"
+
+msgid "MONTH.JUL"
+msgstr "Lip"
+
+msgid "MONTH.JUN"
+msgstr "Cze"
+
+msgid "MONTH.MAR"
+msgstr "Mar"
+
+msgid "MONTH.MAY"
+msgstr "Maj"
+
+msgid "MONTH.NOV"
+msgstr "Lis"
+
+msgid "MONTH.OCT"
+msgstr "Paź"
+
+msgid "MONTH.SEP"
+msgstr "Wrz"
+
+msgid "MONTH_FRE.BRUM"
+msgstr "Brum"
+
+msgid "MONTH_FRE.COMP"
+msgstr "Comp"
+
+msgid "MONTH_FRE.FLOR"
+msgstr "Flor"
+
+msgid "MONTH_FRE.FRIM"
+msgstr "Frim"
+
+msgid "MONTH_FRE.FRUC"
+msgstr "Fruc"
+
+msgid "MONTH_FRE.GERM"
+msgstr "Germ"
+
+msgid "MONTH_FRE.MESS"
+msgstr "Mess"
+
+msgid "MONTH_FRE.NIVO"
+msgstr "Nivo"
+
+msgid "MONTH_FRE.PLUV"
+msgstr "Pluv"
+
+msgid "MONTH_FRE.PRAI"
+msgstr "Prai"
+
+msgid "MONTH_FRE.THER"
+msgstr "Ther"
+
+msgid "MONTH_FRE.VEND"
+msgstr "Vend"
+
+msgid "MONTH_FRE.VENT"
+msgstr "Vent"
+
+msgid "MONTH_HEBR.AAV"
+msgstr "Aav"
+
+msgid "MONTH_HEBR.ADR"
+msgstr "Adr"
+
+msgid "MONTH_HEBR.ADS"
+msgstr "Ads"
+
+msgid "MONTH_HEBR.CSH"
+msgstr "Csh"
+
+msgid "MONTH_HEBR.ELL"
+msgstr "Ell"
+
+msgid "MONTH_HEBR.IYR"
+msgstr "Iyr"
+
+msgid "MONTH_HEBR.KSL"
+msgstr "Ksl"
+
+msgid "MONTH_HEBR.NSN"
+msgstr "Nsn"
+
+msgid "MONTH_HEBR.SHV"
+msgstr "Shv"
+
+msgid "MONTH_HEBR.SVN"
+msgstr "Svn"
+
+msgid "MONTH_HEBR.TMZ"
+msgstr "Tmz"
+
+msgid "MONTH_HEBR.TSH"
+msgstr "Tsh"
+
+msgid "MONTH_HEBR.TVT"
+msgstr "Tvt"
+
+msgid "Maiden name"
+msgstr "Nazwisko panieńskie"
+
+msgid "Male Name Frequency"
+msgstr "Częstość występowania imion męskich"
+
+msgid "Male count"
+msgstr "Liczba mężczyzn"
+
+msgid "Mother"
+msgstr "Matka"
+
+msgid "Name Statistics"
+msgstr "Statystyki imion"
+
+msgid "Person List"
+msgstr "Lista Osób"
+
+msgid "Person count"
+msgstr "Liczba osób"
+
+msgid "Spouse#F"
+msgstr "Małżonka"
+
+msgid "Spouse#M"
+msgstr "Małżonek"
+
+msgid "Spouses and children"
+msgstr "Małżonkowie i potomkowie"
+
+msgid "Statistics"
+msgstr "Statystyki"
+
+msgid "Table Of Contents"
+msgstr "Spis Treści"
+
+msgid "Total Statistics"
+msgstr "Statystyki Ogólne"
+
+msgid "kids"
+msgstr "dzieci"
+
