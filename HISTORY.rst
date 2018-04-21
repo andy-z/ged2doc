@@ -4,6 +4,7 @@ History
 
 pre-0.1.12
 ----------
+* Added Polish translation (kudos to @voyager212)
 * Improved image search algorithm for on-disk and zipped locations
 
 0.1.11 (2018-04-07)

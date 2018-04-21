@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Dariusz Kania <voyager212@wp.pl> - Polish translation
