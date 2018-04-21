@@ -4,6 +4,7 @@ History
 
 pre-0.1.12
 ----------
+* Fixed (hopefully) crash when dealing with GIF images.
 * Added Polish translation (kudos to @voyager212)
 * Improved image search algorithm for on-disk and zipped locations
 
@@ -13,7 +14,7 @@ pre-0.1.12
 * Output events without dates, and add option to disable it
 
 0.1.10 (2018-04-02)
-------------------
+-------------------
 
 * Changed Russian translation for "Maiden name"
 

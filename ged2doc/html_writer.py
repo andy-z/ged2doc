@@ -304,30 +304,31 @@ class HtmlWriter(writer.Writer):
         imgfile = io.BytesIO(image_data)
         img = Image.open(imgfile)
 
-        # resize it if larger than needed
-        width = self._image_width.px
-        height = self._image_height.px
-        maxsize = (width, height)
-        size = utils.resize(img.size, maxsize)
-        size = (int(size[0]), int(size[1]))
-        imgsize = ""
-        if size != img.size:
-            # means size was reduced
-            _log.debug('Resize image to %s', size)
-            img = img.resize(size, Image.LANCZOS)
-        elif self._image_upscale:
+        maxsize = (self._image_width.px, self._image_height.px)
+        newimg = utils.img_resize(img, maxsize)
+        if newimg is img:
             # means size was not changed and image is smaller
             # than box, we may want to extend it
-            extend = utils.resize(img.size, maxsize, False)
-            imgsize = ' width="{}" height="{}"'.format(*extend)
+            imgsize = ""
+            if self._image_upscale:
+                extend = utils.resize(img.size, maxsize, False)
+                imgsize = ' width="{}" height="{}"'.format(*extend)
 
-        # save to a buffer
-        imgfile = io.BytesIO()
-        img.save(imgfile, 'JPEG')
+            # reuse original image data
+            tag = '<img class="personImage"{imgsize} '\
+                  'src="data:{mime};base64,{data}"/>'
+            data = base64.b64encode(image_data).decode('ascii')
+            return tag.format(mime=utils.img_mime_type(img),
+                              data=data, imgsize=imgsize)
 
-        return '<img class="personImage"' + imgsize + \
-            ' src="data:image/jpg;base64,' + \
-            base64.b64encode(imgfile.getvalue()).decode('ascii') + '">'
+        else:
+            # new image, need to convert it to bytes
+            imgfile = io.BytesIO()
+            mimetype = utils.img_save(newimg, imgfile)
+            if mimetype:
+                tag = '<img class="personImage" src="data:{mime};base64,{data}"/>'
+                data = base64.b64encode(imgfile.getvalue()).decode('ascii')
+                return tag.format(mime=mimetype, data=data)
 
     def _make_ancestor_tree(self, person):
         """"Returns SVG picture for parent tree or None.

@@ -438,20 +438,19 @@ class OdtWriter(writer.Writer):
             self.doc.save(self._output)
 
     def _getImageFragment(self, image_data):
-        '''Returns <img> HTML fragment for given image data (byte array).
+        '''Adds Image to the document as person's picture.
         '''
 
-        imgfile = io.BytesIO(image_data)
-        img = Image.open(imgfile)
+        img = Image.open(io.BytesIO(image_data))
         filename = u"Pictures/" + \
-            hashlib.sha1(image_data).hexdigest() + '.' + img.format
+            hashlib.sha1(image_data).hexdigest() + '.' + img.format.lower()
 
         # calculate size of the frame
         maxsize = (self._image_width.inches,
                    self._image_height.inches)
         w, h = utils.resize(img.size, maxsize)
         frame = draw.Frame(width="%.3fin" % w, height="%.3fin" % h)
-        imgref = self.doc.addPicture(filename, "image/" + img.format,
+        imgref = self.doc.addPicture(filename, utils.img_mime_type(img),
                                      image_data)
         frame.addElement(draw.Image(href=imgref))
         return frame

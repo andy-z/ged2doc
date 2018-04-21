@@ -4,6 +4,11 @@
 from __future__ import absolute_import, division, print_function
 
 import locale
+import logging
+import mimetypes
+from PIL import Image
+
+_log = logging.getLogger(__name__)
 
 
 def resize(size, max_size, reduce_only=True):
@@ -140,3 +145,60 @@ def split_refs(text):
             text = text[pos + 1:]
             ref, _, name = ref_text.partition("\x02")
             yield (ref, name)
+
+
+def img_mime_type(img):
+    """Returns image MIME type or None.
+
+    :param Image img: `PIL.Image` object
+    :returns: str like "image/jpg" or None
+    """
+    if img.format:
+        ext = "." + img.format
+        return mimetypes.types_map.get(ext.lower())
+    return None
+
+
+def img_resize(img, size):
+    """Resize image to fit given size.
+
+    Image is resized only if it is larger than `size`, otherwise
+    unmodified image is returned.
+
+    :param Image img: `PIL.Image` object
+    :param tuple size: Final image size
+    :returns: `PIL.Image` object
+    """
+
+    newsize = resize(img.size, size)
+    newsize = (int(newsize[0]), int(newsize[1]))
+    if newsize != img.size:
+        # means size was reduced
+        _log.debug('Resize image to %s', newsize)
+        img = img.resize(newsize, Image.LANCZOS)
+
+    return img
+
+
+def img_save(img, file):
+    """Save image into output file.
+
+    This method automatically chooses the best file format for output.
+
+    :param Image img: `PIL.Image` object
+    :param file: File object to write output to.
+    :returns: MIME type of the output image
+    """
+
+    if img.format:
+        # save in the original format
+        img.save(file, img.format)
+        return img_mime_type(img)
+    elif img.mode in ('P', 'RGBA'):
+        # palette or transparency - save it as PNG
+        img.save(file, "PNG", optimize=True)
+        return mimetypes.types_map.get(".png")
+    else:
+        # everyhting else is stored as JPEG
+        img.save(file, "JPEG", optimize=True)
+        return mimetypes.types_map.get(".jpeg")
