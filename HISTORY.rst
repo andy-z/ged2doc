@@ -2,8 +2,9 @@
 History
 =======
 
-pre-0.1.12
-----------
+0.1.12 (2018-04-21)
+-------------------
+
 * Fixed (hopefully) crash when dealing with GIF images.
 * Added Polish translation (kudos to @voyager212)
 * Improved image search algorithm for on-disk and zipped locations
