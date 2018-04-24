@@ -294,20 +294,24 @@ class Writer(object):
                              evt.note]
                     events += [(evt.date, facts)]
 
+        def _date_key(event):
+            "Return event date, used for comparison"
+            date = event[0]
+            if date is None:
+                # use date in the future
+                date = model.DateValue()
+            return date
+
         # order events (only those with dates)
         sevents = []
-        for date, facts in sorted(evt for evt in events if evt[0]):
+        for date, facts in sorted(events, key=_date_key):
             facts = [fact for fact in facts if fact]
             facts = u"; ".join(facts)
-            sevents += [(self._tr.tr_date(date), facts)]
-
-        # but also list events without dates
-        if self._events_without_dates:
-            for date, facts in events:
-                if not date:
-                    facts = [fact for fact in facts if fact]
-                    facts = u"; ".join(facts)
+            if date is None:
+                if self._events_without_dates:
                     sevents += [(self._tr.tr(TR("Event Date Unknown")), facts)]
+            else:
+                sevents += [(self._tr.tr_date(date), facts)]
 
         return sevents
 
