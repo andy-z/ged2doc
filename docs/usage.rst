@@ -27,7 +27,7 @@ appearance of the produced output document. To get a brief description of
 all options run the command with ``--help`` or ``-h`` option::
 
     % ged2doc --help
-    usage: ged2doc [-h] [-v] [--version] [-i PATH] [-p PATTERN]
+    usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
                    [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
                    [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
@@ -53,6 +53,7 @@ all options run the command with ``--help`` or ``-h`` option::
       -h, --help            show this help message and exit
       -v, --verbose         Print some info to standard output, -vv prints debug
                             info.
+      --log PATH            Produces log file with debugging information.
       --version             Print version information and exit
 
     ... description of all other options ...
@@ -345,6 +346,18 @@ Options specific to ODT output:
 --first-page NUMBER      Number of the first page; default: ``1``. Can be
         changed to something different if you plan to add extra pages
         at the beginning when printing the final document.
+
+Logging
+^^^^^^^
+
+In case application crashes or produces incorrect or unexpected output it
+would be helpful to produce log file with debug information and forward it
+to author (see *Contributing* for how to report bugs). To produce log file
+use ``--log`` option, e.g.::
+
+    $ ged2doc --log=log.txt input.ged page.html
+
+which will create ``log.txt`` file in a current working directory.
 
 Examples
 ^^^^^^^^

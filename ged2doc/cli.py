@@ -4,9 +4,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
 import logging
 import os
+import sys
 
 from .size import String2Size
 from .i18n import I18N, DATE_FORMATS
@@ -33,9 +34,12 @@ def main():
     parser.add_argument('-v', "--verbose", action="count", default=0,
                         help="Print some info to standard output, "
                         "-vv prints debug info.")
+    parser.add_argument("--log", default=None, metavar="PATH",
+                        type=FileType(mode="wt", encoding='UTF-8'),
+                        help="Produces log file with debugging information.")
     parser.add_argument("--version", action="version", version=version,
                         help="Print version information and exit")
-    parser.add_argument("input",
+    parser.add_argument("input", type=FileType(mode="rb",),
                         help="Location of input file, input file can be "
                         "either GEDCOM file or ZIP archive which can also "
                         "include images.")
@@ -154,21 +158,35 @@ def main():
 
     args = parser.parse_args()
 
+    # configure logging
     if args.verbose == 0:
         log_level = logging.WARN
     elif args.verbose == 1:
         log_level = logging.INFO
     else:
         log_level = logging.DEBUG
+    handler = logging.StreamHandler(stream=sys.stderr)
+    handler.setLevel(log_level)
+    handlers = [handler]
+    if args.log:
+        # this will log all levels (NOTSET is default)
+        handler = logging.StreamHandler(stream=args.log)
+        handlers += [handler]
+    # rot logger will pass all messages, handlers will filter them
     logfmt = "%(levelname)s: %(name)s (%(filename)s:%(lineno)d)"\
              " -- %(message)s"
-    logging.basicConfig(level=log_level, format=logfmt)
+    logging.basicConfig(level=logging.NOTSET, format=logfmt, handlers=handlers)
+
+    # some debugging info
+    _log.debug("version: %s", version)
+    _log.debug("args: %s", args)
 
     # instantiate file locator
     try:
         flocator = make_file_locator(args.input, args.file_name_pattern,
                                      args.image_path)
     except Exception as exc:
+        _log.debug("caught exception: %s", exc, exc_info=True)
         parser.error("Error reading input file: {0}".format(exc))
 
     tr = I18N(args.language, args.date_format)
@@ -228,6 +246,14 @@ def main():
 
     try:
         writer.save()
+        _log.debug("Success")
     except Exception as exc:
-        _log.error("caught exception: %s", exc, exc_info=True)
-        _log.error("Error while producing a document: {0}".format(exc))
+        _log.debug("caught exception: %s", exc, exc_info=True)
+        print("Error while producing a document:\n  {}".format(exc),
+              file=sys.stderr)
+        # clear output file in case some partial output was written
+        try:
+            _log.debug("trying to remove output file: %s", args.output)
+            os.unlink(args.output)
+        except OSError as exc:
+            _log.debug("caught exception while removing file: %s", exc)
