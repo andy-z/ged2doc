@@ -326,7 +326,8 @@ class HtmlWriter(writer.Writer):
             imgfile = io.BytesIO()
             mimetype = utils.img_save(newimg, imgfile)
             if mimetype:
-                tag = '<img class="personImage" src="data:{mime};base64,{data}"/>'
+                tag = '<img class="personImage" '\
+                      'src="data:{mime};base64,{data}"/>'
                 data = base64.b64encode(imgfile.getvalue()).decode('ascii')
                 return tag.format(mime=mimetype, data=data)
 

@@ -27,7 +27,7 @@
 описание всех параметров запустите команду с опцией ``--help`` или ``-h``::
 
     % ged2doc --help
-    usage: ged2doc [-h] [-v] [--version] [-i PATH] [-p PATTERN]
+    usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
                    [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
                    [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
@@ -53,6 +53,7 @@
       -h, --help            show this help message and exit
       -v, --verbose         Print some info to standard output, -vv prints debug
                             info.
+      --log PATH            Produces log file with debugging information.
       --version             Print version information and exit
 
     ... description of all other options ...
@@ -355,6 +356,18 @@ utf-8, но заменяет неправильно закодированные
 --first-page NUMBER      Номер первой страницы; по умолчанию ``1``. Можно
         изменить на другое значение, если вы планируете добавлять
         дополнительные страницы в начале при печати окончательного документа.
+
+Диагностика
+^^^^^^^^^^^
+
+В случае сбоя приложения или получения неправильного или неожиданного вывода
+желательно сгенерировать журнальный файл с диагностикой и переслать его автору
+(чтобы сообщить об ошибках см. *Contributing*). Для создания журнального
+файла используйте опцию ``--log``, например::
+
+    $ ged2doc --log=log.txt input.ged page.html
+
+что создаст файл ``log.txt`` в текущем рабочем каталоге.
 
 Примеры
 ^^^^^^^
