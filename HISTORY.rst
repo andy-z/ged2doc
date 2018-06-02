@@ -2,6 +2,11 @@
 History
 =======
 
+pre-0.1.15
+----------
+
+* Add Czech translation (kudos to @Mejstro)
+
 0.1.14 (2018-05-17)
 -------------------
 

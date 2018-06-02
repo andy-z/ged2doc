@@ -6,6 +6,6 @@ To regenerate ged2doc.pot file:
 
 To update translations:
 
-    for lang in en ru; do
+    for lang in en ru pl cz; do
         msgfmt -o ged2doc/data/lang/$lang/ged2doc.mo ged2doc/data.in/lang/$lang/ged2doc.po
     done

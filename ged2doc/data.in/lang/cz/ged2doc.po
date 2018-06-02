@@ -1,4 +1,4 @@
-# English translation for GED2DOC application.
+# Czech translation for GED2DOC application.
 # Copyright (C) Andy Salnikov
 # Andy Salnikov <ged4py@py-dev.com>, 2017.
 #
@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: ged2doc 0.1\n"
 "POT-Creation-Date: 2017-11-05 01:20+PDT\n"
 "PO-Revision-Date: 2017-11-05 10:00+PDT\n"
-"Last-Translator: Andy Salnikov <ged4py@py-dev.com>\n"
+"Last-Translator: Jan Mejstrik <jan.mejstrik@seznam.cz>\n"
 "Language-Team: Andy Salnikov <ged4py@py-dev.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -15,259 +15,262 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 msgid "Person List"
-msgstr "Person List"
+msgstr "Seznam osob"
 
 msgid "Born"
-msgstr "Born"
+msgstr "Datum narození"
 
 msgid "Date Unknown"
-msgstr "Unknown"
+msgstr "Neznámé"
 
 msgid "Maiden name"
-msgstr "Maiden name"
+msgstr "Jméno za svobodna"
 
 msgid "Mother"
-msgstr "Mother"
+msgstr "Matka"
 
 msgid "Father"
-msgstr "Father"
+msgstr "Otec"
 
 msgid "Spouses and children"
-msgstr "Spouses and children"
+msgstr "Manželé a děti"
 
-msgid "Spouse"
-msgstr "Spouse"
+msgid "Spouse#M"
+msgstr "Manžel"
+
+msgid "Spouse#F"
+msgstr "Manželka"
 
 msgid "kids"
-msgstr "kids"
+msgstr "děti"
 
 msgid "Kids"
-msgstr "Kids"
+msgstr "Děti"
 
 msgid "CHILD.BORN {child}"
-msgstr "Born {child}"
+msgstr "Datum narození {child}"
 
 msgid "CHILD.BORN {child}#F"
-msgstr "Born daughter {child}"
+msgstr "Datum narození dcery {child}"
 
 msgid "CHILD.BORN {child}#M"
-msgstr "Born son {child}"
+msgstr "Datum narození syna {child}"
 
 msgid "Events and dates"
-msgstr "Events and dates"
+msgstr "Data a události"
 
 msgid "Comments"
-msgstr "Comments"
+msgstr "Poznámky"
 
 msgid "Ancestor tree"
-msgstr "Ancestor tree"
+msgstr "Strom předků"
 
 msgid "Statistics"
-msgstr "Statistics"
+msgstr "Statistiky"
 
 msgid "Total Statistics"
-msgstr "Total Statistics"
+msgstr "Celkový přehled"
 
 msgid "Person count"
-msgstr "Person count"
+msgstr "Počet osob"
 
 msgid "Female count"
-msgstr "Female count"
+msgstr "Počet žen"
 
 msgid "Male count"
-msgstr "Male count"
+msgstr "Počet mužů"
 
 msgid "Name Statistics"
-msgstr "Name Statistics"
+msgstr "Jmenné statistiky"
 
 msgid "Female Name Frequency"
-msgstr "Female Name Frequency"
+msgstr "Výskyt ženských jmen"
 
 msgid "Male Name Frequency"
-msgstr "Male Name Frequency"
+msgstr "Výskyt mužských jmen"
 
 msgid "Table Of Contents"
-msgstr "Table Of Contents"
+msgstr "Obsah"
 
 msgid "EVENT.CAUSE: {cause}"
-msgstr "cause: {cause}"
+msgstr "příčina: {cause}"
 
 msgid "EVENT.BIRT"
-msgstr "Birth"
+msgstr "Narození"
 
 msgid "EVENT.CHR"
-msgstr "Christening"
+msgstr "Křest"
 
 msgid "EVENT.DEAT"
-msgstr "Death"
+msgstr "Úmrtí"
 
 msgid "EVENT.BURI"
-msgstr "Burial"
+msgstr "Pohřeb"
 
 msgid "EVENT.CREM"
-msgstr "Cremation"
+msgstr "Kremace"
 
 msgid "EVENT.ADOP"
-msgstr "Adoption"
+msgstr "Adopce"
 
 msgid "EVENT.BAPM"
-msgstr "Baptism"
+msgstr "Křest"
 
 msgid "EVENT.BARM"
-msgstr "Bar-Mitzva"
+msgstr "Bar micva"
 
 msgid "EVENT.BASM"
-msgstr "Bar-Mitzva"
+msgstr "Bar micva"
 
 msgid "EVENT.BLES"
-msgstr "Blessing"
+msgstr "Požehnání"
 
 msgid "EVENT.CHRA"
-msgstr "Christening (adult)"
+msgstr "Křest v dospělosti"
 
 msgid "EVENT.CONF"
-msgstr "Confirmation"
+msgstr "Biřmování"
 
 msgid "EVENT.FCOM"
-msgstr "First Communion"
+msgstr "První přijímání"
 
 msgid "EVENT.ORDN"
-msgstr "Ordination"
+msgstr "Vysvěcení"
 
 msgid "EVENT.NATU"
-msgstr "Naturalization"
+msgstr "Udělení občanství"
 
 msgid "EVENT.EMIG"
-msgstr "Emigration"
+msgstr "Emigrace"
 
 msgid "EVENT.IMMI"
-msgstr "Immigration"
+msgstr "Imigrace"
 
 msgid "EVENT.CENS"
-msgstr "Census"
+msgstr "Sčítání lidu"
 
 msgid "EVENT.PROB"
-msgstr "Probate"
+msgstr "Závěť"
 
 msgid "EVENT.WILL"
-msgstr "Will signing"
+msgstr "Poslední vůle"
 
 msgid "EVENT.GRAD"
-msgstr "Graduation"
+msgstr "Promoce"
 
 msgid "EVENT.RETI"
-msgstr "Retirement"
+msgstr "Odchod do důchodu"
 
 msgid "EVENT.EVEN"
-msgstr "Other event"
+msgstr "Jiná událost"
 
 msgid "FAMEVT.ANUL"
-msgstr "Annulment"
+msgstr "Zrušení sňatku"
 
 msgid "FAMEVT.CENS"
-msgstr "Census"
+msgstr "Sčítání lidu"
 
 msgid "FAMEVT.DIV"
-msgstr "Divorce"
+msgstr "Rozvod"
 
 msgid "FAMEVT.DIVF"
-msgstr "Divorce filed"
+msgstr "Žádost o rozvod"
 
 msgid "FAMEVT.ENGA"
-msgstr "Engagement"
+msgstr "Zasnoubení"
 
 msgid "FAMEVT.MARB"
-msgstr "Marriage Banns"
+msgstr "Prohlášení manželství za neplatné"
 
 msgid "FAMEVT.MARC"
-msgstr "Marriage contract"
+msgstr "Manželská smlouva"
 
 msgid "FAMEVT.MARR"
-msgstr "Marriage"
+msgstr "Manželství"
 
 msgid "FAMEVT.MARL"
-msgstr "Marriage license"
+msgstr "Povolení manželství"
 
 msgid "FAMEVT.MARS"
-msgstr "Marriage settlement"
+msgstr "Uzavření manželství"
 
 msgid "FAMEVT.RESI"
-msgstr "Residence"
+msgstr "Bydliště"
 
 msgid "FAMEVT.EVEN"
-msgstr "Family event"
+msgstr "Rodinná událost"
 
 msgid "ATTR.CAST"
-msgstr "Societal status"
+msgstr "Sociální stav"
 
 msgid "ATTR.DSCR"
-msgstr "Description"
+msgstr "Popis"
 
 msgid "ATTR.EDUC"
-msgstr "Education"
+msgstr "Vzdělání"
 
 msgid "ATTR.IDNO"
-msgstr "Identity"
+msgstr "Totožnost"
 
 msgid "ATTR.NATI"
-msgstr "Nationality"
+msgstr "Národnost"
 
 msgid "ATTR.NCHI"
-msgstr "Number of children"
+msgstr "Počet dětí"
 
 msgid "ATTR.NMR"
-msgstr "Number of marriages"
+msgstr "Počet sňatků"
 
 msgid "ATTR.OCCU"
-msgstr "Occupation"
+msgstr "Povolání"
 
 msgid "ATTR.PROP"
-msgstr "Properties"
+msgstr "Vlastnosti"
 
 msgid "ATTR.RELI"
-msgstr "Religion"
+msgstr "Vyznání"
 
 msgid "ATTR.RESI"
-msgstr "Residence"
+msgstr "Bydliště"
 
 msgid "ATTR.SSN"
-msgstr "SSN"
+msgstr "Sociální pojištění"
 
 msgid "ATTR.TITL"
-msgstr "Title"
+msgstr "Titul"
 
 msgid "ATTR.FACT"
-msgstr "Other facts"
+msgstr "Další údaje"
 
 msgid "DATE_VALUE.FROM $date1 TO $date2"
-msgstr "from $date1 to $date2"
+msgstr "od $date1 do $date2"
 
 msgid "DATE_VALUE.FROM $date"
-msgstr "from $date"
+msgstr "od $date"
 
 msgid "DATE_VALUE.TO $date"
-msgstr "to $date"
+msgstr "do $date"
 
 msgid "DATE_VALUE.BETWEEN $date1 AND $date2"
-msgstr "between $date1 and $date2"
+msgstr "mezi $date1 a $date2"
 
 msgid "DATE_VALUE.BEFORE $date"
-msgstr "before $date"
+msgstr "před $date"
 
 msgid "DATE_VALUE.AFTER $date"
-msgstr "after $date"
+msgstr "po $date"
 
 msgid "DATE_VALUE.ABOUT $date"
-msgstr "about $date"
+msgstr "okolo $date"
 
 msgid "DATE_VALUE.CALCULATED $date"
-msgstr "calculated $date"
+msgstr "spočteno $date"
 
 msgid "DATE_VALUE.ESTIMATED $date"
-msgstr "estimated $date"
+msgstr "odhadem $date"
 
 msgid "DATE_VALUE.INTERPRETED $date ($phrase)"
-msgstr "interpreted $date ($phrase)"
+msgstr "interpretováno $date ($phrase)"
 
 msgid "DATE_VALUE.($phrase)"
 msgstr "($phrase)"
@@ -276,40 +279,40 @@ msgid "DATE_VALUE.$date"
 msgstr "$date"
 
 msgid "MONTH.JAN"
-msgstr "Jan"
+msgstr "Led"
 
 msgid "MONTH.FEB"
-msgstr "Feb"
+msgstr "Úno"
 
 msgid "MONTH.MAR"
-msgstr "Mar"
+msgstr "Bře"
 
 msgid "MONTH.APR"
-msgstr "Apr"
+msgstr "Dub"
 
 msgid "MONTH.MAY"
-msgstr "May"
+msgstr "Kvě"
 
 msgid "MONTH.JUN"
-msgstr "Jun"
+msgstr "Čer"
 
 msgid "MONTH.JUL"
-msgstr "Jul"
+msgstr "Čvc"
 
 msgid "MONTH.AUG"
-msgstr "Aug"
+msgstr "Srp"
 
 msgid "MONTH.SEP"
-msgstr "Sep"
+msgstr "Zář"
 
 msgid "MONTH.OCT"
-msgstr "Oct"
+msgstr "Říj"
 
 msgid "MONTH.NOV"
-msgstr "Nov"
+msgstr "Lis"
 
 msgid "MONTH.DEC"
-msgstr "Dec"
+msgstr "Pro"
 
 msgid "MONTH_HEBR.TSH"
 msgstr "Tsh"
@@ -390,4 +393,4 @@ msgid "MONTH_FRE.COMP"
 msgstr "Comp"
 
 msgid "Event Date Unknown"
-msgstr "Date unknown"
+msgstr "Datum neznámé"
