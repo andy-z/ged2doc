@@ -7,6 +7,7 @@ pre-0.1.15
 
 * Add Czech translation (kudos to @Mejstro)
 * Add --locale option
+* Fix for SVG file (ancestor trees) headers
 
 0.1.14 (2018-05-17)
 -------------------
