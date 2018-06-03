@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function
 
 from argparse import ArgumentParser, FileType
+import locale
 import logging
 import os
 import sys
@@ -79,6 +80,9 @@ def main():
                        metavar="ORDER", choices=ORDER_LIST,
                        help="Ordering of the individuals, one of "
                        "%(choices)s; default: %(default)s.")
+    group.add_argument("--locale", default=None, metavar="LOCALE",
+                       help=("Locale name to use for name ordering, "
+                             "default is to use system locale."))
     group.add_argument("--no-missing-date", default=False, action="store_true",
                        help="Do not output events if they have no dates.")
     group.add_argument("--no-image", default=False, action="store_true",
@@ -180,6 +184,14 @@ def main():
     # some debugging info
     _log.debug("version: %s", version)
     _log.debug("args: %s", args)
+
+    # set locale
+    if args.locale:
+        locale.setlocale(locale.LC_ALL, args.locale)
+    else:
+        locale.setlocale(locale.LC_ALL, '')
+    _log.debug("LC_ALL: %s", locale.setlocale(locale.LC_ALL))
+    _log.debug("LC_COLLATE: %s", locale.setlocale(locale.LC_COLLATE))
 
     # instantiate file locator
     try:

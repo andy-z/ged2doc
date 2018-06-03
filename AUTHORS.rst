@@ -11,3 +11,4 @@ Contributors
 ------------
 
 * Dariusz Kania <voyager212@wp.pl> - Polish translation
+* Jan Mejstrik <jan.mejstrik@seznam.cz> - Czech translation

@@ -29,17 +29,18 @@ all options run the command with ``--help`` or ``-h`` option::
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
-                   [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
-                   [--name-surname-first] [--name-comma] [--name-maiden]
-                   [--name-maiden-only] [--name-capital] [--html-page-width SIZE]
-                   [--html-image-width SIZE] [--html-image-height SIZE] [-u]
-                   [--odt-page-width SIZE] [--odt-page-height SIZE]
-                   [--odt-margin-left SIZE] [--odt-margin-right SIZE]
-                   [--odt-margin-top SIZE] [--odt-margin-bottom SIZE]
-                   [--odt-image-width SIZE] [--odt-image-height SIZE]
-                   [--first-page NUMBER]
+                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
+                   [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
+                   [-w NUMBER] [--name-surname-first] [--name-comma]
+                   [--name-maiden] [--name-maiden-only] [--name-capital]
+                   [--html-page-width SIZE] [--html-image-width SIZE]
+                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
+                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
+                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
+                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
+                   [--odt-image-height SIZE] [--first-page NUMBER]
                    input output
+
 
     Convert GEDCOM file into document.
 
@@ -226,6 +227,16 @@ option, ``ORDER`` is one of:
 
 ``first+maiden``
     Persons are ordered according to given name and family (maiden) name.
+
+By default ordering of the names is performed according collation rules of
+the current system locale. If system locale does not correspond to the
+language of the document one can specify different locale using
+``--locale=LOCALE`` option. ``LOCALE`` is the name of the locale and it is
+usually system dependent, e.g. the name can be ``Russian`` or ``Czech`` on
+Windows host or ``ru_RU.UTF-8`` or ``cs_CZ.UTF-8`` on Linux host. On Linux
+it is also possible to change locale by using ``LC_ALL`` or ``LC_COLLATE``
+environment variables. Check system documentation for how to install and
+enable locales.
 
 Events without dates
 """"""""""""""""""""
