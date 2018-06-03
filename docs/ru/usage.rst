@@ -29,16 +29,16 @@
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
                    [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--no-missing-date]
-                   [--no-image] [--no-toc] [--no-stat] [-w NUMBER]
-                   [--name-surname-first] [--name-comma] [--name-maiden]
-                   [--name-maiden-only] [--name-capital] [--html-page-width SIZE]
-                   [--html-image-width SIZE] [--html-image-height SIZE] [-u]
-                   [--odt-page-width SIZE] [--odt-page-height SIZE]
-                   [--odt-margin-left SIZE] [--odt-margin-right SIZE]
-                   [--odt-margin-top SIZE] [--odt-margin-bottom SIZE]
-                   [--odt-image-width SIZE] [--odt-image-height SIZE]
-                   [--first-page NUMBER]
+                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
+                   [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
+                   [-w NUMBER] [--name-surname-first] [--name-comma]
+                   [--name-maiden] [--name-maiden-only] [--name-capital]
+                   [--html-page-width SIZE] [--html-image-width SIZE]
+                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
+                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
+                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
+                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
+                   [--odt-image-height SIZE] [--first-page NUMBER]
                    input output
 
     Convert GEDCOM file into document.
@@ -229,6 +229,16 @@ utf-8, но заменяет неправильно закодированные
 
 ``first+maiden``
     Персоны упорядочены в соответствии с именем и фамилией (до брака).
+
+По умолчанию упорядочение имен выполняется в соответствии с правилами
+сопоставления текущего языка системы (локаль). Если локаль системы не
+соответствуют языку документа то возможно указать альтернативную локаль
+используя опцию ``--locale=LOCALE``. ``LOCALE`` - название локали, оно
+обычно зависит от системы, например имя может быть ``Russian`` или ``Czech``
+в Windows или ``ru_RU.UTF-8`` или ``cs_CZ.UTF-8`` в Linux. В Linux также
+можно изменить локаль, используя переменные среды ``LC_ALL`` или
+``LC_COLLATE``. Проверьте системную документацию на предмет того, как
+устанавливать и определять локали.
 
 События без дат
 """""""""""""""
