@@ -2,8 +2,8 @@
 History
 =======
 
-pre-0.1.15
-----------
+0.1.15 (2018-06-02)
+-------------------
 
 * Add Czech translation (kudos to @Mejstro)
 * Add --locale option
