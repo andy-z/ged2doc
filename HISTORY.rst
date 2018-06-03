@@ -6,6 +6,7 @@ pre-0.1.15
 ----------
 
 * Add Czech translation (kudos to @Mejstro)
+* Add --locale option
 
 0.1.14 (2018-05-17)
 -------------------

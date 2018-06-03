@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 
 __all__ = ["Writer"]
 
+import locale
 import logging
 
 from .events import indi_attributes, indi_events, family_events
@@ -114,7 +115,7 @@ class Writer(object):
             indis.append(indi)
 
         # loop over all individuals
-        indis.sort(key=lambda x: x.name.order(self._sort_order))
+        indis.sort(key=self._indi_sort_key)
         for person in indis:
 
             name = name_fmt(person.name, self._name_fmt)
@@ -241,6 +242,17 @@ class Writer(object):
 
         # finish
         self._finalize()
+
+    def _indi_sort_key(self, indi):
+        """Return name ordering key for individual
+        """
+        # make key from name, this is a tuple of unicode strings
+        key = indi.name.order(self._sort_order)
+
+        # we want locale-aware ordering
+        key = tuple(locale.strxfrm(x) for x in key)
+
+        return key
 
     def _events(self, person):
         """Returns a list of events for a given person.
