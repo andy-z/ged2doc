@@ -21,7 +21,8 @@ class Doc(object):
         self._top = Element("svg", [("width", str(self._width)),
                                     ("height", str(self._height)),
                                     ("version", "1.1"),
-                                    ("xmlns", "http://www.w3.org/2000/svg")])
+                                    ("xmlns", "http://www.w3.org/2000/svg"),
+                                    ("xmlns:xlink", "http://www.w3.org/1999/xlink")])
 
     def add(self, element):
         """Add new element to the document.
