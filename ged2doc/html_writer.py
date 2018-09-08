@@ -301,8 +301,14 @@ class HtmlWriter(writer.Writer):
         '''Returns <img> HTML fragment for given image data (byte array).
         '''
 
-        imgfile = io.BytesIO(image_data)
-        img = Image.open(imgfile)
+        try:
+            imgfile = io.BytesIO(image_data)
+            img = Image.open(imgfile)
+        except Exception as exc:
+            # PIL could fail for any reason, no chance to know,
+            # just log an error and ignore this image
+            _log.error("error while loading image: %s", exc)
+            return None
 
         maxsize = (self._image_width.px, self._image_height.px)
         newimg = utils.img_resize(img, maxsize)

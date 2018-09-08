@@ -297,11 +297,12 @@ class OdtWriter(writer.Writer):
         # image if present
         if image_data:
             imgframe = self._getImageFragment(image_data)
-            p = text.P()
-            imgframe.setAttribute('stylename', self.styles['img'])
-            imgframe.setAttribute('anchortype', 'paragraph')
-            p.addElement(imgframe)
-            self.doc.text.addElement(p)
+            if imgframe:
+                p = text.P()
+                imgframe.setAttribute('stylename', self.styles['img'])
+                imgframe.setAttribute('anchortype', 'paragraph')
+                p.addElement(imgframe)
+                self.doc.text.addElement(p)
 
         # all attributes follow
         for attr, value in attributes:
@@ -441,7 +442,14 @@ class OdtWriter(writer.Writer):
         '''Adds Image to the document as person's picture.
         '''
 
-        img = Image.open(io.BytesIO(image_data))
+        try:
+            img = Image.open(io.BytesIO(image_data))
+        except Exception as exc:
+            # PIL could fail for any reason, no chance to know,
+            # just log an error and ignore this image
+            _log.error("error while loading image: %s", exc)
+            return None
+
         filename = u"Pictures/" + \
             hashlib.sha1(image_data).hexdigest() + '.' + img.format.lower()
 
