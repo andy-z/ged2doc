@@ -461,7 +461,7 @@ def make_file_locator(input_file, file_name_pattern, image_path):
             must support ``seek()`` method and be open in a binary mode.
     :param str file_name_pattern: If input file is a ZIP archive then this
             pattern is used to search for a GEDCOM file in archive. Could
-            be "\*.ged" for example or can include more specific pattern.
+            be "*.ged" for example or can include more specific pattern.
     :param str image_path: Directory on a filesystem where images are found.
             Images could be located in sub-directories of the given path.
             If `file_name`` is a ZIP archive then images are searched inside

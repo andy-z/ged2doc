@@ -13,6 +13,7 @@ import zipfile
 
 from ged2doc import input as ged2doc_input
 
+
 @pytest.fixture
 def files_on_disk():
     """Fixture that creates directory tree with files on disk

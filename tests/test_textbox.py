@@ -16,6 +16,7 @@ def test_1_constr():
     assert box.height.value == 8
     assert box.text == 'abc'
 
+
 def test_2_dim():
 
     box = TextBox(x0=Size(1), y0=Size(2), width=Size(4), height=Size(8))
@@ -23,6 +24,7 @@ def test_2_dim():
     assert box.y1.value == 10
     assert box.midx.value == 3
     assert box.midy.value == 6
+
 
 def test_3_split():
 
@@ -36,12 +38,14 @@ def test_3_split():
     lines = box._splitText('abc defg   ABCD EFG')
     assert lines == ['abc', 'defg', 'ABCD', 'EFG']
 
+
 def test_4_reflow():
 
     box = TextBox(width='36pt', text='abcdefg ABCDEFG', font_size='10pt',
                   line_spacing='3pt', padding='5pt')
     box.reflow()
     assert box.height.pt == 10 * 2 + 3 + 2 * 5
+
 
 def test_5_xml():
 

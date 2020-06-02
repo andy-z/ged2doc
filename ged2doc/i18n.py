@@ -242,8 +242,7 @@ class I18N(object):
         items = []
         for code in self._datefmt:
             if code == 'Y':
-                if date.year is not None:
-                    items += [date.year]
+                items += [date.year_str]
             elif code == 'M':
                 if '/' in self._datefmt or '.' in self._datefmt:
                     month = date.month_num

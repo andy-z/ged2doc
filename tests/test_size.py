@@ -9,6 +9,7 @@ import unittest
 
 from ged2doc.size import Size, String2Size
 
+
 class SizeUnitTest(unittest.TestCase):
 
     def test_1_val(self):
@@ -138,4 +139,3 @@ class String2SizeUnitTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-
