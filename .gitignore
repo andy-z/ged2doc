@@ -45,6 +45,7 @@ coverage.xml
 *,cover
 .hypothesis/
 .pytest_cache/
+tox.ini+ged4py
 
 # Translations
 #*.mo
