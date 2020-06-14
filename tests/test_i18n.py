@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 from ged2doc import i18n
-from ged4py.detail.date import CalendarDate, DateValue
+from ged4py.date import CalendarDate, DateValue
 
 
 def test_001_tr_en():
@@ -199,8 +199,7 @@ def test_041_date_en():
     """Test DateValue translations"""
 
     # year only
-    caldate = CalendarDate.parse("1975")
-    date = DateValue("ABOUT $date", dict(date=caldate))
+    date = DateValue.parse("ABT 1975")
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('en', fmt)
@@ -211,8 +210,7 @@ def test_042_date_ru():
     """Test DateValue translations"""
 
     # year only
-    caldate = CalendarDate.parse("1975")
-    date = DateValue("ABOUT $date", dict(date=caldate))
+    date = DateValue.parse("ABT 1975")
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
