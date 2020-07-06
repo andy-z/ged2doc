@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 from ged2doc import i18n
-from ged4py.detail.date import CalendarDate, DateValue
+from ged4py.date import CalendarDate, DateValue
 
 
 def test_001_tr_en():
@@ -59,12 +59,12 @@ def test_021_cal_date_en():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975")
+    date = CalendarDate.parse("1975")
 
     # default format (same as YD,M)
     tr = i18n.I18N('en')
     assert tr._tr_cal_date(date) == "1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.")) == "2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("2000B.C.")) == "2000 B.C."
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('en', fmt)
@@ -75,12 +75,12 @@ def test_022_cal_date_en():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975", "JAN")
+    date = CalendarDate.parse("JAN 1975")
 
     # default format (same as YD,M)
     tr = i18n.I18N('en')
     assert tr._tr_cal_date(date) == "Jan 1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.", "JAN")) == "Jan 2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("JAN 2000 B.C.")) == "Jan 2000 B.C."
 
     expect = {'YMD': "1975 Jan",
               'MDY': "Jan 1975",
@@ -102,12 +102,12 @@ def test_023_cal_date_en():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975", "JAN", 9)
+    date = CalendarDate.parse("9 JAN 1975")
 
     # default format (same as YD,M)
     tr = i18n.I18N('en')
     assert tr._tr_cal_date(date) == "Jan 09, 1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.", "JAN", 31)) == "Jan 31, 2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("31 JAN 2000 B.C.")) == "Jan 31, 2000 B.C."
 
     expect = {'YMD': "1975 Jan 09",
               'MDY': "Jan 09 1975",
@@ -129,12 +129,12 @@ def test_031_cal_date_ru():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975")
+    date = CalendarDate.parse("1975")
 
     # default format (same as YD,M)
     tr = i18n.I18N('ru')
     assert tr._tr_cal_date(date) == "1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.")) == "2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("2000 B.C.")) == "2000 B.C."
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
@@ -145,12 +145,12 @@ def test_032_cal_date_ru():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975", "JAN")
+    date = CalendarDate.parse("JAN 1975")
 
     # default format (same as D.M.Y)
     tr = i18n.I18N('ru')
     assert tr._tr_cal_date(date) == "01.1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.", "JAN")) == u"01.2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("JAN 2000B.C.")) == u"01.2000 B.C."
 
     expect = {'YMD': u"1975 Янв",
               'MDY': u"Янв 1975",
@@ -172,12 +172,12 @@ def test_033_cal_date_ru():
     """Test calendar date translations"""
 
     # year only
-    date = CalendarDate("1975", "JAN", 9)
+    date = CalendarDate.parse("9 JAN 1975")
 
     # default format (same as YD,M)
     tr = i18n.I18N('ru')
     assert tr._tr_cal_date(date) == "09.01.1975"
-    assert tr._tr_cal_date(CalendarDate("2000B.C.", "JAN", 31)) == "31.01.2000B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("31 JAN 2000B.C.")) == "31.01.2000 B.C."
 
     expect = {'YMD': u"1975 Янв 09",
               'MDY': u"Янв 09 1975",
@@ -199,8 +199,7 @@ def test_041_date_en():
     """Test DateValue translations"""
 
     # year only
-    caldate = CalendarDate("1975")
-    date = DateValue("ABOUT $date", dict(date=caldate))
+    date = DateValue.parse("ABT 1975")
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('en', fmt)
@@ -211,10 +210,8 @@ def test_042_date_ru():
     """Test DateValue translations"""
 
     # year only
-    caldate = CalendarDate("1975")
-    date = DateValue("ABOUT $date", dict(date=caldate))
+    date = DateValue.parse("ABT 1975")
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
         assert tr.tr_date(date) == u"около 1975"
-

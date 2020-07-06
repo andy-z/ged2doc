@@ -18,7 +18,7 @@ import logging
 import pkg_resources
 import string
 
-from ged4py.detail.date import CalendarDate
+from ged4py.date import CalendarDate, DateValueVisitor
 
 _LOG = logging.getLogger(__name__)
 
@@ -162,6 +162,50 @@ class _NullFallback(object):
         return None
 
 
+class _TemplateDateVisitor(DateValueVisitor):
+    """Visitor class that builds template strings and
+    keywords from dates.
+    """
+    def visitSimple(self, date):
+        return "DATE_VALUE.$date", dict(date=date.date)
+
+    def visitPeriod(self, date):
+        return ("DATE_VALUE.FROM $date1 TO $date2",
+                dict(date1=date.date1, date2=date.date2))
+
+    def visitFrom(self, date):
+        return "DATE_VALUE.FROM $date", dict(date=date.date)
+
+    def visitTo(self, date):
+        return "DATE_VALUE.TO $date", dict(date=date.date)
+
+    def visitRange(self, date):
+        return ("DATE_VALUE.BETWEEN $date1 AND $date2",
+                dict(date1=date.date1, date2=date.date2))
+
+    def visitBefore(self, date):
+        return "DATE_VALUE.BEFORE $date", dict(date=date.date)
+
+    def visitAfter(self, date):
+        return "DATE_VALUE.AFTER $date", dict(date=date.date)
+
+    def visitAbout(self, date):
+        return "DATE_VALUE.ABOUT $date", dict(date=date.date)
+
+    def visitCalculated(self, date):
+        return "DATE_VALUE.CALCULATED $date", dict(date=date.date)
+
+    def visitEstimated(self, date):
+        return "DATE_VALUE.ESTIMATED $date", dict(date=date.date)
+
+    def visitInterpreted(self, date):
+        return ("DATE_VALUE.INTERPRETED $date ($phrase)",
+                dict(date=date.date, phrase=date.phrase))
+
+    def visitPhrase(self, date):
+        return "DATE_VALUE.($phrase)", dict(phrase=date.phrase)
+
+
 class I18N(object):
     """Class with methods responsible for various aspects of translations.
 
@@ -216,12 +260,14 @@ class I18N(object):
     def tr_date(self, date):
         """Produce language-specific date representation.
 
-        :param date: Instance of :py:class:`ged4py.detail.date.DateValue`.
+        :param date: Instance of :py:class:`ged4py.date.DateValue`.
         :return: String representation of a date.
         """
-        tmpl = string.Template(self.tr("DATE_VALUE." + date.template))
+        visitor = _TemplateDateVisitor()
+        tmpl, datekw = date.accept(visitor)
+        tmpl = string.Template(self.tr(tmpl))
         kw = {}
-        for key, val in date.kw.items():
+        for key, val in datekw.items():
             if isinstance(val, CalendarDate):
                 # localized date
                 kw[key] = self._tr_cal_date(val)
@@ -236,14 +282,13 @@ class I18N(object):
         Uses date format provided in constructor, month name is translated
         into a destination language.
 
-        :param date: Instance of :py:class:`ged4py.detail.date.CalendarDate`.
+        :param date: Instance of :py:class:`ged4py.date.CalendarDate`.
         :return: String representation of a date.
         """
         items = []
         for code in self._datefmt:
             if code == 'Y':
-                if date.year is not None:
-                    items += [date.year]
+                items += [date.year_str]
             elif code == 'M':
                 if '/' in self._datefmt or '.' in self._datefmt:
                     month = date.month_num

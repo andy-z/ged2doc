@@ -5,7 +5,9 @@ from __future__ import absolute_import, division, print_function
 
 from collections import namedtuple
 
-from ged2doc.name import *
+from ged2doc.name import (name_fmt, FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
+                          FMT_MAIDEN_ONLY, FMT_CAPITAL)
+
 
 # mock for Name class
 Name = namedtuple("Name", "given surname maiden")
@@ -135,4 +137,3 @@ def test_006_capital():
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "SMITH (SAWYER), Jane"
-

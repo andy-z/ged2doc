@@ -413,7 +413,7 @@ class Writer(object):
     def _render_prolog(self):
         """Generate initial document header/title.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _render_section(self, level, ref_id, title, newpage=False):
         """Produces new section in the output document.
@@ -427,7 +427,7 @@ class Writer(object):
         :param newpage: If ``True`` then start new page (for documents that
                 support pagination).
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _render_person(self, person, image_data, attributes, families,
                        events, notes):
@@ -453,7 +453,7 @@ class Writer(object):
         :param list notes: List of strings, each string should be rendered
                 as separate paragraph.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _render_name_stat(self, n_total, n_females, n_males):
         """Produces summary table.
@@ -465,21 +465,21 @@ class Writer(object):
         :param int n_females: Number of female individuals.
         :param int n_males: Number of male individuals.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _render_name_freq(self, freq_table):
         """Produces name statistics table.
 
         :param freq_table: list of (name, count) tuples.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _render_toc(self):
         """Produce table of contents using info collected in _render_section().
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _finalize(self):
         """Finalize output.
         """
-        raise NotImplemented()
+        raise NotImplementedError()

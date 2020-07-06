@@ -88,7 +88,7 @@ def test_050_personImageFile():
                              file, form], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == None
+    assert utils.personImageFile(person) is None
 
     # FORM is subordinate of FILE
     dialect = model.DIALECT_MYHERITAGE
@@ -100,7 +100,7 @@ def test_050_personImageFile():
                              file], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == None
+    assert utils.personImageFile(person) is None
 
     # _PRIM flag is set on one of the two OBJE
     dialect = model.DIALECT_MYHERITAGE

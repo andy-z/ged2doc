@@ -2,6 +2,3 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `ged2doc` package."""
-
-import pytest
-

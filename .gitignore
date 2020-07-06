@@ -44,6 +44,8 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.pytest_cache/
+tox.ini+ged4py
 
 # Translations
 #*.mo
@@ -60,9 +62,3 @@ target/
 
 # pyenv python configuration file
 .python-version
-
-
-# Eclipse stuff
-.project
-.pydevproject
-.settings/
