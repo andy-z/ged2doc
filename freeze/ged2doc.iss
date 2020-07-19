@@ -6,7 +6,7 @@
 #define MyAppPublisher "Andy Salnikov"
 #define MyAppURL "https://github.com/andy-z/ged2doc"
 #define MyAppExeName "ged2doc.exe"
-#define SourceDir "..\build\exe.win32-3.6"
+#define SourceDir "..\build\exe.win32-3.8"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -39,7 +39,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#SourceDir}\ged2doc.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\python36.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\python38.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "start.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ged2doc.ico"; DestDir: "{app}"; Flags: ignoreversion
