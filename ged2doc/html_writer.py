@@ -6,12 +6,16 @@ from __future__ import absolute_import, division, print_function
 __all__ = ["HtmlWriter"]
 
 import base64
-import cgi
 import io
 import logging
 import pkg_resources
 import string
 from PIL import Image
+import six
+if not six.PY2:
+    from html import escape as html_escape
+else:
+    from cgi import escape as html_escape
 
 from ged4py import model
 from .plotter import Plotter
@@ -120,10 +124,10 @@ class HtmlWriter(writer.Writer):
         for piece in utils.split_refs(text):
             if isinstance(piece, tuple):
                 xref, name = piece
-                result += u'<a href="#{0}">{1}</a>'.format(cgi.escape(xref),
-                                                           cgi.escape(name))
+                result += u'<a href="#{0}">{1}</a>'.format(html_escape(xref),
+                                                           html_escape(name))
             else:
-                result += cgi.escape(piece)
+                result += html_escape(piece)
         return result
 
     def _render_section(self, level, ref_id, title, newpage=False):
@@ -138,7 +142,7 @@ class HtmlWriter(writer.Writer):
         """
         self._toc += [(level, ref_id, title)]
         doc = [u'<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
-                                                     cgi.escape(title))]
+                                                     html_escape(title))]
         for line in doc:
             self._output.write(line.encode('utf-8'))
 
@@ -182,22 +186,22 @@ class HtmlWriter(writer.Writer):
 
         if families:
             hdr = self._tr.tr(TR("Spouses and children"), person.sex)
-            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
             for family in families:
                 family = self._interpolate(family)
                 doc += ['<p>' + family + '</p>\n']
 
         if events:
             hdr = self._tr.tr(TR("Events and dates"))
-            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
             for date, facts in events:
                 facts = self._interpolate(facts)
-                doc += ['<p>' + cgi.escape(date) + ": " + facts +
+                doc += ['<p>' + html_escape(date) + ": " + facts +
                         '</p>\n']
 
         if notes:
             hdr = self._tr.tr(TR("Comments"))
-            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
             for note in notes:
                 note = self._interpolate(note)
                 doc += ['<p>' + note + '</p>\n']
@@ -206,7 +210,7 @@ class HtmlWriter(writer.Writer):
         tree_svg = self._make_ancestor_tree(person)
         if tree_svg:
             hdr = self._tr.tr(TR("Ancestor tree"))
-            doc += ['<h3>' + cgi.escape(hdr) + '</h3>\n']
+            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
             doc += ['<div class="centered">\n']
             doc += [tree_svg]
             doc += ['</div>\n']
@@ -274,7 +278,7 @@ class HtmlWriter(writer.Writer):
         """Produce table of contents using info collected in _render_section().
         """
         section = self._tr.tr(TR("Table Of Contents"))
-        doc = [u'<h1>{0}</h1>\n'.format(cgi.escape(section))]
+        doc = [u'<h1>{0}</h1>\n'.format(html_escape(section))]
         lvl = 0
         for toclvl, tocid, text in self._toc:
             while lvl < toclvl:
