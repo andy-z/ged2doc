@@ -178,7 +178,7 @@ class Plotter(object):
                 for p in _boxes(box.father):
                     yield p
 
-        # get the number of generations, limit to 4
+        # get the number of generations, limit to max_gen
         ngen = min(_genDepth(person), self.max_gen)
         _log.debug('parent_tree: person = %s', person.name)
         _log.debug('parent_tree: ngen = %d', ngen)
