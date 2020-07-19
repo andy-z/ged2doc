@@ -8,6 +8,7 @@ from argparse import ArgumentParser, FileType
 import locale
 import logging
 import os
+import platform
 import sys
 
 from .size import String2Size
@@ -25,22 +26,28 @@ from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 _log = logging.getLogger(__name__)
 
 
-def main():
-    """Console script for ged2doc."""
+def _makeWriter(args=None):
+    """Make Writer instance based on command line arguments.
 
-    version = "ged2doc {0} (ged4py {1})".format(ged2doc.__version__,
-                                                ged4py.__version__)
+    :param list args: List of command line arguments passed to argparse,
+        optional, by default uses `sys.argv`.
+    """
+
+    version = "ged2doc {0} (ged4py {1}; python {2})".format(ged2doc.__version__,
+                                                            ged4py.__version__,
+                                                            platform.python_version())
 
     parser = ArgumentParser(description='Convert GEDCOM file into document.')
     parser.add_argument('-v', "--verbose", action="count", default=0,
                         help="Print some info to standard output, "
                         "-vv prints debug info.")
     parser.add_argument("--log", default=None, metavar="PATH",
-                        type=FileType(mode="wt", encoding='UTF-8'),
+                        type=FileType(mode="wt"),
                         help="Produces log file with debugging information.")
     parser.add_argument("--version", action="version", version=version,
                         help="Print version information and exit")
-    parser.add_argument("input", type=FileType(mode="rb",),
+    # TODO: can enable FileType when Python2 support is dropped
+    parser.add_argument("input",  # type=FileType(mode="rb",),
                         help="Location of input file, input file can be "
                         "either GEDCOM file or ZIP archive which can also "
                         "include images.")
@@ -160,7 +167,7 @@ def main():
                        metavar="NUMBER", type=int,
                        help="Number of the first page; default: %(default)s")
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # configure logging
     if args.verbose == 0:
@@ -256,9 +263,18 @@ def main():
                            image_height=args.odt_image_height,
                            first_page=args.first_page)
 
+    return args, writer
+
+
+def main():
+    """Console script for ged2doc."""
+
+    args, writer = _makeWriter()
+
     try:
         writer.save()
         _log.debug("Success")
+        return 0
     except Exception as exc:
         _log.debug("caught exception: %s", exc, exc_info=True)
         print("Error while producing a document:\n  {}".format(exc),
@@ -269,3 +285,4 @@ def main():
             os.unlink(args.output)
         except OSError as exc:
             _log.debug("caught exception while removing file: %s", exc)
+        return 1

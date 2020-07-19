@@ -13,6 +13,7 @@ from .name import name_fmt
 
 from . import utils
 from ged4py import model, parser
+from ged4py.date import DateValue
 
 
 _log = logging.getLogger(__name__)
@@ -311,7 +312,7 @@ class Writer(object):
             date = event[0]
             if date is None:
                 # use date in the future
-                date = model.DateValue()
+                date = DateValue.parse(None)
             return date
 
         # order events (only those with dates)
@@ -345,7 +346,7 @@ class Writer(object):
             # find image file, try to open it
             imgfile = self._floc.open_image(path)
             if not imgfile:
-                _log.warn('Failed to locate image file "%s"', path)
+                _log.warning('Failed to locate image file "%s"', path)
             else:
                 _log.debug('Opened image file %s', path)
                 imgdata = imgfile.read()

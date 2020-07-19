@@ -231,7 +231,7 @@ class I18N(object):
             self._tr.add_fallback(_NullFallback())
             _LOG.debug("self._tr = %r", self._tr)
         except IOError:
-            _LOG.warn("Cannot locate translations for language %r", lang)
+            _LOG.warning("Cannot locate translations for language %r", lang)
 
     def tr(self, text, gender=None):
         """Translates given text , takes into account gender.
