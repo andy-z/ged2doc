@@ -34,8 +34,6 @@ def test_tree_node():
 
     oneLineHeightPt = 10. + 2 * 4.  # 4pt is default padding
     twoLineHeightPt = 2 * 10. + 1.5 + 2 * 4.  # 4pt is default padding
-    oneNodeHeightPt = oneLineHeightPt + 2 * TreeNode._vpadding.pt + 2 * TreeNode._linewidth.pt
-    twoNodeHeightPt = twoLineHeightPt + 2 * TreeNode._vpadding.pt + 2 * TreeNode._linewidth.pt
 
     # single person, no parents
     person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
@@ -45,11 +43,11 @@ def test_tree_node():
     assert node.mother is None
     assert node.father is None
     assert node.name == "John Smith"
-    assert node.textbox.width == Size(2) - 2 * TreeNode._linewidth
+    assert node.textbox.width == Size(2)
     assert node.textbox.height.pt == oneLineHeightPt
-    assert node.subTreeHeight.pt == oneNodeHeightPt
-    assert node.textbox.x0 == TreeNode._linewidth
-    assert node.textbox.y0 == TreeNode._vpadding + TreeNode._linewidth
+    assert node.subTreeHeight.pt == oneLineHeightPt
+    assert node.textbox.x0 == Size()
+    assert node.textbox.y0 == Size()
 
     # person, one parent
     mother = MockIndividual(name=MockName(first="Jane", surname="Smith", maiden="Huang"),
@@ -66,8 +64,8 @@ def test_tree_node():
     assert node.father.person is None
     assert node.name == "John Smith"
     assert node.mother.name == "Jane Smith"
-    assert node.subTreeHeight.pt == approx(2 * oneNodeHeightPt + 2 * TreeNode._vpadding.pt)
-    assert node.textbox.x0 == TreeNode._linewidth
+    assert node.subTreeHeight.pt == approx(2 * oneLineHeightPt + TreeNode._vpadding.pt)
+    assert node.textbox.x0 == Size()
     assert node.textbox.midy.pt == approx(node.subTreeHeight.pt / 2)
 
     # person, two parents, father's name is very long
@@ -90,14 +88,13 @@ def test_tree_node():
     assert node.mother.name == "Jane Smith"
     assert node.father.name == "King Huan Carlos TwentySecond Smith-and-sometimes-Ivanov"
     assert node.father.textbox.height.pt == approx(twoLineHeightPt)
-    assert node.subTreeHeight.pt == approx(twoNodeHeightPt + oneNodeHeightPt + 2 * TreeNode._vpadding.pt)
+    assert node.subTreeHeight.pt == approx(twoLineHeightPt + oneLineHeightPt + TreeNode._vpadding.pt)
     assert node.textbox.midy.pt == approx((node.mother.textbox.midy.pt + node.father.textbox.midy.pt) / 2)
 
 
 def test_tree():
 
     oneLineHeightPt = 10. + 2 * 4.  # 4pt is default padding
-    oneNodeHeightPt = oneLineHeightPt + 2 * TreeNode._vpadding.pt + 2 * TreeNode._linewidth.pt
 
     # single person, no parents
     person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
@@ -112,8 +109,8 @@ def test_tree():
                             mother=mother, father=None, xref_id="@id0@")
     tree = AncestorTree(person)
     assert tree.root is not None
-    assert tree.width.pt == approx(((5 * 72 - 3 * 12 - 2) / 4) * 2 + 12 + 2)
-    assert tree.height.pt == approx(2 * oneNodeHeightPt + 2 * TreeNode._vpadding.pt)
+    assert tree.width.pt == approx(((5 * 72 - 3 * 12 - 4) / 4) * 2 + 12 + 4)
+    assert tree.height.pt == approx(2 * oneLineHeightPt + TreeNode._vpadding.pt + 4)
 
     visitor = MockTreeVisitor()
     tree.visit(visitor)

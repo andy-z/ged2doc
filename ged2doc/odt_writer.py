@@ -12,7 +12,8 @@ import logging
 from PIL import Image
 
 from ged4py import model
-from .plotter import Plotter
+from .ancestor_tree import AncestorTree
+from .ancestor_tree_svg import SVGTreeVisitor
 from .size import Size
 from . import utils
 from . import writer
@@ -329,26 +330,7 @@ class OdtWriter(writer.Writer):
             for note in notes:
                 self.doc.text.addElement(text.P(text=note))
 
-        tree_svg = self._make_ancestor_tree(person)
-        if tree_svg:
-
-            svg_data, mime, width, height = tree_svg
-            # convert it to binary
-            svg_data = svg_data.encode("utf_8")
-
-            # store image
-            filename = u"Pictures/" + \
-                hashlib.sha1(svg_data).hexdigest() + '.svg'
-            imgref = self.doc.addPicture(filename, mime, svg_data)
-
-            frame = draw.Frame(width=str(width), height=str(height))
-            frame.addElement(draw.Image(href=imgref))
-
-            hdr = self._tr.tr(TR("Ancestor tree"))
-            self._render_section(3, "", hdr)
-            p = text.P(stylename=self.styles['center'])
-            p.addElement(frame)
-            self.doc.text.addElement(p)
+        self._make_ancestor_tree(person)
 
     def _render_name_stat(self, n_total, n_females, n_males):
         """Produces summary table.
@@ -464,15 +446,32 @@ class OdtWriter(writer.Writer):
         return frame
 
     def _make_ancestor_tree(self, person):
-        """"Returns SVG picture for parent tree or None.
+        """"Add SVG picture for ancestor tree.
 
         :param person: Individual record
-        :return: `None` or tuple containing SVG element with ancestor tree
-            MIME type of data, and image width and height
         """
         width = self.layout.width - self.layout.left - self.layout.right
-        width = width ^ 'in'
-        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=True, refs=False, max_gen=self._tree_width)
-        img = plotter.parent_tree(person, 'in')
-        return img
+        tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
+        visitor = SVGTreeVisitor(units='in', fullxml=True)
+        tree.visit(visitor)
+        img = visitor.makeSVG(width=tree.width, height=tree.height)
+
+        if img:
+
+            svg_data, mime, width, height = img
+            # convert it to binary
+            svg_data = svg_data.encode("utf_8")
+
+            # store image
+            filename = u"Pictures/" + \
+                hashlib.sha1(svg_data).hexdigest() + '.svg'
+            imgref = self.doc.addPicture(filename, mime, svg_data)
+
+            frame = draw.Frame(width=str(width), height=str(height))
+            frame.addElement(draw.Image(href=imgref))
+
+            hdr = self._tr.tr(TR("Ancestor tree"))
+            self._render_section(3, "", hdr)
+            p = text.P(stylename=self.styles['center'])
+            p.addElement(frame)
+            self.doc.text.addElement(p)

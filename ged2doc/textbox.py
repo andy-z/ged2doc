@@ -117,7 +117,7 @@ class TextBox(object):
         self._x0 = Size(x0)
         self._y0 = Size(y0)
 
-    def svg(self, textclass=None, units='in'):
+    def svg(self, textclass=None, units='in', rect_style=None):
         ''' Produces list of SVG elements (pysvg objects) '''
 
         shapes = []
@@ -125,7 +125,9 @@ class TextBox(object):
         # render box
         kw = dict(x=self.x0 ^ units, y=self.y0 ^ units,
                   width=self.width ^ units, height=self.height ^ units)
-        if self._rect_style:
+        if rect_style:
+            kw['style'] = rect_style
+        elif self._rect_style:
             kw['style'] = self._rect_style
         rect = Rect(**kw)
         shapes.append(rect)

@@ -18,7 +18,8 @@ else:
     from cgi import escape as html_escape
 
 from ged4py import model
-from .plotter import Plotter
+from .ancestor_tree import AncestorTree
+from .ancestor_tree_svg import SVGTreeVisitor
 from .size import Size
 from . import utils
 from . import writer
@@ -207,15 +208,8 @@ class HtmlWriter(writer.Writer):
                 doc += ['<p>' + note + '</p>\n']
 
         # plot ancestors tree
-        tree_svg = self._make_ancestor_tree(person)
-        if tree_svg:
-            hdr = self._tr.tr(TR("Ancestor tree"))
-            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
-            doc += ['<div class="centered">\n']
-            doc += [tree_svg]
-            doc += ['</div>\n']
-        else:
-            doc += ['<svg width="100%" height="1pt"/>\n']
+        doc += self._make_ancestor_tree(person)
+
         for line in doc:
             self._output.write(line.encode('utf-8'))
 
@@ -348,9 +342,18 @@ class HtmlWriter(writer.Writer):
         :return: Image data (XML contents), bytes
         """
         width = self._page_width ^ 'px'
-        plotter = Plotter(width=width, gen_dist="12pt", font_size="9pt",
-                          fullxml=False, refs=True, max_gen=self._tree_width)
-        img = plotter.parent_tree(person, 'px')
+        tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
+        visitor = SVGTreeVisitor(units='px', fullxml=False)
+        tree.visit(visitor)
+        img = visitor.makeSVG(width=tree.width, height=tree.height)
+        doc = []
         if img is not None:
-            return img[0]
-        return None
+            tree_svg = img[0]
+            hdr = self._tr.tr(TR("Ancestor tree"))
+            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
+            doc += ['<div class="centered">\n']
+            doc += [tree_svg]
+            doc += ['</div>\n']
+        else:
+            doc += ['<svg width="100%" height="1pt"/>\n']
+        return doc

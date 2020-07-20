@@ -29,8 +29,7 @@ class TreeNode(object):
     :param Size gen_dist: Horiz. distance between generations.
     """
 
-    _vpadding = Size('1pt')  # vertical padding around each sub-tree or node
-    _linewidth = Size('1pt')  # line width for box around the node
+    _vpadding = Size('2pt')  # vertical padding around each sub-tree or node
 
     def __init__(self, person, gen, motherNode, fatherNode, box_width,
                  max_box_width, font_size, gen_dist):
@@ -51,11 +50,9 @@ class TreeNode(object):
             self.name = (person.name.first or '') + ' ' + \
                 (person.name.surname or '')
         href = None if person is None else ('#person.' + person.xref_id)
-        x0 = gen * (gen_dist + box_width) + self._linewidth
-        textbox_width = box_width - 2 * self._linewidth
-        textbox_maxwidth = max_box_width - 2 * self._linewidth
-        self._box = TextBox(text=self.name, x0=x0, width=textbox_width,
-                            maxwidth=textbox_maxwidth, font_size=font_size,
+        x0 = gen * (gen_dist + box_width)
+        self._box = TextBox(text=self.name, x0=x0, width=box_width,
+                            maxwidth=max_box_width, font_size=font_size,
                             href=href)
         self.setY0(Size())
 
@@ -77,25 +74,25 @@ class TreeNode(object):
         """
         h = Size()
         if self.mother:
-            h = self.mother.subTreeHeight + self.father.subTreeHeight + 2 * self._vpadding
-        h = max(h, self._box.height + 2 * self._vpadding + 2 * self._linewidth)
+            h = self.mother.subTreeHeight + self.father.subTreeHeight + self._vpadding
+        h = max(h, self._box.height)
         _log.debug('TreeNode.name = %s; height = %s', self.name, h)
         return h
 
     def setY0(self, y0):
         """Recalculate Y position of box tree so that topmost box is at `y0`.
         """
+        y0 = Size(y0)
         _log.debug('TreeNode.name = %s; setY0 = %s', self.name, y0)
         if self.mother:
-            y0 += self._vpadding
             self.mother.setY0(y0)
-            self.father.setY0(y0 + self.mother.subTreeHeight)
+            self.father.setY0(y0 + self._vpadding + self.mother.subTreeHeight)
             # sodd formula need for better precision
             self._box.y0 = (2 * self.mother.textbox.y0 + self.mother.textbox.height +
                             2 * self.father.textbox.y0 + self.father.textbox.height -
                             2 * self.textbox.height) / 4
         else:
-            self._box.y0 = y0 + self._vpadding + self._linewidth
+            self._box.y0 = y0
 
 
 class AncestorTree(object):
@@ -112,6 +109,7 @@ class AncestorTree(object):
     def __init__(self, person, max_gen=4, width="5in", gen_dist="12pt", font_size="10pt"):
         self.max_gen = max_gen
         self._width = Size(width)
+        self._height = Size()
         self.gen_dist = Size(gen_dist)
         self.font_size = Size(font_size)
         self.root = None
@@ -142,28 +140,29 @@ class AncestorTree(object):
 
         # calculate horizontal size of each box
         box_width = (self._width - (self.max_gen - 1) * self.gen_dist -
-                     Size('2pt')) / self.max_gen
+                     Size('4pt')) / self.max_gen
         max_box_width = (self._width - (ngen - 1) * self.gen_dist -
-                         Size('2pt')) / ngen
+                         Size('4pt')) / ngen
 
         # build tree
         self.root = self._makeTree(person, 0, ngen, box_width, max_box_width)
 
-        # get full height
-        self._height = self.root.subTreeHeight
+        # add small padding, get full height
+        self._height = self.root.subTreeHeight + Size("4pt")
+        self.root.setY0("2pt")
 
         # update box width for every generation and calculate total width
-        width = Size('1pt')  # extra 1pt to avoid cropping
+        width = Size('2pt')  # extra 1pt to avoid cropping
         for gen in range(ngen):
             gen_width = max(pbox.textbox.width for pbox in _boxes(self.root)
                             if pbox.generation == gen)
             for pbox in _boxes(self.root):
                 if pbox.generation == gen:
                     pbox.textbox.width = gen_width
-                    pbox.textbox.x0 = width + TreeNode._linewidth
-            width += gen_width + 2 * TreeNode._linewidth + self.gen_dist
+                    pbox.textbox.x0 = width
+            width += gen_width + self.gen_dist
         width -= self.gen_dist
-        width += Size('1pt')  # extra 1pt to avoid cropping
+        width += Size('2pt')  # extra 1pt to avoid cropping
         self._width = width
 
     @property
@@ -183,7 +182,8 @@ class AncestorTree(object):
 
         :param AncestorTreeVisitor visitor: Tree visitor.
         """
-        self._visit(visitor, self.root)
+        if self.root:
+            self._visit(visitor, self.root)
 
     def _visit(self, visitor, node):
         """Helper method for recursive visiting of the nodes.
