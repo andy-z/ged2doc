@@ -23,7 +23,7 @@ class TextBox(object):
     :param Size x0: lowest X coordinate of corner (def: 0)
     :param Size y0: lowest Y coordinate of corner (def: 0)
     :param Size width: width of a box (def: 0)
-    :param Szie maxwidth: maximum width of a box (def: 0)
+    :param Size maxwidth: maximum width of a box (def: 0)
     :param Size height: height of a box (def: 0)
     :param str text: text contained in a box (def: '')
     :param Size font_size: font size (def: 10pt)
