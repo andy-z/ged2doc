@@ -8,7 +8,7 @@ __all__ = ["SVGTreeVisitor"]
 import logging
 
 from .ancestor_tree import AncestorTreeVisitor
-from .dumbsvg import Doc, Line
+from .dumbsvg import Doc, Line, Rect, Text, Tspan, Hyperlink
 
 _log = logging.getLogger(__name__)
 
@@ -33,7 +33,8 @@ class SVGTreeVisitor(AncestorTreeVisitor):
 
         textclass = None if node.person is None else 'svglink'
         style = _rect_unknown_style if node.person is None else _rect_style
-        self._elements += node.textbox.svg(textclass=textclass, units=units, rect_style=style)
+        self._elements += self._textbox_svg(node.textbox, textclass=textclass,
+                                            units=units, rect_style=style)
 
     def visitMotherEdge(self, node, parentNode):
 
@@ -82,3 +83,33 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         xml = svg.xml(self._fullxml)
 
         return xml, 'image/svg', width, height
+
+    def _textbox_svg(self, textbox, textclass=None, units='in', rect_style=None):
+        ''' Produces list of SVG elements for a textbox '''
+
+        shapes = []
+
+        # render box
+        kw = dict(x=textbox.x0 ^ units, y=textbox.y0 ^ units,
+                  width=textbox.width ^ units, height=textbox.height ^ units)
+        if rect_style:
+            kw['style'] = rect_style
+        rect = Rect(**kw)
+        shapes.append(rect)
+
+        # render text
+        kw = dict(text_anchor='middle', font_size=textbox.font_size ^ 'pt')
+        if textclass:
+            kw['class_'] = textclass
+        txt = Text(**kw)
+        if textbox.href:
+            a = Hyperlink(textbox.href)
+            a.add(txt)
+            shapes.append(a)
+        else:
+            shapes.append(txt)
+        for line, (x, y) in textbox.lines_pos():
+            tspan = Tspan(x=x ^ units, y=y ^ units, value=line)
+            txt.add(tspan)
+
+        return shapes

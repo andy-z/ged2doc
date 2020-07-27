@@ -160,10 +160,12 @@ class AncestorTree(object):
                 if pbox.generation == gen:
                     pbox.textbox.width = gen_width
                     pbox.textbox.x0 = width
+                    _log.debug('parent_tree: %s', pbox.textbox)
             width += gen_width + self.gen_dist
         width -= self.gen_dist
         width += Size('2pt')  # extra 1pt to avoid cropping
         self._width = width
+        _log.debug('parent_tree: size = %s x %s', self._width, self._height)
 
     @property
     def width(self):

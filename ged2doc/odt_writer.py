@@ -13,7 +13,8 @@ from PIL import Image
 
 from ged4py import model
 from .ancestor_tree import AncestorTree
-from .ancestor_tree_svg import SVGTreeVisitor
+from .ancestor_tree_emf import EMFTreeVisitor
+# from .ancestor_tree_svg import SVGTreeVisitor
 from .size import Size
 from . import utils
 from . import writer
@@ -445,27 +446,56 @@ class OdtWriter(writer.Writer):
         frame.addElement(draw.Image(href=imgref))
         return frame
 
+    # def _make_ancestor_tree(self, person):
+    #     """"Add SVG picture for ancestor tree.
+
+    #     :param person: Individual record
+    #     """
+    #     width = self.layout.width - self.layout.left - self.layout.right
+    #     tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
+    #     visitor = SVGTreeVisitor(units='in', fullxml=True)
+    #     tree.visit(visitor)
+    #     img = visitor.makeSVG(width=tree.width, height=tree.height)
+
+    #     if img:
+
+    #         svg_data, mime, width, height = img
+    #         # convert it to binary
+    #         svg_data = svg_data.encode("utf_8")
+
+    #         # store image
+    #         filename = u"Pictures/" + \
+    #             hashlib.sha1(svg_data).hexdigest() + '.svg'
+    #         imgref = self.doc.addPicture(filename, mime, svg_data)
+
+    #         frame = draw.Frame(width=str(width), height=str(height))
+    #         frame.addElement(draw.Image(href=imgref))
+
+    #         hdr = self._tr.tr(TR("Ancestor tree"))
+    #         self._render_section(3, "", hdr)
+    #         p = text.P(stylename=self.styles['center'])
+    #         p.addElement(frame)
+    #         self.doc.text.addElement(p)
+
     def _make_ancestor_tree(self, person):
-        """"Add SVG picture for ancestor tree.
+        """"Add EMF picture for ancestor tree.
 
         :param person: Individual record
         """
         width = self.layout.width - self.layout.left - self.layout.right
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
-        visitor = SVGTreeVisitor(units='in', fullxml=True)
+        visitor = EMFTreeVisitor(width=tree.width, height=tree.height)
         tree.visit(visitor)
-        img = visitor.makeSVG(width=tree.width, height=tree.height)
+        img = visitor.makeEMF()
 
         if img:
 
-            svg_data, mime, width, height = img
-            # convert it to binary
-            svg_data = svg_data.encode("utf_8")
+            emf_data, mime, width, height = img
 
             # store image
             filename = u"Pictures/" + \
-                hashlib.sha1(svg_data).hexdigest() + '.svg'
-            imgref = self.doc.addPicture(filename, mime, svg_data)
+                hashlib.sha1(emf_data).hexdigest() + '.emf'
+            imgref = self.doc.addPicture(filename, mime, emf_data)
 
             frame = draw.Frame(width=str(width), height=str(height))
             frame.addElement(draw.Image(href=imgref))
