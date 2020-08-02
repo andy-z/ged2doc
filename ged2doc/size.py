@@ -99,6 +99,13 @@ class Size(object):
         ''' size in millimeters '''
         return self.value * MM_PER_INCH
 
+    def to_dpi(self, dpi):
+        """Return copy of itself with updated DPI value
+
+        This is a convenience method which does the same as `Size(self, dpi)`.
+        """
+        return Size(self, dpi)
+
     def __str__(self):
         ''' Returns string representation, e.g. "12in" '''
         return str(self.value) + 'in'

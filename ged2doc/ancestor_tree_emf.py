@@ -23,14 +23,15 @@ class EMFTreeVisitor(AncestorTreeVisitor):
     """AncestorTreeVisitor implementation which makes EMF image.
     """
     def __init__(self, width, height, dpi=300):
-        self._width = Size(width, dpi)
-        self._height = Size(height, dpi)
+        self._width = width.to_dpi(dpi)
+        self._height = height.to_dpi(dpi)
         self._dpi = dpi
         self._emf = dumbemf.EMF(self._width, self._height)
         self._nodes = 0
 
-        self._black_pen = self._emf.create_pen("solid", Size("1pt", self._dpi), _BLACK)
-        self._gray_pen = self._emf.create_pen("solid", Size("1pt", self._dpi), _GRAY)
+        self._black_pen = ("solid", Size("1pt", self._dpi), _BLACK)
+        self._gray_pen = ("solid", Size("1pt", self._dpi), _GRAY)
+        self._emf.set_bkmode(dumbemf.BackgroundMode.TRANSPARENT)
 
         self._fonts = {}
 
@@ -39,32 +40,53 @@ class EMFTreeVisitor(AncestorTreeVisitor):
         textbox = node.textbox
 
         pen = self._gray_pen if node.person is None else self._black_pen
+        with self._emf.use_pen(*pen):
 
-        # draw a box/rectangle
-        left = Size(textbox.x0, self._dpi)
-        right = Size(textbox.x1, self._dpi)
-        top = Size(textbox.y0, self._dpi)
-        bottom = Size(textbox.y1, self._dpi)
-        self._emf.rectangle(left, top, right, bottom, pen)
-
-        # text
-        fontsize = Size(textbox.font_size, self._dpi)
-        font = self._fonts.get(fontsize.pt)
-        if font is None:
-            font = self._emf.create_font(fontsize)
-            self._fonts[fontsize.pt] = font
+            # draw a box/rectangle
+            left = textbox.x0.to_dpi(self._dpi)
+            right = textbox.x1.to_dpi(self._dpi)
+            top = textbox.y0.to_dpi(self._dpi)
+            bottom = textbox.y1.to_dpi(self._dpi)
+            self._emf.rectangle(left, top, right, bottom)
 
         self._emf.text_align("c")
-        self._emf.text_color(_BLACK if node.person is None else _GRAY)
+        self._emf.text_color(_GRAY if node.person is None else _BLACK)
 
-        for line, (x, y) in textbox.lines_pos():
-            self._emf.text(Size(x, self._dpi), Size(y, self._dpi), line, font)
+        fontsize = textbox.font_size.to_dpi(self._dpi)
+        with self._emf.use_font(fontsize):
+            for line, (x, y) in textbox.lines_pos():
+                self._emf.text(x.to_dpi(self._dpi), y.to_dpi(self._dpi), line)
 
     def visitMotherEdge(self, node, parentNode):
-        pass
+
+        x0 = node.textbox.x1.to_dpi(self._dpi)
+        y0 = node.textbox.midy.to_dpi(self._dpi)
+        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
+        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        midx = (x0 + x1) / 2
+
+        # draw connections
+        with self._emf.use_pen(*self._black_pen):
+            points = [(x0, y0), (midx, y0)]
+            self._emf.polyline(points)
+
+        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        with self._emf.use_pen(*pen):
+            points = [(midx, y0), (midx, y1), (x1, y1)]
+            self._emf.polyline(points)
 
     def visitFatherEdge(self, node, parentNode):
-        pass
+        x0 = node.textbox.x1.to_dpi(self._dpi)
+        y0 = node.textbox.midy.to_dpi(self._dpi)
+        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
+        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        midx = (x0 + x1) / 2
+
+        # draw connections
+        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        with self._emf.use_pen(*pen):
+            points = [(midx, y0), (midx, y1), (x1, y1)]
+            self._emf.polyline(points)
 
     def makeEMF(self):
 

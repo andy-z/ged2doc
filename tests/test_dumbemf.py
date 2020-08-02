@@ -15,21 +15,27 @@ logging.basicConfig(level=logging.DEBUG)
 _dpi = 300.
 _size = Size("5in", _dpi), Size("3in", _dpi)
 
-_header_bytes = 88
+_header_bytes = 124
 _EOF_bytes = 5 * 4
-_pen_bytes = 7 * 4
-_font_bytes = 332
+_use_pen_bytes = 56 + 12 + 12 + 12  # EXTCREATEPEN + SELECTOBJECT + SELECTOBJECT + DELETEOBJECT
+_use_font_bytes = 104 + 12 + 12 + 12  # EXTCREATEFONTINDIRECTW + SELECTOBJECT + SELECTOBJECT + DELETEOBJECT
 _select_object_bytes = 3 * 4
-_rect_bytes = 6 * 4
+_rect_bytes = 112
 _text_align_bytes = 3 * 4
 _text_color_bytes = 3 * 4
 
 
 def _text_bytes(text):
-    size = 9 * 4
+    size = 19 * 4
     size += len(text) * 2
     if size % 4 != 0:
         size += 2
+    return size
+
+
+def _polyline_bytes(n_points):
+    size = 7 * 4
+    size += n_points * 2 * 4
     return size
 
 
@@ -43,32 +49,28 @@ def test_001_empty():
     assert len(data) == _header_bytes + _EOF_bytes
 
 
-def test_create_pen():
+def test_use_pen():
 
     emf = EMF(*_size)
 
-    pen = emf.create_pen("solid", Size("1pt", _dpi), 0)
-    assert pen == 1
-    pen = emf.create_pen("solid", Size("1pt", _dpi), 0x112233)
-    assert pen == 2
+    with emf.use_pen("solid", Size("1pt", _dpi), 0) as pen:
+        assert pen == 1
     data = emf.data()
 
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _pen_bytes * 2
+    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes
 
 
-def test_create_font():
+def test_use_font():
 
     emf = EMF(*_size)
 
-    font = emf.create_font(Size("10pt", _dpi))
-    assert font == 1
-    font = emf.create_font(Size("16pt", _dpi))
-    assert font == 2
+    with emf.use_font(Size("10pt", _dpi)) as font:
+        assert font == 1
     data = emf.data()
 
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _font_bytes * 2
+    assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes
 
 
 def test_rectangle():
@@ -76,15 +78,14 @@ def test_rectangle():
     emf = EMF(*_size)
 
     # it needs a pen
-    pen = emf.create_pen("solid", Size("1pt", _dpi), 0)
-    emf.rectangle(Size("0pt", _dpi), Size("0pt", _dpi),
-                  Size("1000pt", _dpi), Size("1000pt", _dpi),
-                  pen)
+    with emf.use_pen("solid", Size("1pt", _dpi), 0):
+        emf.rectangle(Size("0pt", _dpi), Size("0pt", _dpi),
+                      Size("1000pt", _dpi), Size("1000pt", _dpi))
 
     data = emf.data()
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _pen_bytes + \
-        _select_object_bytes + _rect_bytes
+    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + \
+        _rect_bytes
 
 
 def test_text_align():
@@ -120,11 +121,30 @@ def test_text():
     emf = EMF(*_size)
 
     # it needs a font
-    font = emf.create_font(Size("16pt", _dpi))
-    text = "abcd"
-    emf.text(Size("0pt", _dpi), Size("0pt", _dpi), text, font)
+    with emf.use_font(Size("16pt", _dpi)):
+        text = "abcd"
+        emf.text(Size("0pt", _dpi), Size("0pt", _dpi), text)
 
     data = emf.data()
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _font_bytes + \
-        _select_object_bytes + _text_bytes(text)
+    assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes + \
+        _text_bytes(text)
+
+
+def test_polyline():
+
+    emf = EMF(*_size)
+
+    # it needs a pen
+    with emf.use_pen("solid", Size("1pt", _dpi), 0):
+        emf.polyline([
+            (Size("1in", _dpi), Size("1in", _dpi)),
+            (Size("1in", _dpi), Size("2in", _dpi)),
+            (Size("2in", _dpi), Size("2in", _dpi)),
+            (Size("2in", _dpi), Size("1in", _dpi)),
+        ])
+
+    data = emf.data()
+    assert isinstance(data, type(b""))
+    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + \
+        _polyline_bytes(4)
