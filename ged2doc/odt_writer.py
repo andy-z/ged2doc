@@ -14,7 +14,7 @@ from PIL import Image
 from ged4py import model
 from .ancestor_tree import AncestorTree
 from .ancestor_tree_emf import EMFTreeVisitor
-# from .ancestor_tree_svg import SVGTreeVisitor
+from .ancestor_tree_svg import SVGTreeVisitor
 from .size import Size
 from . import utils
 from . import writer
@@ -73,6 +73,7 @@ class OdtWriter(writer.Writer):
     :param Size image_height: Size of the images.
     :param int tree_width: Number of generations in ancestor tree.
     :param int first_page: Number of the first generated page.
+    :param str tree_format: Image format for ancestor tree, "emf" or "svg".
     """
 
     def __init__(self, flocator, output, tr, encoding=None,
@@ -84,7 +85,7 @@ class OdtWriter(writer.Writer):
                  margin_left="0.5in", margin_right="0.5in",
                  margin_top="0.5in", margin_bottom="0.25in",
                  image_width="2in", image_height="2in",
-                 tree_width=4, first_page=1):
+                 tree_width=4, first_page=1, tree_format="emf"):
 
         writer.Writer.__init__(self, flocator, tr, encoding=encoding,
                                encoding_errors=encoding_errors,
@@ -98,6 +99,7 @@ class OdtWriter(writer.Writer):
         self._image_height = Size(image_height)
         self._tree_width = tree_width
         self._first_page = first_page
+        self._tree_format = tree_format
 
         doc = OpenDocumentText()
 
@@ -478,30 +480,40 @@ class OdtWriter(writer.Writer):
     #         self.doc.text.addElement(p)
 
     def _make_ancestor_tree(self, person):
-        """"Add EMF picture for ancestor tree.
+        """"Add a picture for ancestor tree.
 
         :param person: Individual record
         """
         width = self.layout.width - self.layout.left - self.layout.right
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
-        visitor = EMFTreeVisitor(width=tree.width, height=tree.height)
-        tree.visit(visitor)
-        img = visitor.makeEMF()
 
-        if img:
+        if self._tree_format == "emf":
+            visitor = EMFTreeVisitor(width=tree.width, height=tree.height)
+            tree.visit(visitor)
+            img = visitor.makeEMF()
+            if not img:
+                return
+            img_data, mime, width, height = img
+        else:
+            visitor = SVGTreeVisitor(units='in', fullxml=True)
+            tree.visit(visitor)
+            img = visitor.makeSVG(width=tree.width, height=tree.height)
+            if not img:
+                return
+            img_data, mime, width, height = img
+            # convert it to binary
+            img_data = img_data.encode("utf_8")
 
-            emf_data, mime, width, height = img
+        # store image
+        filename = u"Pictures/" + \
+            hashlib.sha1(img_data).hexdigest() + '.' + self._tree_format
+        imgref = self.doc.addPicture(filename, mime, img_data)
 
-            # store image
-            filename = u"Pictures/" + \
-                hashlib.sha1(emf_data).hexdigest() + '.emf'
-            imgref = self.doc.addPicture(filename, mime, emf_data)
+        frame = draw.Frame(width=str(width), height=str(height))
+        frame.addElement(draw.Image(href=imgref))
 
-            frame = draw.Frame(width=str(width), height=str(height))
-            frame.addElement(draw.Image(href=imgref))
-
-            hdr = self._tr.tr(TR("Ancestor tree"))
-            self._render_section(3, "", hdr)
-            p = text.P(stylename=self.styles['center'])
-            p.addElement(frame)
-            self.doc.text.addElement(p)
+        hdr = self._tr.tr(TR("Ancestor tree"))
+        self._render_section(3, "", hdr)
+        p = text.P(stylename=self.styles['center'])
+        p.addElement(frame)
+        self.doc.text.addElement(p)

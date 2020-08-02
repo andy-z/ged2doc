@@ -425,10 +425,10 @@ class _HeaderRecord(Record):
     def data(self):
         boundsX = int(math.ceil(self._width.pxf))
         boundsY = int(math.ceil(self._height.pxf))
-        frameX = int(math.ceil(self._width.mm * 100))
-        frameY = int(math.ceil(self._height.mm * 100))
         sizeXmm = int(math.ceil(self._width.mm))
         sizeYmm = int(math.ceil(self._height.mm))
+        frameX = sizeXmm * 100
+        frameY = sizeYmm * 100
         version = 0x00010000
         emf_size = self._rec_size + self.size()
         nDescription, offDescription = 7, 108

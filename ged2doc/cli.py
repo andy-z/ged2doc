@@ -166,6 +166,10 @@ def _makeWriter(args=None):
     group.add_argument("--first-page", default=1,
                        metavar="NUMBER", type=int,
                        help="Number of the first page; default: %(default)s")
+    group.add_argument("--odt-tree-type", choices=["emf", "svg"], default="emf",
+                       metavar="FORMAT",
+                       help="Type of image format for ancestor tree, one of "
+                       "%(choices)s; default: %(default)s")
 
     args = parser.parse_args(args)
 
@@ -261,7 +265,8 @@ def _makeWriter(args=None):
                            margin_bottom=args.odt_margin_bottom,
                            image_width=args.odt_image_width,
                            image_height=args.odt_image_height,
-                           first_page=args.first_page)
+                           first_page=args.first_page,
+                           tree_format=args.odt_tree_type)
 
     return args, writer
 
