@@ -2,8 +2,8 @@
 History
 =======
 
-pre-0.3.0
----------
+0.3.0 (2020-08-02)
+------------------
 
 * New module `dumbemf` implements a subset of EMF drawing primitives to
   support EMF representation of ancestor trees.
