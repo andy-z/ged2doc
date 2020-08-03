@@ -28,18 +28,19 @@
 
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
-                   [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
-                   [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
-                   [-w NUMBER] [--name-surname-first] [--name-comma]
-                   [--name-maiden] [--name-maiden-only] [--name-capital]
-                   [--html-page-width SIZE] [--html-image-width SIZE]
-                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
-                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
-                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
-                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
-                   [--odt-image-height SIZE] [--first-page NUMBER]
-                   input output
+                [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
+                [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
+                [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
+                [-w NUMBER] [--name-surname-first] [--name-comma]
+                [--name-maiden] [--name-maiden-only] [--name-capital]
+                [--html-page-width SIZE] [--html-image-width SIZE]
+                [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
+                [--odt-page-height SIZE] [--odt-margin-left SIZE]
+                [--odt-margin-right SIZE] [--odt-margin-top SIZE]
+                [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
+                [--odt-image-height SIZE] [--first-page NUMBER]
+                [--odt-tree-type FORMAT]
+                input output
 
     Convert GEDCOM file into document.
 
@@ -156,11 +157,12 @@ utf-8, но заменяет неправильно закодированные
 Языки
 """""
 
-|ged2doc| может создавать выходной документ на разных языках (в настоящее время
-поддерживаются английский и русский языки). По умолчанию язык определяется из
-системного окружения, но это может не всегда работать надежно. Чтобы указать
-выходной язык явно используйте опцию ``-l CODE``, ``CODE`` - это код языка
-(``en`` для английского, ``ru`` для русского языка).
+|ged2doc| может создавать выходной документ на разных языках (в настоящее
+время поддерживаются английский, русский, польский и чешский языки). По
+умолчанию язык определяется из системного окружения, но это может не всегда
+работать надежно. Чтобы указать выходной язык явно используйте опцию ``-l
+CODE``, ``CODE`` - это код языка (``en`` для английского, ``ru`` для русского,
+``pl`` для польского, ``cz`` для чешского).
 
 Формат дат
 """"""""""
@@ -366,6 +368,8 @@ utf-8, но заменяет неправильно закодированные
 --first-page NUMBER      Номер первой страницы; по умолчанию ``1``. Можно
         изменить на другое значение, если вы планируете добавлять
         дополнительные страницы в начале при печати окончательного документа.
+--odt-tree-type FORMAT   Формат изображения для дерева предков, ``emf`` или
+        ``svg``, по умолчанию ``emf``.
 
 Диагностика
 ^^^^^^^^^^^
@@ -444,3 +448,21 @@ Using Python modules
 необходимо обновить - перейдите к меню ``Tools/Сервис``, затем
 ``Update/Обновить`` и ``Indexes and Tables/Указатели и таблицы`` - это
 должно перестроить все ссылки в файле ODT.
+
+ODT файлы могут быть открыты с помощью приложения MS Office (Word), но
+совместимость MS Office с форматом ODT недостаточно полная, есть некоторые
+известные проблемы с MS Word при редактировании документов произведенных
+|ged2doc|:
+
+- Изображения в формате SVG не полностью поддерживаются MS Office, для
+  визуализации дерева предков в MS Office они должны быть созданы в формате
+  EMF. |ged2doc| поддерживает EMF начиная с версии 0.3, где EMF является
+  форматом по умолчанию (это может быть изменено с помощью опции
+  ``--odt-tree-type=svg``). |ged2doc| до версии 0.3 невозможно использовать
+  для вывода в формате EMF.
+- Если файл с деревьями предков в формате EMF был открыт и сохранен
+  LibreOffice то MS Office не сможет отобразить эти изображения деревьев. Нет
+  надежной совместимости между MS Office и LibreOffice, документы должны
+  редактироваться одним и тем же приложением.
+- Содержание не отображается при открытии файла ODT в MS Office, если
+  требуется оглавление в документе, оно должно быть добавлено вручную.
