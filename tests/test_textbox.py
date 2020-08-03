@@ -15,6 +15,7 @@ def test_1_constr():
     assert box.width.value == 4
     assert box.height.value == 8
     assert box.text == 'abc'
+    assert box.lines == ['abc']
 
 
 def test_2_dim():
@@ -44,22 +45,13 @@ def test_4_reflow():
     box = TextBox(width='36pt', text='abcdefg ABCDEFG', font_size='10pt',
                   line_spacing='3pt', padding='5pt')
     box.reflow()
+    assert box.x0.value == 0.
+    assert box.y0.value == 0.
+    assert box.width.pt == 36
     assert box.height.pt == 10 * 2 + 3 + 2 * 5
-
-
-def test_5_xml():
-
-    box = TextBox(width='36pt', text='abcdefg ABCDEFG', font_size='10pt',
-                  line_spacing='3pt', padding='5pt')
-    box.reflow()
-    xml = '\n'.join([elem.xml() for elem in box.svg(units="pt")])
-    assert xml == """\
-<rect x="0pt" y="0pt" width="36pt" height="33pt" />
-<text font-size="10pt" text-anchor="middle">
-<tspan x="18pt" y="15pt">
-abcdefg
-</tspan>
-<tspan x="18pt" y="28pt">
-ABCDEFG
-</tspan>
-</text>"""
+    assert box.lines == ['abcdefg', 'ABCDEFG']
+    lines_pos = list(box.lines_pos())
+    assert lines_pos == [
+        ("abcdefg", (Size("18pt"), Size("15pt"))),
+        ("ABCDEFG", (Size("18pt"), Size("28pt"))),
+    ]

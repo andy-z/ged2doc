@@ -2,6 +2,14 @@
 History
 =======
 
+pre-0.3.0
+---------
+
+* New module `dumbemf` implements a subset of EMF drawing primitives to
+  support EMF representation of ancestor trees.
+* Ancestor tree in ODT output is now in EMF format by default, there is an
+  option to use SVG format as in previous versions
+
 0.2.1 (2020-07-18)
 ------------------
 

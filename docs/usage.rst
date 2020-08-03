@@ -4,12 +4,12 @@
 Usage
 =====
 
-|ged2doc| package can be used either as a standalone application (command
-line tool) with the same name |ged2doc| or as a Python library/package that
-can be imported by other Python code. |ged2doc| main function is to parse
-GEDCOM data and convert it into printable/browsable document format. For
-GEDCOM parsing |ged2doc| uses `ged4py`_ package, if you only need to parse
-GEDCOM file and do not need to produce output document then `ged4py`_ package
+|ged2doc| package can be used either as a standalone application (command line
+tool) with the same name |ged2doc| or as a Python library/package that can be
+imported by other Python code. |ged2doc| main function is to parse GEDCOM data
+and convert it into printable/browsable document format. For GEDCOM parsing
+|ged2doc| uses `ged4py`_ package, if you only need to parse GEDCOM file from
+Python code and do not need to produce output document then `ged4py`_ package
 is a good place to start.
 
 .. _ged4py: https://ged4py.readthedocs.io/
@@ -21,26 +21,26 @@ Command line tool
 file and produces document in one of the supported formats (currently HTML and
 OpenDocument Text/OTD).
 
-|ged2doc| application is a command line tool which is run from a terminal,
-it has a large number of command line options which control contents and
-appearance of the produced output document. To get a brief description of
-all options run the command with ``--help`` or ``-h`` option::
+|ged2doc| application is a command line tool which is run from a terminal, it
+has a large number of command line options which control contents and
+appearance of the produced output document. To get a brief description of all
+options run the command with ``--help`` or ``-h`` option::
 
     % ged2doc --help
     usage: ged2doc [-h] [-v] [--log PATH] [--version] [-i PATH] [-p PATTERN]
-                   [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
-                   [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
-                   [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
-                   [-w NUMBER] [--name-surname-first] [--name-comma]
-                   [--name-maiden] [--name-maiden-only] [--name-capital]
-                   [--html-page-width SIZE] [--html-image-width SIZE]
-                   [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
-                   [--odt-page-height SIZE] [--odt-margin-left SIZE]
-                   [--odt-margin-right SIZE] [--odt-margin-top SIZE]
-                   [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
-                   [--odt-image-height SIZE] [--first-page NUMBER]
-                   input output
-
+                [--encoding ENCODING] [--encoding-errors MODE] [-t {html,odt}]
+                [-l LANG_CODE] [-d FMT] [-s ORDER] [--locale LOCALE]
+                [--no-missing-date] [--no-image] [--no-toc] [--no-stat]
+                [-w NUMBER] [--name-surname-first] [--name-comma]
+                [--name-maiden] [--name-maiden-only] [--name-capital]
+                [--html-page-width SIZE] [--html-image-width SIZE]
+                [--html-image-height SIZE] [-u] [--odt-page-width SIZE]
+                [--odt-page-height SIZE] [--odt-margin-left SIZE]
+                [--odt-margin-right SIZE] [--odt-margin-top SIZE]
+                [--odt-margin-bottom SIZE] [--odt-image-width SIZE]
+                [--odt-image-height SIZE] [--first-page NUMBER]
+                [--odt-tree-type FORMAT]
+                input output
 
     Convert GEDCOM file into document.
 
@@ -92,7 +92,7 @@ to provide more exact match, e.g.::
 
     $ ged2doc -p file1.ged archive.zip output.html
 
-GEDCOM file may contain references to images which can be included into
+GEDCOM file can contain references to images which can be included into
 resulting document (in current implementation only one main image is included
 per person). |ged2doc| tries to locate image file by first using unchanged
 path directly from GEDCOM file (if the path is relative then it is resolved
@@ -113,9 +113,10 @@ suitable for online browsing as it includes navigation, ODT format is
 better for printing (possibly after modification in OpenOffice/LibreOffice).
 
 The type of the produced document is determined by default from the file
-extension -- if extension is ``.htm`` or ``.html`` the HTML format is produced,
-if extension is ``.odt`` then ODT format is saved. If file has other extension
-then one has to use ``-t`` or ``--type`` option to specify document format::
+extension -- if extension is ``.htm`` or ``.html`` then HTML format is
+produced, if extension is ``.odt`` then ODT format is saved. If file has other
+extension then one has to use ``-t`` or ``--type`` option to specify document
+format::
 
     $ ged2doc -t html archive.zip output.txt
     $ ged2doc --type=odt archive.zip output.opendoc
@@ -155,10 +156,11 @@ Languages
 """""""""
 
 |ged2doc| can produce output document in different languages (currently
-supporting English and Russian). By default the language is determined from
-system configuration which may not always work reliably. To specify output
-language explicitly use ``-l CODE`` option, ``CODE`` is the language code
-(``en`` for English, ``ru`` for Russian).
+supporting English, Russian, Polish, and Czech). By default the language is
+determined from system configuration which may not always work reliably. To
+specify output language explicitly use ``-l CODE`` option, ``CODE`` is the
+language code (``en`` for English, ``ru`` for Russian, ``pl`` for Polish,
+``cz`` for Czech).
 
 Date Format
 """""""""""
@@ -228,7 +230,7 @@ option, ``ORDER`` is one of:
 ``first+maiden``
     Persons are ordered according to given name and family (maiden) name.
 
-By default ordering of the names is performed according collation rules of
+By default ordering of the names is performed according to collation rules of
 the current system locale. If system locale does not correspond to the
 language of the document one can specify different locale using
 ``--locale=LOCALE`` option. ``LOCALE`` is the name of the locale and it is
@@ -307,8 +309,8 @@ another it uses a fixed conversion factor of 96 DPI (dots/pixels per inch).
 Supported units are:
 
 ``px``
-    Size is given in pixels, typically used for on-screen dimensions, such
-    as HTML. Example: ``100px``.
+    Size is given in pixels, typically used for on-screen dimensions, probably
+    most useful for HTML output. Example: ``100px``.
 
 ``pt``
     Size is given in points, typically used for print dimensions, one point
@@ -316,7 +318,7 @@ Supported units are:
 
 ``in``
     Size is given in inches, typically used for print dimensions. Example:
-    ``6in``.
+    ``6.5in``.
 
 ``mm``
     Size is given in millimeters, typically used for print dimensions.
@@ -326,8 +328,9 @@ Supported units are:
     Size is given in centimeters, typically used for print dimensions.
     1 in = 2.54 cm. Example: ``10cm``.
 
-Options that accept size as value have default unit type, if option unit is
-pixels then giving it value of ``300`` is the same as giving ``300px``.
+Options that accept size as value have default unit type, if option default
+unit is pixels then giving it value of ``300`` is the same as giving
+``300px``.
 
 HTML Options
 ^^^^^^^^^^^^
@@ -357,6 +360,8 @@ Options specific to ODT output:
 --first-page NUMBER      Number of the first page; default: ``1``. Can be
         changed to something different if you plan to add extra pages
         at the beginning when printing the final document.
+--odt-tree-type FORMAT   Type of image format for ancestor tree, one of emf,
+        svg; default: emf
 
 Logging
 ^^^^^^^
@@ -502,3 +507,19 @@ tools like LibreOffice to finalize and publish the document. When document is
 loaded into LibreOffice its Table of Contents needs to be refreshed -- go to
 ``Tools`` menu, then ``Update``, and ``Indexes and Tables`` which should
 rebuild all references in ODT file.
+
+ODT files can be opened with MS Office (Word) application, but compatibility
+of MS Office with ODT format is not great and there are some known issues with
+MS Word when editing documents produced by |ged2doc|:
+
+- Images in SVG format are not fully supported by MS Office, to visualize
+  ancestor trees in MS Office they need to be produced in EMF format.
+  |ged2doc| supports EMF since version 0.3, where EMF is the default format
+  for ancestor trees (can be changed with ``--odt-tree-type=svg`` option).
+  |ged2doc| before version 0.3 cannot be used to produce EMF.
+- If file with ancestor trees in EMF format was opened an saved by LibreOffice
+  then MS Office cannot render those tree images. There is no reliable
+  interoperability between MS Office and LibreOffice, documents should only be
+  edited by the same application.
+- Table of Contents is not shown when ODT file is open by MS Office, it
+  has to be added manually if one needs a table of contents in the document.

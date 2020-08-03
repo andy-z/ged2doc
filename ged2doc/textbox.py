@@ -7,7 +7,6 @@ __all__ = ['TextBox']
 
 import logging
 
-from .dumbsvg import Rect, Text, Tspan, Hyperlink
 from .size import Size
 
 
@@ -23,7 +22,7 @@ class TextBox(object):
     :param Size x0: lowest X coordinate of corner (def: 0)
     :param Size y0: lowest Y coordinate of corner (def: 0)
     :param Size width: width of a box (def: 0)
-    :param Szie maxwidth: maximum width of a box (def: 0)
+    :param Size maxwidth: maximum width of a box (def: 0)
     :param Size height: height of a box (def: 0)
     :param str text: text contained in a box (def: '')
     :param Size font_size: font size (def: 10pt)
@@ -34,8 +33,7 @@ class TextBox(object):
     """
 
     def __init__(self, x0=0, y0=0, width=0, maxwidth=0, height=0, text='',
-                 font_size='10pt', padding='4pt', line_spacing='1.5pt',
-                 rect_style='', text_style='', href=None):
+                 font_size='10pt', padding='4pt', line_spacing='1.5pt', href=None):
         self._x0 = Size(x0)
         self._y0 = Size(y0)
         self._width = Size(width)
@@ -46,8 +44,6 @@ class TextBox(object):
         self._font_size = Size(font_size)
         self._padding = Size(padding)
         self._line_spacing = Size(line_spacing)
-        self._rect_style = rect_style
-        self._text_style = text_style
         self._href = href
 
         # calculate height if needed
@@ -102,6 +98,37 @@ class TextBox(object):
     def text(self):
         return self._text
 
+    @property
+    def href(self):
+        return self._href
+
+    @property
+    def font_size(self):
+        return self._font_size
+
+    @property
+    def lines(self):
+        return self._lines
+
+    def lines_pos(self):
+        """Iterate over lines and their positions.
+
+        For each line of test iterator returns a tuple of two items:
+
+          - text for that line
+          - position as a tuple of two ``Size`` instances, for horizontal
+            position it returns the center of the box (same as ``midx``),
+            and for vertical position it returns the baseline position of
+            that line
+
+        :returns: iterator for pairs (line, pos)
+        """
+        x = self.midx
+        for i, line in enumerate(self._lines):
+            y = self.y0 + self._padding + self._font_size * (i + 1) + \
+                self._line_spacing * i
+            yield line, (x, y)
+
     def reflow(self):
         '''
         Split the text inside the box so that it fits into box width, then
@@ -116,41 +143,6 @@ class TextBox(object):
         ''' Sets new coordinates fo x0 and y0 '''
         self._x0 = Size(x0)
         self._y0 = Size(y0)
-
-    def svg(self, textclass=None, units='in'):
-        ''' Produces list of SVG elements (pysvg objects) '''
-
-        shapes = []
-
-        # render box
-        kw = dict(x=self.x0 ^ units, y=self.y0 ^ units,
-                  width=self.width ^ units, height=self.height ^ units)
-        if self._rect_style:
-            kw['style'] = self._rect_style
-        rect = Rect(**kw)
-        shapes.append(rect)
-
-        # render text
-        kw = dict(text_anchor='middle', font_size=self._font_size ^ 'pt')
-        if self._text_style:
-            kw['style'] = self._text_style
-        if textclass:
-            kw['class_'] = textclass
-        txt = Text(**kw)
-        if self._href:
-            a = Hyperlink(self._href)
-            a.add(txt)
-            shapes.append(a)
-        else:
-            shapes.append(txt)
-        for i, line in enumerate(self._lines):
-            x = self.midx
-            y = self.y0 + self._padding + self._font_size * (i + 1) + \
-                self._line_spacing * i
-            tspan = Tspan(x=x ^ units, y=y ^ units, value=line)
-            txt.add(tspan)
-
-        return shapes
 
     def _splitText(self, text):
         '''
@@ -208,3 +200,8 @@ class TextBox(object):
 
         # just  a wild guess for now, try to do better later
         return self._font_size * len(text) * 0.5
+
+    def __str__(self):
+        return "TextBox(x0={}, x1={}, y0={}, y1={}, w={}, h={})".format(
+            self.x0, self.x1, self.y0, self.y1, self.width, self.height
+        )

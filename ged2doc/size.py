@@ -20,7 +20,7 @@ class Size(object):
     then it should be a floating number followed by optional suffix (one of
     pt, in, mm, cm, px). Without suffix the number gives size in inches.
     Constructor also accepts other ``Size`` instances as an argument which
-    copies the size value.
+    copies the size value (but can be use to specify different ``dpi`` value).
 
     Class supports most of the regular numeric operators so it can be used
     as a numeric value (in inches) in expressions. Operator XOR (^) is used
@@ -30,10 +30,13 @@ class Size(object):
         print(size^"mm")           # will produce string "25.4mm"
 
     :var dpi: Class constant used for pixels-to-inches conversion, default
-        value is 96., can be changed on per-class basis if necessary.
+        value is 96., it is used as default DPI for ``Size`` instances that
+        do not specify explicit ``dpi`` argument.
 
     :param value: input value.
     :type value: int or float or string or `Size`
+    :param dpi: pixels-to-inches, dea.
+    :type dpi: float
 
     :raises ValueError: If string does not have correct format.
     :raises TypeError: If input value has unsupported type.
@@ -41,10 +44,11 @@ class Size(object):
 
     dpi = 96.  # some random number for converting pixels to inches
 
-    def __init__(self, value=0):
+    def __init__(self, value=0, dpi=None):
 
         if isinstance(value, (type(''), type(u''))):
             # convert units to inches
+            self.dpi = float(dpi) if dpi is not None else Size.dpi
             if value.endswith('pt'):
                 self.value = float(value[:-2]) / PT_PER_INCH
             elif value.endswith('in'):
@@ -60,9 +64,11 @@ class Size(object):
                 self.value = float(value)
         elif isinstance(value, Size):
             self.value = value.value
+            self.dpi = float(dpi) if dpi is not None else value.dpi
         else:
             # expect a number
             try:
+                self.dpi = float(dpi) if dpi is not None else Size.dpi
                 self.value = float(value)
             except (TypeError, ValueError):
                 raise TypeError("incorrect type of the argument: " +
@@ -75,77 +81,98 @@ class Size(object):
 
     @property
     def px(self):
-        ''' size in pixels '''
+        ''' size in pixels, integer '''
         return int(round(self.value * self.dpi))
+
+    @property
+    def pxf(self):
+        ''' size in (fractional) pixels, float '''
+        return self.value * self.dpi
 
     @property
     def inches(self):
         ''' size in inches '''
         return self.value
 
+    @property
+    def mm(self):
+        ''' size in millimeters '''
+        return self.value * MM_PER_INCH
+
+    def to_dpi(self, dpi):
+        """Return copy of itself with updated DPI value
+
+        This is a convenience method which does the same as `Size(self, dpi)`.
+        """
+        return Size(self, dpi)
+
     def __str__(self):
         ''' Returns string representation, e.g. "12in" '''
         return str(self.value) + 'in'
 
+    def __repr__(self):
+        ''' Returns string representation, e.g. Size("12in") '''
+        return "Size({}in)".format(self.value)
+
     def __lt__(self, other):
         ''' Compare two sizes '''
-        return self.value < Size(other).value
+        return self.value < self._coerce(other).value
 
     def __le__(self, other):
         ''' Compare two sizes '''
-        return self.value <= Size(other).value
+        return self.value <= self._coerce(other).value
 
     def __eq__(self, other):
         ''' Compare two sizes '''
-        return self.value == Size(other).value
+        return self.value == self._coerce(other).value
 
     def __ne__(self, other):
         ''' Compare two sizes '''
-        return self.value != Size(other).value
+        return self.value != self._coerce(other).value
 
     def __ge__(self, other):
         ''' Compare two sizes '''
-        return self.value >= Size(other).value
+        return self.value >= self._coerce(other).value
 
     def __gt__(self, other):
         ''' Compare two sizes '''
-        return self.value > Size(other).value
+        return self.value > self._coerce(other).value
 
     def __sub__(self, other):
         ''' Subtract size from other size '''
-        return Size(self.value - Size(other).value)
+        return Size(self.value - self._coerce(other).value, self.dpi)
 
     def __rsub__(self, other):
         ''' Subtract size from other size '''
-        return Size(other) - self
+        return self._coerce(other) - self
 
     def __add__(self, other):
         ''' Add two sizes '''
-        return Size(self.value + Size(other).value)
+        return Size(self.value + self._coerce(other).value, self.dpi)
 
     def __radd__(self, other):
         ''' Add size and something: x + size'''
-        return Size(other) + self
+        return self._coerce(other) + self
 
     def __mul__(self, other):
         ''' Multiply size by a factor '''
-        return Size(self.value * other)
+        return Size(self.value * other, self.dpi)
 
     def __rmul__(self, other):
         ''' Multiply size by a factor: other * size '''
-        return Size(self.value * other)
+        return Size(self.value * other, self.dpi)
 
     def __div__(self, other):
         ''' Divide size by a factor '''
-        return Size(self.value / other)
+        return Size(self.value / other, self.dpi)
 
     def __truediv__(self, other):
         ''' Divide size by a factor '''
-        return Size(self.value / other)
+        return Size(self.value / other, self.dpi)
 
-    def __floordif__(self, other):
+    def __floordiv__(self, other):
         ''' Divide size by a factor '''
-        return Size(self.value // other)
+        return Size(self.value // other, self.dpi)
 
     def __xor__(self, units):
         ''' Size(1.)^"mm"  will return "25.4mm" '''
@@ -161,6 +188,12 @@ class Size(object):
             return "%gpx" % (int(round(self.value * self.dpi)),)
         else:
             return "%gin" % (self.value,)
+
+    def _coerce(self, other):
+        """Coerce other object to Size, use this object dpi if needed"""
+        if not isinstance(other, Size):
+            other = Size(other, self.dpi)
+        return other
 
 
 class String2Size(object):

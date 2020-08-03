@@ -73,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'GEDCOM Utilities'
-copyright = u"2017, Andy Salnikov"
+copyright = u"2017-2020, Andy Salnikov"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
