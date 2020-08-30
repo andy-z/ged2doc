@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.1 (2020-08-30)
+------------------
+
+* No changes in ged2doc code, new version is to build Windows app with latest
+  ged4py version (v0.2.4) which fixes Genery.com dialect detection.
+
 0.3.0 (2020-08-02)
 ------------------
 
