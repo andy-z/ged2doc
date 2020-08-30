@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     name='ged2doc',
-    version='0.3.0',
+    version='0.3.1',
     description="Tools for converting GEDCOM data into document formats.",
     long_description=readme + '\n\n' + history,
     author="Andy Salnikov",
