@@ -11,11 +11,7 @@ import logging
 import pkg_resources
 import string
 from PIL import Image
-import six
-if not six.PY2:
-    from html import escape as html_escape
-else:
-    from cgi import escape as html_escape
+from html import escape as html_escape
 
 from ged4py import model
 from .ancestor_tree import AncestorTree

@@ -15,7 +15,6 @@ requirements = [
     'ged4py>=0.2',
     "pillow",
     "odfpy",
-    "six"
 ]
 
 test_requirements = [

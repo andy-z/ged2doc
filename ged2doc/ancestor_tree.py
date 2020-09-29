@@ -7,7 +7,6 @@ __all__ = ["AncestorTree", "AncestorTreeVisitor", "TreeNode"]
 
 import abc
 import logging
-from six import with_metaclass
 
 from .size import Size
 from .textbox import TextBox
@@ -215,7 +214,7 @@ class AncestorTree(object):
             return box
 
 
-class AncestorTreeVisitor(with_metaclass(abc.ABCMeta)):
+class AncestorTreeVisitor(metaclass=abc.ABCMeta):
     """Interface for tree visitors.
 
     Instances of this class can be passed to `visit()` method to
