@@ -41,8 +41,6 @@ on disk may need to be created in some cases) and a "simple" binary stream
 for images.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
 
 import errno

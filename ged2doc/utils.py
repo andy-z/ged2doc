@@ -1,8 +1,6 @@
 """Various utility methods.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import locale
 import logging
 import mimetypes

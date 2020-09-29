@@ -3,8 +3,6 @@
 """Unit test for utils module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc import i18n
 from ged4py.date import CalendarDate, DateValue
 

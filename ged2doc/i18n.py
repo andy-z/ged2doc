@@ -11,8 +11,6 @@ Note that we do not use system locale, instead we expect client to provide
 small set of configuration options such as output language and date format.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 import gettext
 import logging
 import pkg_resources

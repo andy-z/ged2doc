@@ -1,8 +1,6 @@
 """Various methods for manipulating/formatting names.
 """
 
-from __future__ import absolute_import, division, print_function
-
 # Names can be rendered in different formats
 FMT_SURNAME_FIRST = 0x1  # Smith Jane
 FMT_COMMA = 0x2  # Smith, Jane -- only if surname is first

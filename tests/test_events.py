@@ -1,8 +1,6 @@
 """Unit test for events module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc import events
 from ged4py import model
 

@@ -1,8 +1,6 @@
 """Unit test for textbox module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc.size import Size
 from ged2doc.textbox import TextBox
 

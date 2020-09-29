@@ -1,8 +1,6 @@
 """Unit test for size module
 """
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from ged2doc.size import Size, String2Size

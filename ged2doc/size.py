@@ -1,8 +1,6 @@
 '''Module which defines class for manipulating size values.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 
 MM_PER_INCH = 25.4
 PT_PER_INCH = 72.

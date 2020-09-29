@@ -3,8 +3,6 @@
 """Unit test for utils module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc import utils
 from ged4py import model
 

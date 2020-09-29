@@ -1,8 +1,6 @@
 """Unit test for dumbsvg module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc.dumbsvg import Doc, Element, Hyperlink, Line, Rect, Text, Tspan
 
 

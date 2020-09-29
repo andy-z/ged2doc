@@ -1,8 +1,6 @@
 """Module which defines base class for all writer classes.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["Writer"]
 
 import locale

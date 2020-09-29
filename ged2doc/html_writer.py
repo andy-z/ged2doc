@@ -1,8 +1,6 @@
 """Module which produces HTML output.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["HtmlWriter"]
 
 import base64

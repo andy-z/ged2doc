@@ -2,8 +2,6 @@
 
 """Console script for ged2doc."""
 
-from __future__ import absolute_import, division, print_function
-
 from argparse import ArgumentParser, FileType
 import locale
 import logging

@@ -4,8 +4,6 @@ Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ['EMF', 'BackgroundMode']
 
 import contextlib

@@ -1,8 +1,6 @@
 """Module containing methods/classes for laying out ancestor trees.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["SVGTreeVisitor"]
 
 import logging

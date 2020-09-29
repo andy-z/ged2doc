@@ -1,8 +1,6 @@
 """Unit test for name module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from collections import namedtuple
 
 from ged2doc.name import (name_fmt, FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,

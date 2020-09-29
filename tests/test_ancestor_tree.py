@@ -1,9 +1,6 @@
 
-from __future__ import absolute_import, division, print_function
-
 from collections import namedtuple
 from pytest import approx
-
 
 from ged2doc.size import Size
 from ged2doc.ancestor_tree import AncestorTree, AncestorTreeVisitor, TreeNode
