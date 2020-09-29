@@ -118,7 +118,7 @@ class OdtWriter(writer.Writer):
 
     def _make_layout(self, doc, layout, firstpage):
         # set paper dimensions
-        pageLayout = style.PageLayout(name=u"pl1")
+        pageLayout = style.PageLayout(name="pl1")
         doc.automaticstyles.addElement(pageLayout)
         plProp = style.PageLayoutProperties(pageheight=str(layout.height),
                                             pagewidth=str(layout.width),
@@ -139,7 +139,7 @@ class OdtWriter(writer.Writer):
                                      pageadjust=str(firstpage - 1)))
         footer.addElement(p)
 
-        masterpage = style.MasterPage(name=u"Standard",
+        masterpage = style.MasterPage(name="Standard",
                                       pagelayoutname=pageLayout)
         masterpage.addElement(footer)
         doc.masterstyles.addElement(masterpage)
@@ -445,7 +445,7 @@ class OdtWriter(writer.Writer):
             _log.error("error while loading image: %s", exc)
             return None
 
-        filename = u"Pictures/" + \
+        filename = "Pictures/" + \
             hashlib.sha1(image_data).hexdigest() + '.' + img.format.lower()
 
         # calculate size of the frame
@@ -484,7 +484,7 @@ class OdtWriter(writer.Writer):
             img_data = img_data.encode("utf_8")
 
         # store image
-        filename = u"Pictures/" + \
+        filename = "Pictures/" + \
             hashlib.sha1(img_data).hexdigest() + '.' + self._tree_format
         imgref = self.doc.addPicture(filename, mime, img_data)
 

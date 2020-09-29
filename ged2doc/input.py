@@ -179,7 +179,7 @@ class _FileSearch(object):
     @staticmethod
     def _enc(name):
         """If string is Unicode encode it into UTF-8"""
-        if isinstance(name, type(u"")):
+        if isinstance(name, str):
             name = name.encode("utf_8")
         return name
 
@@ -250,7 +250,7 @@ class _FSFileSearch(_FileSearch):
 
     def __init__(self, path):
 
-        if path is not None and not isinstance(path, type(u"")):
+        if path is not None and not isinstance(path, str):
             path = path.decode("utf_8")
         self._path = path
 

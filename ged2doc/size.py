@@ -44,7 +44,7 @@ class Size(object):
 
     def __init__(self, value=0, dpi=None):
 
-        if isinstance(value, (type(''), type(u''))):
+        if isinstance(value, str):
             # convert units to inches
             self.dpi = float(dpi) if dpi is not None else Size.dpi
             if value.endswith('pt'):

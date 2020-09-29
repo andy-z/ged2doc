@@ -21,11 +21,11 @@ def test_001_tr_en():
 def test_002_tr_ru():
 
     tr = i18n.I18N('ru')
-    assert tr.tr("Person List") == u"Персоналии"
-    assert tr.tr("CHILD.BORN {child}", "M") == u"Родился сын {child}"
-    assert tr.tr("CHILD.BORN {child}", "F") == u"Родилась дочь {child}"
-    assert tr.tr("CHILD.BORN {child}") == u"Родился {child}"
-    assert tr.tr("EVENT.BIRT") == u"Рождение"
+    assert tr.tr("Person List") == "Персоналии"
+    assert tr.tr("CHILD.BORN {child}", "M") == "Родился сын {child}"
+    assert tr.tr("CHILD.BORN {child}", "F") == "Родилась дочь {child}"
+    assert tr.tr("CHILD.BORN {child}") == "Родился {child}"
+    assert tr.tr("EVENT.BIRT") == "Рождение"
     assert tr.tr("Random string $$$") == "Random string $$$"
 
 
@@ -46,11 +46,11 @@ def test_011_month_ru():
     calendars here.
     """
     tr = i18n.I18N('ru')
-    assert tr._monthName("JAN") == u"Янв"
-    assert tr._monthName("jan") == u"Янв"
-    assert tr._monthName("Jan") == u"Янв"
-    assert tr._monthName("DEC") == u"Дек"
-    assert tr._monthName("dec") == u"Дек"
+    assert tr._monthName("JAN") == "Янв"
+    assert tr._monthName("jan") == "Янв"
+    assert tr._monthName("Jan") == "Янв"
+    assert tr._monthName("DEC") == "Дек"
+    assert tr._monthName("dec") == "Дек"
 
 
 def test_021_cal_date_en():
@@ -148,18 +148,18 @@ def test_032_cal_date_ru():
     # default format (same as D.M.Y)
     tr = i18n.I18N('ru')
     assert tr._tr_cal_date(date) == "01.1975"
-    assert tr._tr_cal_date(CalendarDate.parse("JAN 2000B.C.")) == u"01.2000 B.C."
+    assert tr._tr_cal_date(CalendarDate.parse("JAN 2000B.C.")) == "01.2000 B.C."
 
-    expect = {'YMD': u"1975 Янв",
-              'MDY': u"Янв 1975",
-              'DMY': u"Янв 1975",
-              'Y-M-D': u"1975-Янв",
-              'D-M-Y': u"Янв-1975",
+    expect = {'YMD': "1975 Янв",
+              'MDY': "Янв 1975",
+              'DMY': "Янв 1975",
+              'Y-M-D': "1975-Янв",
+              'D-M-Y': "Янв-1975",
               'Y/M/D': "1975/01",
               'M/D/Y': "01/1975",
               'Y.M.D': "1975.01",
               'D.M.Y': "01.1975",
-              'MD,Y': u"Янв 1975"}
+              'MD,Y': "Янв 1975"}
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
@@ -177,16 +177,16 @@ def test_033_cal_date_ru():
     assert tr._tr_cal_date(date) == "09.01.1975"
     assert tr._tr_cal_date(CalendarDate.parse("31 JAN 2000B.C.")) == "31.01.2000 B.C."
 
-    expect = {'YMD': u"1975 Янв 09",
-              'MDY': u"Янв 09 1975",
-              'DMY': u"09 Янв 1975",
-              'Y-M-D': u"1975-Янв-09",
-              'D-M-Y': u"09-Янв-1975",
+    expect = {'YMD': "1975 Янв 09",
+              'MDY': "Янв 09 1975",
+              'DMY': "09 Янв 1975",
+              'Y-M-D': "1975-Янв-09",
+              'D-M-Y': "09-Янв-1975",
               'Y/M/D': "1975/01/09",
               'M/D/Y': "01/09/1975",
               'Y.M.D': "1975.01.09",
               'D.M.Y': "09.01.1975",
-              'MD,Y': u"Янв 09, 1975"}
+              'MD,Y': "Янв 09, 1975"}
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
@@ -212,4 +212,4 @@ def test_042_date_ru():
 
     for fmt in i18n.DATE_FORMATS:
         tr = i18n.I18N('ru', fmt)
-        assert tr.tr_date(date) == u"около 1975"
+        assert tr.tr_date(date) == "около 1975"

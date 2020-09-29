@@ -71,7 +71,7 @@ class Element(object):
         lines = []
         txt = "<" + self._tag
         for attr, val in self._attributes:
-            txt += u' {}="{}"'.format(attr, val)
+            txt += ' {}="{}"'.format(attr, val)
         if not self._value and not self._elements:
             txt += " />"
             lines += [txt]

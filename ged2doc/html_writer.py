@@ -119,8 +119,8 @@ class HtmlWriter(writer.Writer):
         for piece in utils.split_refs(text):
             if isinstance(piece, tuple):
                 xref, name = piece
-                result += u'<a href="#{0}">{1}</a>'.format(html_escape(xref),
-                                                           html_escape(name))
+                result += '<a href="#{0}">{1}</a>'.format(html_escape(xref),
+                                                          html_escape(name))
             else:
                 result += html_escape(piece)
         return result
@@ -136,8 +136,8 @@ class HtmlWriter(writer.Writer):
         :param str title: Printable section name.
         """
         self._toc += [(level, ref_id, title)]
-        doc = [u'<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
-                                                     html_escape(title))]
+        doc = ['<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
+                                                    html_escape(title))]
         for line in doc:
             self._output.write(line.encode('utf-8'))
 
@@ -240,25 +240,25 @@ class HtmlWriter(writer.Writer):
 
         total = float(sum(count for _, count in freq_table))
 
-        tbl = [u'<table class="statTable">\n']
+        tbl = ['<table class="statTable">\n']
 
         for name1, count1, name2, count2 in _gencouples(freq_table):
 
-            tbl += [u'<tr>\n']
+            tbl += ['<tr>\n']
 
-            tbl += [u'<td width="25%">{0}</td>'.format(name1 or '-')]
-            tbl += [u'<td width="20%">{0} ({1:.1%})</td>'.format(
+            tbl += ['<td width="25%">{0}</td>'.format(name1 or '-')]
+            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
                 count1, count1 / total)]
 
             if count2 is not None:
 
-                tbl += [u'<td width="25%">{0}</td>'.format(name2 or '-')]
-                tbl += [u'<td width="20%">{0} ({1:.1%})</td>'.format(
+                tbl += ['<td width="25%">{0}</td>'.format(name2 or '-')]
+                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
                     count2, count2 / total)]
 
-            tbl += [u'</tr>\n']
+            tbl += ['</tr>\n']
 
-        tbl += [u'</table>\n']
+        tbl += ['</table>\n']
         for line in tbl:
             self._output.write(line.encode('utf-8'))
 
@@ -266,7 +266,7 @@ class HtmlWriter(writer.Writer):
         """Produce table of contents using info collected in _render_section().
         """
         section = self._tr.tr(TR("Table Of Contents"))
-        doc = [u'<h1>{0}</h1>\n'.format(html_escape(section))]
+        doc = ['<h1>{0}</h1>\n'.format(html_escape(section))]
         lvl = 0
         for toclvl, tocid, text in self._toc:
             while lvl < toclvl:
@@ -275,8 +275,7 @@ class HtmlWriter(writer.Writer):
             while lvl > toclvl:
                 doc += ['</ul>']
                 lvl -= 1
-            doc += [u'<li><a href="#{0}">{1}</a></li>\n'.format(tocid,
-                                                                text)]
+            doc += ['<li><a href="#{0}">{1}</a></li>\n'.format(tocid, text)]
         while lvl > 0:
             doc += ['</ul>']
             lvl -= 1

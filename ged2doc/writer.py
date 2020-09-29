@@ -100,7 +100,7 @@ class Writer(object):
         self._render_prolog()
 
         # title page
-        title = self._tr.tr(TR(u"Person List"))
+        title = self._tr.tr(TR("Person List"))
         self._render_section(1, 'personList', title)
 
         # Index of all INDI records
@@ -178,7 +178,7 @@ class Writer(object):
                            spouse, children_ids, children)
 
                 if spouse:
-                    pfmt = u'{person}: {ref}'
+                    pfmt = '{person}: {ref}'
                     family = pfmt.format(person=self._tr.tr(TR('Spouse'),
                                                             spouse.sex),
                                          ref=self._person_ref(spouse))
@@ -285,7 +285,7 @@ class Writer(object):
             for evt in family_events(fam):
                 facts = [self._tr.tr("FAMEVT." + evt.tag)]
                 if spouse:
-                    note = u'{spouse}: {ref}'.format(
+                    note = '{spouse}: {ref}'.format(
                         spouse=self._tr.tr(TR('Spouse'), spouse.sex),
                         ref=self._person_ref(spouse))
                     facts += [note]
@@ -296,7 +296,7 @@ class Writer(object):
 
             for child in fam.sub_tags("CHIL"):
                 for evt in indi_events(child, ['BIRT']):
-                    pfmt = self._tr.tr(TR(u"CHILD.BORN {child}"),
+                    pfmt = self._tr.tr(TR("CHILD.BORN {child}"),
                                        child.sex)
                     childRef = self._person_ref(child, child.name.first)
                     facts = [pfmt.format(child=childRef),
@@ -317,7 +317,7 @@ class Writer(object):
         sevents = []
         for date, facts in sorted(events, key=_date_key):
             facts = [fact for fact in facts if fact]
-            facts = u"; ".join(facts)
+            facts = "; ".join(facts)
             if date is None:
                 if self._events_without_dates:
                     sevents += [(self._tr.tr(TR("Event Date Unknown")), facts)]
@@ -388,7 +388,7 @@ class Writer(object):
             props.append(attrib.place)
         if attrib.note:
             props.append(attrib.note)
-        props = u", ".join(props)
+        props = ", ".join(props)
         return (attr, props)
 
     def _person_ref(self, person, name=None):
