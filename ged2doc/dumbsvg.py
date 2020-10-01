@@ -7,7 +7,7 @@ ged2doc package.
 __all__ = ['Doc', 'Element', 'Line', 'Rect', 'Text', 'Tspan', 'Hyperlink']
 
 
-class Doc(object):
+class Doc:
     """Class for SVG document, top-level structure.
 
     :param width: Document width, int for pixels or string.
@@ -45,7 +45,7 @@ class Doc(object):
         return text
 
 
-class Element(object):
+class Element:
     """Base class for all SVG elements.
 
     :param str tag: SVG tag name

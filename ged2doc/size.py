@@ -6,7 +6,7 @@ MM_PER_INCH = 25.4
 PT_PER_INCH = 72.
 
 
-class Size(object):
+class Size:
     '''Class for specifying size values.
 
     Size can be specified as a number with units, supported units are pt
@@ -194,7 +194,7 @@ class Size(object):
         return other
 
 
-class String2Size(object):
+class String2Size:
     """Class implementing callable for conversion of strings to
     :py:class:`Size`.
 

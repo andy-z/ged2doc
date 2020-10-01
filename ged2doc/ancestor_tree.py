@@ -13,7 +13,7 @@ from .textbox import TextBox
 _log = logging.getLogger(__name__)
 
 
-class TreeNode(object):
+class TreeNode:
     """Class representing node in a tree, which is a box with a person name.
 
     :param Individual person: Corresponding individual, may be None.
@@ -92,7 +92,7 @@ class TreeNode(object):
             self._box.y0 = y0
 
 
-class AncestorTree(object):
+class AncestorTree:
     """Class implementing layout of ancestor trees.
 
     :param Individual person: Corresponding individual, may be None.

@@ -159,7 +159,7 @@ def _strencode(str, size):
     return encoded
 
 
-class EMF(object):
+class EMF:
     """Class for EMF, top-level structure.
 
     :param Size width: Document width, int for pixels or string.
@@ -360,7 +360,7 @@ class EMF(object):
         self._records.append(rec)
 
 
-class Record(object):
+class Record:
     """Base class for all EMF records.
     """
 

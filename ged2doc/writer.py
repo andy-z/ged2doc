@@ -36,7 +36,7 @@ def _spouse(person, fam):
     return None
 
 
-class Writer(object):
+class Writer:
     """Base class for document writers.
 
     This class knows how to extract all relevant information from GEDCOM data

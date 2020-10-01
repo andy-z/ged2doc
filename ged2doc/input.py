@@ -63,7 +63,7 @@ class MultipleMatchesError(RuntimeError):
     pass
 
 
-class FileLocator(object):
+class FileLocator:
     """Abstract interface for file locator instances.
     """
 
@@ -108,7 +108,7 @@ class FileLocator(object):
         raise NotImplementedError("Method open_image() is not implemented")
 
 
-class _Path(object):
+class _Path:
     """Internal representation of the (relative) file path.
 
     In this representation path is a just a sequence of path components -
@@ -166,7 +166,7 @@ class _Path(object):
         return "/".join(self.components)
 
 
-class _FileSearch(object):
+class _FileSearch:
     """Implementation of recursive file search in a folder tree.
 
     This is an abstract class which can match files but does not know how
