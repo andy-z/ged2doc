@@ -1,8 +1,6 @@
 """Unit test for dumbemf module
 """
 
-from __future__ import absolute_import, division, print_function
-
 import logging
 import pytest
 

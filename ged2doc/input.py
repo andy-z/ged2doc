@@ -41,8 +41,6 @@ on disk may need to be created in some cases) and a "simple" binary stream
 for images.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
 
 import errno
@@ -65,7 +63,7 @@ class MultipleMatchesError(RuntimeError):
     pass
 
 
-class FileLocator(object):
+class FileLocator:
     """Abstract interface for file locator instances.
     """
 
@@ -110,7 +108,7 @@ class FileLocator(object):
         raise NotImplementedError("Method open_image() is not implemented")
 
 
-class _Path(object):
+class _Path:
     """Internal representation of the (relative) file path.
 
     In this representation path is a just a sequence of path components -
@@ -168,7 +166,7 @@ class _Path(object):
         return "/".join(self.components)
 
 
-class _FileSearch(object):
+class _FileSearch:
     """Implementation of recursive file search in a folder tree.
 
     This is an abstract class which can match files but does not know how
@@ -181,7 +179,7 @@ class _FileSearch(object):
     @staticmethod
     def _enc(name):
         """If string is Unicode encode it into UTF-8"""
-        if isinstance(name, type(u"")):
+        if isinstance(name, str):
             name = name.encode("utf_8")
         return name
 
@@ -252,7 +250,7 @@ class _FSFileSearch(_FileSearch):
 
     def __init__(self, path):
 
-        if path is not None and not isinstance(path, type(u"")):
+        if path is not None and not isinstance(path, str):
             path = path.decode("utf_8")
         self._path = path
 

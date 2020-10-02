@@ -1,14 +1,12 @@
 '''Module which defines class for manipulating size values.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 
 MM_PER_INCH = 25.4
 PT_PER_INCH = 72.
 
 
-class Size(object):
+class Size:
     '''Class for specifying size values.
 
     Size can be specified as a number with units, supported units are pt
@@ -46,7 +44,7 @@ class Size(object):
 
     def __init__(self, value=0, dpi=None):
 
-        if isinstance(value, (type(''), type(u''))):
+        if isinstance(value, str):
             # convert units to inches
             self.dpi = float(dpi) if dpi is not None else Size.dpi
             if value.endswith('pt'):
@@ -196,7 +194,7 @@ class Size(object):
         return other
 
 
-class String2Size(object):
+class String2Size:
     """Class implementing callable for conversion of strings to
     :py:class:`Size`.
 

@@ -3,8 +3,6 @@
 """Unit test for utils module
 """
 
-from __future__ import absolute_import, division, print_function
-
 from ged2doc import utils
 from ged4py import model
 
@@ -153,8 +151,8 @@ def test_60_embed_ref():
     eref = utils.embed_ref("id", "name")
     assert eref == "\001person.id\002name\003"
 
-    eref = utils.embed_ref("id", u"Иван Иванович")
-    assert eref == u"\001person.id\002Иван Иванович\003"
+    eref = utils.embed_ref("id", "Иван Иванович")
+    assert eref == "\001person.id\002Иван Иванович\003"
 
 
 def test_61_split_refs():
@@ -164,9 +162,9 @@ def test_61_split_refs():
     items = list(utils.split_refs(text))
     assert items == [("person.id", "name")]
 
-    text = u"\001person.id\002Иван Иванович\003"
+    text = "\001person.id\002Иван Иванович\003"
     items = list(utils.split_refs(text))
-    assert items == [("person.id", u"Иван Иванович")]
+    assert items == [("person.id", "Иван Иванович")]
 
     text = "text before \001person.id\002name\003 text after"
     items = list(utils.split_refs(text))

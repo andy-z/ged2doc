@@ -1,13 +1,10 @@
 """Module containing methods/classes for laying out ancestor trees.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ["AncestorTree", "AncestorTreeVisitor", "TreeNode"]
 
 import abc
 import logging
-from six import with_metaclass
 
 from .size import Size
 from .textbox import TextBox
@@ -16,7 +13,7 @@ from .textbox import TextBox
 _log = logging.getLogger(__name__)
 
 
-class TreeNode(object):
+class TreeNode:
     """Class representing node in a tree, which is a box with a person name.
 
     :param Individual person: Corresponding individual, may be None.
@@ -95,7 +92,7 @@ class TreeNode(object):
             self._box.y0 = y0
 
 
-class AncestorTree(object):
+class AncestorTree:
     """Class implementing layout of ancestor trees.
 
     :param Individual person: Corresponding individual, may be None.
@@ -215,7 +212,7 @@ class AncestorTree(object):
             return box
 
 
-class AncestorTreeVisitor(with_metaclass(abc.ABCMeta)):
+class AncestorTreeVisitor(metaclass=abc.ABCMeta):
     """Interface for tree visitors.
 
     Instances of this class can be passed to `visit()` method to

@@ -4,8 +4,6 @@ Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ['EMF', 'BackgroundMode']
 
 import contextlib
@@ -161,7 +159,7 @@ def _strencode(str, size):
     return encoded
 
 
-class EMF(object):
+class EMF:
     """Class for EMF, top-level structure.
 
     :param Size width: Document width, int for pixels or string.
@@ -362,7 +360,7 @@ class EMF(object):
         self._records.append(rec)
 
 
-class Record(object):
+class Record:
     """Base class for all EMF records.
     """
 

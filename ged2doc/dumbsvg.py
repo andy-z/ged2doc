@@ -4,12 +4,10 @@ Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ['Doc', 'Element', 'Line', 'Rect', 'Text', 'Tspan', 'Hyperlink']
 
 
-class Doc(object):
+class Doc:
     """Class for SVG document, top-level structure.
 
     :param width: Document width, int for pixels or string.
@@ -47,7 +45,7 @@ class Doc(object):
         return text
 
 
-class Element(object):
+class Element:
     """Base class for all SVG elements.
 
     :param str tag: SVG tag name
@@ -73,7 +71,7 @@ class Element(object):
         lines = []
         txt = "<" + self._tag
         for attr, val in self._attributes:
-            txt += u' {}="{}"'.format(attr, val)
+            txt += ' {}="{}"'.format(attr, val)
         if not self._value and not self._elements:
             txt += " />"
             lines += [txt]

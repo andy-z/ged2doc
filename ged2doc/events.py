@@ -1,8 +1,6 @@
 """Utilities related to individual or family events.
 """
 
-from __future__ import absolute_import, division, print_function
-
 __all__ = ['Event', 'indi_events', 'indi_attributes', 'family_events']
 
 from collections import namedtuple

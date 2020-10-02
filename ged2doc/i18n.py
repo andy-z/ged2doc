@@ -11,8 +11,6 @@ Note that we do not use system locale, instead we expect client to provide
 small set of configuration options such as output language and date format.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 import gettext
 import logging
 import pkg_resources
@@ -151,7 +149,7 @@ _extra_tr = [
     ]
 
 
-class _NullFallback(object):
+class _NullFallback:
     """Special fallback class for gettext which returns None for missing
     translations.
     """
@@ -206,7 +204,7 @@ class _TemplateDateVisitor(DateValueVisitor):
         return "DATE_VALUE.($phrase)", dict(phrase=date.phrase)
 
 
-class I18N(object):
+class I18N:
     """Class with methods responsible for various aspects of translations.
 
     :param str lang: Output language such as "en", "ru".
