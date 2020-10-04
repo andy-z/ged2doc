@@ -1,4 +1,4 @@
-"""Module defining TexBox class and related methods.
+"""Module defining `TexBox` class and related methods.
 """
 
 __all__ = ['TextBox']
@@ -11,25 +11,37 @@ from .size import Size
 _log = logging.getLogger(__name__)
 
 
-class TextBox(object):
-    """Class representing an SVG box with text inside.
+class TextBox:
+    """Class representing an SVG box with a text inside.
 
     This class takes care of the text wrapping and optional resizing of the
     box in vertical direction to fit all text.
 
-    :param Size x0: lowest X coordinate of corner (def: 0)
-    :param Size y0: lowest Y coordinate of corner (def: 0)
-    :param Size width: width of a box (def: 0)
-    :param Size maxwidth: maximum width of a box (def: 0)
-    :param Size height: height of a box (def: 0)
-    :param str text: text contained in a box (def: '')
-    :param Size font_size: font size (def: 10pt)
-    :param str rect_style: SVG style for rectangle
-    :param str text_style: SVG style for text
-    :param Size line_spacing: space between lines (def: 3pt)
-    :param Size padding: box padding space (def: 3pt)
+    Parameters
+    ----------
+    x0 : `~ged2doc.size.Size`, optional
+        Lowest X coordinate of corner (def: 0)
+    y0 : `~ged2doc.size.Size`, optional
+        Lowest Y coordinate of corner (def: 0)
+    width : `~ged2doc.size.Size`, optional
+        Width of a box (def: 0)
+    maxwidth : `~ged2doc.size.Size`, optional
+        Maximum width of a box (def: 0)
+    height : `~ged2doc.size.Size`, optional
+        Height of a box (def: 0)
+    text : `str`, optional
+        Text contained in a box (def: '')
+    font_size : `~ged2doc.size.Size`, optional
+        Font size (def: 10pt)
+    rect_style : `str`, optional
+        SVG style for rectangle
+    text_style : `str`
+        SVG style for text
+    line_spacing : `~ged2doc.size.Size`, optional
+        Space between lines (def: 1.5pt)
+    padding : `~ged2doc.size.Size`, optional
+        Box padding space (def: 4pt)
     """
-
     def __init__(self, x0=0, y0=0, width=0, maxwidth=0, height=0, text='',
                  font_size='10pt', padding='4pt', line_spacing='1.5pt', href=None):
         self._x0 = Size(x0)
@@ -113,13 +125,18 @@ class TextBox(object):
 
         For each line of test iterator returns a tuple of two items:
 
-          - text for that line
-          - position as a tuple of two ``Size`` instances, for horizontal
-            position it returns the center of the box (same as ``midx``),
-            and for vertical position it returns the baseline position of
-            that line
+        - text for that line
+        - position as a tuple of two ``Size`` instances, for horizontal
+          position it returns the center of the box (same as ``midx``),
+          and for vertical position it returns the baseline position of
+          that line
 
-        :returns: iterator for pairs (line, pos)
+        Yields
+        ------
+        line : `str`
+            Text for a line.
+        pos : `tuple` [ `Size` ]
+            Text position.
         """
         x = self.midx
         for i, line in enumerate(self._lines):
@@ -128,27 +145,39 @@ class TextBox(object):
             yield line, (x, y)
 
     def reflow(self):
-        '''
-        Split the text inside the box so that it fits into box width, then
+        """Split the text inside the box so that it fits into box width, then
         recalculate box height so that all text fits inside the box.
-        '''
+        """
         self._lines = self._splitText(self._text)
         nlines = len(self._lines)
         self._height = nlines * self._font_size + \
             (nlines - 1) * self._line_spacing + 2 * self._padding
 
     def move(self, x0, y0):
-        ''' Sets new coordinates fo x0 and y0 '''
+        """Sets new coordinates fo x0 and y0
+
+        Parameters
+        ----------
+        x0, y0 : `int` or `Size`
+            New box coordinates.
+        """
         self._x0 = Size(x0)
         self._y0 = Size(y0)
 
     def _splitText(self, text):
-        '''
-        Tries to split a line of text into a number of lines which fit into
+        """Tries to split a line of text into a number of lines which fit into
         box width. It honors embedded newlines, line will always be split at
         those first.
-        '''
 
+        Parameters
+        ----------
+        text : `str`
+            Text to split into lines.
+
+        Returns
+        -------
+        lines : `list` [ `str` ]
+        """
         width = self._width - 2 * self._padding
 
         # _log.debug('=========================================================')
@@ -172,10 +201,9 @@ class TextBox(object):
         return lines
 
     def _splitText1(self, text, width):
-        '''
-        Tries to split a line of text into a number of lines which fit into
+        """Tries to split a line of text into a number of lines which fit into
         box width.
-        '''
+        """
 
         lines = []
         for line in text.split('\n'):
@@ -194,7 +222,8 @@ class TextBox(object):
         return lines
 
     def _textWidth(self, text):
-        ''' Calculates approximate width of the string of text '''
+        """Calculates approximate width of the string of text.
+        """
 
         # just  a wild guess for now, try to do better later
         return self._font_size * len(text) * 0.5

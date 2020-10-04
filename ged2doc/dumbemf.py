@@ -6,6 +6,7 @@ ged2doc package.
 
 __all__ = ['EMF', 'BackgroundMode']
 
+import abc
 import contextlib
 import logging
 import math
@@ -142,6 +143,12 @@ def _pack(*args):
     is equivalent to:
 
         struct.pack("IIIHH", 1, 2, 3, 4, 5)
+
+    Parameters
+    ----------
+    *args : `tuple`
+        Tuple where first item is a string format for `struct.pack` call
+        and remaining items are values to to be packed.
     """
     fmt = "<"
     values = ()
@@ -162,8 +169,11 @@ def _strencode(str, size):
 class EMF:
     """Class for EMF, top-level structure.
 
-    :param Size width: Document width, int for pixels or string.
-    :param Size height: Document height, int for pixels or string.
+    Parameters
+    ----------
+    width, height : `ged2doc.size.Size`
+        Document width and height, accepts anything convertible to
+        `ged2doc.size.Size`.
     """
     def __init__(self, width, height):
         self._width = Size(width)
@@ -194,7 +204,10 @@ class EMF:
     def data(self):
         """Produce complete EMF structure.
 
-        :return: Byte-string with EMF data.
+        Returns
+        -------
+        data : `bytes`
+            Byte-string with EMF data.
         """
         records = self._records + [_EOFRecord()]
         n_rec = len(records) + 1
@@ -206,6 +219,17 @@ class EMF:
 
     @contextlib.contextmanager
     def use_pen(self, style, width, color):
+        """Context manager which sets pen parameters.
+
+        Parameters
+        ----------
+        style : `str`
+            Pen style.
+        width : `ged2doc.size.Size`
+            Pen width.
+        color : `int`
+            Pen color.
+        """
 
         pen_handle = 1  # self._handle_for("pen")
 
@@ -227,7 +251,15 @@ class EMF:
 
     @contextlib.contextmanager
     def use_font(self, size, fontname="Times New Roman"):
+        """Context manager which sets font parameters.
 
+        Parameters
+        ----------
+        size : `ged2doc.size.Size`
+            Font size.
+        fontname : `str`
+            Font family name.
+        """
         font_handle = 1  # self._handle_for("font")
 
         height = - size.px  # negative to enable matching
@@ -267,10 +299,25 @@ class EMF:
         self._records.append(rec)
 
     def set_bkmode(self, mode):
+        """Set background mode.
+
+        Parameters
+        ----------
+        mode : `int`
+            Mode, one of `BackgroundMode` constants.
+        """
         rec = GeneralRecord(EMR_SETBKMODE, ("I", mode))
         self._records.append(rec)
 
     def polyline(self, points):
+        """Draw polyline.
+
+        Parameters
+        ----------
+        points : `list` [ `tuple` ]
+            List of 2-tuples with (x, y) coordinates, each coordinate is
+            `ged2doc.size.Size`.
+        """
         points = [(x.px, y.px) for x, y in points]
         left = min(x for x, y in points)
         right = max(x for x, y in points)
@@ -289,6 +336,13 @@ class EMF:
         self._records.append(rec)
 
     def rectangle(self, left, top, right, bottom):
+        """Draw rectangle.
+
+        Parameters
+        ----------
+        left, top, right, bottom : `ged2doc.size.Size`
+            Rectangle coordinates.
+        """
         left, top, right, bottom = [pos.px for pos in (left, top, right, bottom)]
         _LOG.debug("EMF: rect: left=%s top=%s right=%s bottom=%s", left, top, right, bottom)
         # rec = GeneralRecord(EMR_SELECTOBJECT, ("I", StockObjects.NULL_BRUSH))
@@ -308,7 +362,10 @@ class EMF:
     def text_align(self, align_mode="c"):
         """Set text alignment for next text drawing operation
 
-        :param str align_mode: one of "l", "c", "r"
+        Parameters
+        ----------
+        align_mode : `str`, optional
+            One of "l", "c", "r".
         """
         if align_mode == "l":
             align_mode = TA_LEFT
@@ -322,12 +379,26 @@ class EMF:
         self._records.append(rec)
 
     def text_color(self, color):
+        """Set text color for next text drawing operation
+
+        Parameters
+        ----------
+        color : `int`
+        """
         _LOG.debug("EMF: text_color: color=%o", color)
         rec = GeneralRecord(EMR_SETTEXTCOLOR, ("I", color))
         self._records.append(rec)
 
     def text(self, x, y, text):
+        """Draw text.
 
+        Parameters
+        ----------
+        x, y : `ged2doc.size.Size`
+            Text coordinates.
+        text : `str`
+            Text to draw.
+        """
         pos = tuple(pos.px for pos in (x, y))
         iGraphicsMode = GM_COMPATIBLE
         exScale, eyScale = 1., 1.
@@ -360,32 +431,43 @@ class EMF:
         self._records.append(rec)
 
 
-class Record:
+class Record(metaclass=abc.ABCMeta):
     """Base class for all EMF records.
     """
 
-    def __init__(self):
-        pass
-
+    @abc.abstractmethod
     def size(self):
         """Return size of this record in bytes.
 
-        :return: Record size, always multiple of 4.
+        Returns
+        -------
+        size : `int`
+            Record size, always multiple of 4.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def data(self):
         """Produce record contents as byte string.
 
-        :return: Byte-string with record data.
+        Returns
+        -------
+        data : `bytes`
+            Byte-string with record data.
         """
         raise NotImplementedError()
 
 
 class GeneralRecord(Record):
     """Base class for all EMF records.
-    """
 
+    Parameters
+    ----------
+    type : `int`
+        Records type, one of EMR_* constants.
+    *pack_args : `tuple`
+        Data to pack into record, same format as for `_pack` method.
+    """
     def __init__(self, type, *pack_args):
         if pack_args:
             rec = _pack(*pack_args)
@@ -396,9 +478,11 @@ class GeneralRecord(Record):
             self._rec = struct.pack("II", type, self._size)
 
     def size(self):
+        # docstring inherited from base class
         return self._size
 
     def data(self):
+        # docstring inherited from base class
         return self._rec
 
 
@@ -407,11 +491,15 @@ class _HeaderRecord(Record):
 
     Clients don't need to add it explicitly, it is for internal use.
 
-    :param Size width, height: size of the image
-    :param int n_rec: Number of records in file, not including header
-    :param int rec_size: Size of all of records in file, not including header
+    Parameters
+    ----------
+    width, height : `ged2doc.size.Size`
+        Size of the image.
+    n_rec : `int`
+        Number of records in file, not including header.
+    rec_size : `int`
+        Size of all of records in file, not including header.
     """
-
     def __init__(self, width, height, n_rec, rec_size, n_handles):
         self._type = EMR_HEADER
         self._width = width
@@ -421,6 +509,7 @@ class _HeaderRecord(Record):
         self._n_handles = n_handles
 
     def data(self):
+        # docstring inherited from base class
         boundsX = int(math.ceil(self._width.pxf))
         boundsY = int(math.ceil(self._height.pxf))
         sizeXmm = int(math.ceil(self._width.mm))
@@ -453,6 +542,7 @@ class _HeaderRecord(Record):
         )
 
     def size(self):
+        # docstring inherited from base class
         size = 108 + 16
         return size
 
@@ -467,17 +557,24 @@ class _EOFRecord(Record):
         self._type = EMR_EOF
 
     def data(self):
+        # docstring inherited from base class
         size = self.size()
         return _pack(
             ("I", self._type, size, 0, 16, size)
         )
 
     def size(self):
+        # docstring inherited from base class
         return 20
 
 
 def _parse():
-    """Simple command line utility to parse/dump EMF"""
+    """Simple command line utility to parse/dump EMF.
+
+    .. note::
+
+        This method is for testing only, not a part of regular interface.
+    """
     import argparse
 
     parser = argparse.ArgumentParser()

@@ -24,11 +24,21 @@ from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
 _log = logging.getLogger(__name__)
 
 
-def _makeWriter(args=None):
+def _make_writer(args=None):
     """Make Writer instance based on command line arguments.
 
-    :param list args: List of command line arguments passed to argparse,
-        optional, by default uses `sys.argv`.
+    Parameters
+    ----------
+    args : `list` [ `str` ]
+        List of command line arguments passed to argparse, optional, by
+        default uses `sys.argv`.
+
+    Returns
+    -------
+    args : `argparse.Namespace`
+        Parsed command line arguments.
+    writer : `ged2doc.writer.Writer`
+        Instance of `~ged2doc.writer.Writer` to use for writing output file.
     """
 
     version = "ged2doc {0} (ged4py {1}; python {2})".format(ged2doc.__version__,
@@ -272,7 +282,7 @@ def _makeWriter(args=None):
 def main():
     """Console script for ged2doc."""
 
-    args, writer = _makeWriter()
+    args, writer = _make_writer()
 
     try:
         writer.save()

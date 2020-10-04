@@ -16,14 +16,24 @@ _log = logging.getLogger(__name__)
 class TreeNode:
     """Class representing node in a tree, which is a box with a person name.
 
-    :param Individual person: Corresponding individual, may be None.
-    :param int gen: Generation number, 0 for the tree root.
-    :param TreeNode motherNode: Node for mather, can be None.
-    :param TreeNode fatherNode: Node for mather, can be None.
-    :param Size box_width: desired width of this node, actual width can grow.
-    :param Size max_box_width: Maximum width this node can grow to.
-    :param Size font_size: Size of the font for the text.
-    :param Size gen_dist: Horiz. distance between generations.
+    Parameters
+    ----------
+    person : `ged4py.model.Individual`
+        Corresponding individual, may be ``None``.
+    gen : `int`
+        Generation number, 0 for the tree root.
+    motherNode : `TreeNode`
+        Node for mother, can be ``None``.
+    fatherNode : `TreeNode`
+        Node for father, can be ``None``.
+    box_width : `ged2doc.size.Size`
+        Desired width of this node, actual width can grow.
+    max_box_width : `ged2doc.size.Size`
+        Maximum width this node can grow to.
+    font_size : `ged2doc.size.Size`
+        Size of the font for the text.
+    gen_dist : `ged2doc.size.Size`
+        Horiz. distance between generations.
     """
 
     _vpadding = Size('2pt')  # vertical padding around each sub-tree or node
@@ -78,6 +88,12 @@ class TreeNode:
 
     def setY0(self, y0):
         """Recalculate Y position of box tree so that topmost box is at `y0`.
+
+        Parameters
+        ----------
+        y0 : `ged2doc.size.Size`
+            New topmost box position, accepts anything convertible to
+            `ged2doc.size.Size`.
         """
         y0 = Size(y0)
         _log.debug('TreeNode.name = %s; setY0 = %s', self.name, y0)
@@ -95,14 +111,21 @@ class TreeNode:
 class AncestorTree:
     """Class implementing layout of ancestor trees.
 
-    :param Individual person: Corresponding individual, may be None.
-    :param int max_gen: Maximum number of generations to plot, default is 4
-    :param Size width: Specification for plot width, accepts `Size` or `str`.
-    :param Size gen_dist: Distance between generations, `Size` or `str`,
-        default is "12pt"
-    :param Size font_size: Font size, accepts `Size` or `str`.
+    Parameters
+    ----------
+    person : `ged4py.model.Individual`
+        Corresponding individual, may be ``None``.
+    max_gen : `int`
+        Maximum number of generations to plot, default is 4.
+    width : `ged2doc.size.Size`, optional
+        Specification for plot width, accepts anything convertible to
+        `ged2doc.size.Size`.
+    gen_dist : `ged2doc.size.Size`, optional
+        Distance between generations, accepts anything convertible to
+        `ged2doc.size.Size`.
+    font_size :  `ged2doc.size.Size`, optional
+        Font size, accepts anything convertible to `ged2doc.size.Size`.
     """
-
     def __init__(self, person, max_gen=4, width="5in", gen_dist="12pt", font_size="10pt"):
         self.max_gen = max_gen
         self._width = Size(width)
@@ -166,20 +189,23 @@ class AncestorTree:
 
     @property
     def width(self):
-        """Full width of the tree (`Size`)
+        """Full width of the tree (`ged2doc.size.Size`)
         """
         return self._width
 
     @property
     def height(self):
-        """Full height of the tree (`Size`)
+        """Full height of the tree (`ged2doc.size.Size`)
         """
         return self._height
 
     def visit(self, visitor):
         """Visit every node and edge in a tree.
 
-        :param AncestorTreeVisitor visitor: Tree visitor.
+        Parameters
+        ----------
+        visitor : `AncestorTreeVisitor`
+            Tree visitor.
         """
         if self.root:
             self._visit(visitor, self.root)
@@ -196,7 +222,9 @@ class AncestorTree:
             visitor.visitFatherEdge(node, node.father)
 
     def _makeTree(self, person, gen, max_gen, box_width, max_box_width):
-        """Recursively generate tree of TreeNode instances
+        """Recursively generate tree of TreeNode instances.
+
+        Fro internal use only.
         """
         if gen < max_gen:
 
@@ -215,7 +243,7 @@ class AncestorTree:
 class AncestorTreeVisitor(metaclass=abc.ABCMeta):
     """Interface for tree visitors.
 
-    Instances of this class can be passed to `visit()` method to
+    Instances of this class can be passed to `AncestorTree.visit()` method to
     iterate over all nodes and edges in an ancestor tree.
     """
 
@@ -223,7 +251,10 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
     def visitNode(self, node):
         """Visitor method for a node in tree.
 
-        :param TreeNode node: Tree node.
+        Parameters
+        ----------
+        node : `TreeNode`
+            Tree node.
         """
         raise NotImplementedError()
 
@@ -234,8 +265,12 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
         It is guaranteed that `visitNode` is called for both nodes before
         this method is called.
 
-        :param TreeNode node: Tree node.
-        :param TreeNode parentNode: Parent tree node.
+        Parameters
+        ----------
+        node : `TreeNode`
+            Tree node.
+        parentNode : `TreeNode`
+            Parent tree node.
         """
         raise NotImplementedError()
 
@@ -246,7 +281,11 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
         It is guaranteed that `visitNode` is called for both nodes before
         this method is called.
 
-        :param TreeNode node: Tree node.
-        :param TreeNode parentNode: Parent tree node.
+        Parameters
+        ----------
+        node : `TreeNode`
+            Tree node.
+        parentNode : `TreeNode`
+            Parent tree node.
         """
         raise NotImplementedError()

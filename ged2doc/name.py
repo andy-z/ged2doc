@@ -1,20 +1,38 @@
-"""Various methods for manipulating/formatting names.
+"""Methods for manipulating/formatting names.
 """
 
 # Names can be rendered in different formats
-FMT_SURNAME_FIRST = 0x1  # Smith Jane
-FMT_COMMA = 0x2  # Smith, Jane -- only if surname is first
-FMT_MAIDEN = 0x4  # Jane Smith (Sawyer)   -- maiden name
-FMT_MAIDEN_ONLY = 0x8  # Jane Sawyer   -- maiden name only
-FMT_CAPITAL = 0x10  # Jane SMITH   -- surname is all caps
+FMT_SURNAME_FIRST = 0x1
+"""Bit flag for surname-first format (e.g. ``Smith Jane``).
+"""
+FMT_COMMA = 0x2
+"""Bit flag for adding comma in surname-first format (e.g. ``Smith, Jane``).
+"""
+FMT_MAIDEN = 0x4
+"""Bit flag for adding maiden name (e.g. ``Jane Smith (Sawyer)``).
+"""
+FMT_MAIDEN_ONLY = 0x8
+"""Bit flag for using maiden name only (e.g. ``Jane Sawyer``).
+"""
+FMT_CAPITAL = 0x10
+"""Bit flag for rendering surname in capital (e.g. ``Jane SMITH``).
+"""
 
 
 def name_fmt(name, fmt=0x0):
     """Format name for output.
 
-    :param name: :py:class:`ged4py.model.Name` instance.
-    :param int fmt: Bitmask of FMT_* flags.
-    :return: Formatted name representation.
+    Parameters
+    ----------
+    name : `ged4py.model.Name`
+        Person name.
+    fmt : `int`
+        Bitmask combination of ``FMT_*`` flags.
+
+    Returns
+    -------
+    name : `str`
+        Formatted name representation.
     """
     surname = name.surname
     if fmt & FMT_MAIDEN_ONLY:

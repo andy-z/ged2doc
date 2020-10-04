@@ -1,5 +1,5 @@
-'''Module which defines class for manipulating size values.
-'''
+"""Module which defines class for manipulating size values.
+"""
 
 
 MM_PER_INCH = 25.4
@@ -7,11 +7,11 @@ PT_PER_INCH = 72.
 
 
 class Size:
-    '''Class for specifying size values.
+    """Class for specifying size values.
 
-    Size can be specified as a number with units, supported units are pt
-    (points), in (inches), cm (centimeters), mm (millimeters), and px (pixels).
-    If units are not specified then inches are assumed.
+    Size can be specified as a number with units, supported units are ``pt``
+    (points), ``in`` (inches), ``cm`` (centimeters), ``mm`` (millimeters), and
+    ``px`` (pixels). If units are not specified then inches are assumed.
 
     Constructor converts input value to a size. If input value has numeric
     type then it is assumed to be size in inches. If input value is a string
@@ -27,21 +27,27 @@ class Size:
         size = Size("144pt") / 2
         print(size^"mm")           # will produce string "25.4mm"
 
-    :var dpi: Class constant used for pixels-to-inches conversion, default
-        value is 96., it is used as default DPI for ``Size`` instances that
-        do not specify explicit ``dpi`` argument.
+    Parameters
+    ----------
+    value : `int`, `float`, `str`, or `Size`
+        Input value for size.
+    dpi : `float`, optional
+        Dots-per-inch for converting pixels into other scale. Default is to use
+        class attribute `dpi` value.
 
-    :param value: input value.
-    :type value: int or float or string or `Size`
-    :param dpi: pixels-to-inches, dea.
-    :type dpi: float
+    Raises
+    ------
+    ValueError
+        Raised if string does not have correct format.
+    TypeError
+        Raised if input value has unsupported type.
+    """
 
-    :raises ValueError: If string does not have correct format.
-    :raises TypeError: If input value has unsupported type.
-    '''
-
-    dpi = 96.  # some random number for converting pixels to inches
-
+    dpi = 96.
+    """Class constant used for pixels-to-inches conversion, default
+    value is 96., it is used as default DPI for ``Size`` instances that
+    do not specify explicit ``dpi`` argument
+    """
     def __init__(self, value=0, dpi=None):
 
         if isinstance(value, str):
@@ -74,106 +80,106 @@ class Size:
 
     @property
     def pt(self):
-        ''' size in points '''
+        """Size in points (`float`)"""
         return self.value * 72.
 
     @property
     def px(self):
-        ''' size in pixels, integer '''
+        """Size in pixels, (`int`) """
         return int(round(self.value * self.dpi))
 
     @property
     def pxf(self):
-        ''' size in (fractional) pixels, float '''
+        """Size in (fractional) pixels, (`float`)"""
         return self.value * self.dpi
 
     @property
     def inches(self):
-        ''' size in inches '''
+        """Size in inches, (`float`)"""
         return self.value
 
     @property
     def mm(self):
-        ''' size in millimeters '''
+        """Size in millimeters, (`float`)"""
         return self.value * MM_PER_INCH
 
     def to_dpi(self, dpi):
-        """Return copy of itself with updated DPI value
+        """Return copy of itself with updated DPI value.
 
         This is a convenience method which does the same as `Size(self, dpi)`.
         """
         return Size(self, dpi)
 
     def __str__(self):
-        ''' Returns string representation, e.g. "12in" '''
+        """ Returns string representation, e.g. "12in" """
         return str(self.value) + 'in'
 
     def __repr__(self):
-        ''' Returns string representation, e.g. Size("12in") '''
+        """ Returns string representation, e.g. Size("12in") """
         return "Size({}in)".format(self.value)
 
     def __lt__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value < self._coerce(other).value
 
     def __le__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value <= self._coerce(other).value
 
     def __eq__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value == self._coerce(other).value
 
     def __ne__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value != self._coerce(other).value
 
     def __ge__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value >= self._coerce(other).value
 
     def __gt__(self, other):
-        ''' Compare two sizes '''
+        """ Compare two sizes """
         return self.value > self._coerce(other).value
 
     def __sub__(self, other):
-        ''' Subtract size from other size '''
+        """ Subtract size from other size """
         return Size(self.value - self._coerce(other).value, self.dpi)
 
     def __rsub__(self, other):
-        ''' Subtract size from other size '''
+        """ Subtract size from other size """
         return self._coerce(other) - self
 
     def __add__(self, other):
-        ''' Add two sizes '''
+        """ Add two sizes """
         return Size(self.value + self._coerce(other).value, self.dpi)
 
     def __radd__(self, other):
-        ''' Add size and something: x + size'''
+        """ Add size and something: x + size"""
         return self._coerce(other) + self
 
     def __mul__(self, other):
-        ''' Multiply size by a factor '''
+        """ Multiply size by a factor """
         return Size(self.value * other, self.dpi)
 
     def __rmul__(self, other):
-        ''' Multiply size by a factor: other * size '''
+        """ Multiply size by a factor: other * size """
         return Size(self.value * other, self.dpi)
 
     def __div__(self, other):
-        ''' Divide size by a factor '''
+        """ Divide size by a factor """
         return Size(self.value / other, self.dpi)
 
     def __truediv__(self, other):
-        ''' Divide size by a factor '''
+        """ Divide size by a factor """
         return Size(self.value / other, self.dpi)
 
     def __floordiv__(self, other):
-        ''' Divide size by a factor '''
+        """ Divide size by a factor """
         return Size(self.value // other, self.dpi)
 
     def __xor__(self, units):
-        ''' Size(1.)^"mm"  will return "25.4mm" '''
+        """ Size(1.)^"mm"  will return "25.4mm" """
         if units == 'in':
             return "%gin" % (self.value,)
         elif units == 'pt':
@@ -195,25 +201,29 @@ class Size:
 
 
 class String2Size:
-    """Class implementing callable for conversion of strings to
-    :py:class:`Size`.
+    """Class implementing callable for conversion of strings to `Size`.
 
     This class defines restrictions on Size units, you can define set of
     accepted/rejected unit types. This could be useful for command line
     parser, e.g. as a `type` argument for ``argparse`` methods.
 
-    :param str default_unit: Default unit name to use when unit is not given.
-    :param list accepted_units: List of acceptable unit names, if string
-        passed to ``__call__`` has unit not on this list then ``ValueError``
-        is raised. If ``None`` or empty list is passed to this argument then
-        check is not performed.
-    :param list rejected_units: List of rejected unit names, if string
-        passed to ``__call__`` has unit on this list then ``ValueError``
-        is raised. If ``None`` or empty list is passed to this argument then
-        check is not performed.
+    Parameters
+    ----------
+    default_unit : `str`
+        Default unit name to use when unit is not given.
+    accepted_units : `list` [ `str` ]
+        List of acceptable unit names, if string passed to ``__call__`` has
+        unit not in this list then ``ValueError`` is raised. If ``None`` or
+        empty list is passed to this argument then check is not performed.
+    rejected_units : `list` [ `str` ]
+        List of rejected unit names, if string passed to ``__call__`` has unit
+        on this list then ``ValueError`` is raised. If ``None`` or empty list
+        is passed to this argument then check is not performed.
     """
 
     all_units = ('pt', 'in', 'cm', 'mm', 'px')
+    """All known unit names.
+    """
 
     def __init__(self, default_unit="in", accepted_units=None,
                  rejected_units=None):
@@ -224,9 +234,24 @@ class String2Size:
     def __call__(self, value):
         """Implements operator().
 
-        :param str value: String value to convert to ``Size``.
+        Parameters
+        ----------
+        value : `str`
+            String value to convert to `Size`.
+
+        Returns
+        -------
+        size : `Size`
+            String value converted to `Size`.
+
+        Raises
+        ------
+        ValueError
+            Raised if string does not have correct format or if unit type is
+            not accepted.
         """
         try:
+            # if this is a number then add default unit
             float(value)
             value += self._default_unit
         except ValueError:

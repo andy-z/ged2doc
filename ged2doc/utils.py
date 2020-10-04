@@ -12,14 +12,23 @@ _log = logging.getLogger(__name__)
 def resize(size, max_size, reduce_only=True):
     """Resize a box so that it fits into other box and keeps aspect ratio.
 
-    :param tuple size: tuple (width, height) - box to resize.
-    :param tuple max_size: tuple (width, height) - box to fit new resized
-        box into.
-    :param boolean reduce_only: If True (default) and size is smaller than
-        max_size then return original box.
-    :return: Tuple (width, height) representing resized box.
-    """
+    Parameters
+    ----------
+    size : `tuple`
+        Box to resize, (width, height). Elements of tuple are either numbers
+        or `ged2doc.size.Size` instances.
+    max_size : `tuple`
+        Box to fit new resized box into, (width, height).
+    reduce_only : `bool`
+        If True (default) and size is smaller than max_size then return
+        original box.
 
+    Returns
+    -------
+    width, height
+        Tuple (width, height) representing resized box. Type of the elements
+        is the same as the type of the ``size`` elements.
+    """
     w, h = size
     if reduce_only and w <= max_size[0] and h <= max_size[1]:
         return size
@@ -32,11 +41,23 @@ def resize(size, max_size, reduce_only=True):
     return w, h
 
 
-def personImageFile(person):
+def person_image_file(person):
     """Finds primary person image file name.
 
     Scans INDI's OBJE records and finds "best" FILE record from those.
 
+    Parameters
+    ----------
+    person : `ged4py.model.Individual`
+            INDI record representation.
+
+    Returns
+    -------
+    file_name : `str` or ``None``
+        String with file name or ``None``.
+
+    Notes
+    -----
     OBJE record contains one (in 5.5) or few (in 5.5.1) related multimedia
     files. In 5.5 file contents can be embedded as BLOB record though we do
     not support this. In 5.5.1 file name is stored in a record.
@@ -64,11 +85,7 @@ def personImageFile(person):
     need to look at MEDI record to only chose image type, but I have not seen
     examples of MEDI use yet, so for now I only select FORM which correspond
     to images.
-
-    :param person: :py:class:`ged4py.model.Individual` instance
-    :return: String with file name or None.
     """
-
     first = None
     for obje in person.sub_tags('OBJE'):
 
@@ -96,13 +113,23 @@ def personImageFile(person):
 def languages():
     """Returns list of supported languages.
 
-    This should correspond to the existing translations
+    This should correspond to the existing translations and needs to be
+    updated when new translation is added.
+
+    Returns
+    -------
+    languages : `list` [ `str` ]
     """
     return ['en', 'ru', 'pl', 'cz']
 
 
 def system_lang():
     """Try to guess system language.
+
+    Returns
+    -------
+    language : `str`
+        Guessed system language, "en" is returned as a fallback.
     """
     loclang, _ = locale.getdefaultlocale()
     for lang in languages():
@@ -114,8 +141,15 @@ def system_lang():
 def embed_ref(xref_id, name):
     """Returns encoded person reference.
 
-    Encoded reference consists of ASCII character SOH (\001) followed by
-    reference ID, STX (\002), person name, and ETX (\003)
+    Encoded reference consists of ASCII character ``SOH`` (``0x01``) followed
+    by reference ID, ``STX`` (``0x02``), person name, and ``ETX`` (``0x03``).
+
+    Parameters
+    ----------
+    xref_id : `str`
+        Reference ID for a person.
+    name : `str`
+        Person name.
     """
     return "\001" + "person." + xref_id + "\002" + name + "\003"
 
@@ -126,7 +160,10 @@ def split_refs(text):
 
     Reference is returned as tuple (id, name).
 
-    :returns: iterator over pieces of text and references.
+    Yields
+    ------
+    item : `str` or `tuple`
+        Pieces of text and references.
     """
     while True:
         pos = text.find("\x01")
@@ -146,10 +183,17 @@ def split_refs(text):
 
 
 def img_mime_type(img):
-    """Returns image MIME type or None.
+    """Returns image MIME type or ``None``.
 
-    :param Image img: `PIL.Image` object
-    :returns: str like "image/jpg" or None
+    Parameters
+    ----------
+    img: `PIL.Image`
+        PIL Image object.
+
+    Returns
+    -------
+    mime_type : `str`
+        MIME string like "image/jpg" or ``None``.
     """
     if img.format:
         ext = "." + img.format
@@ -163,9 +207,17 @@ def img_resize(img, size):
     Image is resized only if it is larger than `size`, otherwise
     unmodified image is returned.
 
-    :param Image img: `PIL.Image` object
-    :param tuple size: Final image size
-    :returns: `PIL.Image` object
+    Parameters
+    ----------
+    img : `PIL.Image`
+        PIL Image object.
+    size : `tuple`
+        Final image size (width, height)
+
+    Returns
+    -------
+    image : `PIL.Image`
+        Resized image.
     """
 
     newsize = resize(img.size, size)
@@ -183,11 +235,18 @@ def img_save(img, file):
 
     This method automatically chooses the best file format for output.
 
-    :param Image img: `PIL.Image` object
-    :param file: File object to write output to.
-    :returns: MIME type of the output image
-    """
+    Parameters
+    ----------
+    img : `PIL.Image`
+        PIL Image object.
+    file
+        File object to write output to.
 
+    Returns
+    -------
+    mime_type : `str`
+        MIME type of the output image.
+    """
     if img.format:
         # save in the original format
         img.save(file, img.format)

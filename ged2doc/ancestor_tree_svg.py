@@ -18,7 +18,15 @@ _pline_unknown_style = "fill:none;stroke-width:0.5pt;stroke:grey"
 
 
 class SVGTreeVisitor(AncestorTreeVisitor):
-    """AncestorTreeVisitor implementation which makes SVG plots.
+    """`~ged2doc.ancestor_tree.AncestorTreeVisitor` implementation which makes
+    SVG plots.
+
+    Parameters
+    ----------
+    units : `str`
+        Type of dimension units for output SVG document.
+    fullxml : `bool`, optional
+        If ``True`` then generate full XML header.
     """
     def __init__(self, units='in', fullxml=True):
         self._units = units
@@ -26,7 +34,7 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         self._elements = []
 
     def visitNode(self, node):
-
+        # docstring inherited from base class
         units = self._units
 
         textclass = None if node.person is None else 'svglink'
@@ -35,7 +43,7 @@ class SVGTreeVisitor(AncestorTreeVisitor):
                                             units=units, rect_style=style)
 
     def visitMotherEdge(self, node, parentNode):
-
+        # docstring inherited from base class
         units = self._units
 
         x0 = node.textbox.x1
@@ -51,7 +59,7 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         ]
 
     def visitFatherEdge(self, node, parentNode):
-
+        # docstring inherited from base class
         units = self._units
 
         x0 = node.textbox.x1
@@ -66,6 +74,26 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         ]
 
     def makeSVG(self, width, height):
+        """Produce SVG document from a visited tree.
+
+        Parameters
+        ----------
+        width : `ged2doc.size.Size`
+            Width of SVG document
+        height : `ged2doc.size.Size`
+            Height of SVG document
+
+        Returns
+        -------
+        document : `str`
+            Concents of generated SVG document.
+        mime_type : `str`
+            MIME type of produced document.
+        width : `ged2doc.size.Size`
+            Width of SVG document
+        height : `ged2doc.size.Size`
+            Height of SVG document
+        """
 
         if not self._elements:
             return None
@@ -83,8 +111,8 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         return xml, 'image/svg', width, height
 
     def _textbox_svg(self, textbox, textclass=None, units='in', rect_style=None):
-        ''' Produces list of SVG elements for a textbox '''
-
+        """Produces list of SVG elements for a textbox.
+        """
         shapes = []
 
         # render box

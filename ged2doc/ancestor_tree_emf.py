@@ -18,7 +18,15 @@ _GRAY = 0xa0a0a0
 
 
 class EMFTreeVisitor(AncestorTreeVisitor):
-    """AncestorTreeVisitor implementation which makes EMF image.
+    """`~ged2doc.ancestor_tree.AncestorTreeVisitor` implementation which makes
+    EMF image.
+
+    Parameters
+    ----------
+    width, height : `ged2doc.size.Size`
+        Width and height of the image.
+    dpi : `float`
+        Image resolution.
     """
     def __init__(self, width, height, dpi=300):
         self._width = width.to_dpi(dpi)
@@ -34,6 +42,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
         self._fonts = {}
 
     def visitNode(self, node):
+        # docstring inherited from base class
         self._nodes += 1
         textbox = node.textbox
 
@@ -56,7 +65,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
                 self._emf.text(x.to_dpi(self._dpi), y.to_dpi(self._dpi), line)
 
     def visitMotherEdge(self, node, parentNode):
-
+        # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
         x1 = parentNode.textbox.x0.to_dpi(self._dpi)
@@ -74,6 +83,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             self._emf.polyline(points)
 
     def visitFatherEdge(self, node, parentNode):
+        # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
         x1 = parentNode.textbox.x0.to_dpi(self._dpi)
@@ -87,7 +97,19 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             self._emf.polyline(points)
 
     def makeEMF(self):
+        """Produce EMF image from a visited tree.
 
+        Returns
+        -------
+        document : `bytes`
+            Concents of generated EMF image.
+        mime_type : `str`
+            MIME type of produced document.
+        width : `ged2doc.size.Size`
+            Width of SVG document
+        height : `ged2doc.size.Size`
+            Height of SVG document
+        """
         if self._nodes == 0:
             return None
 

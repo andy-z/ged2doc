@@ -21,49 +21,62 @@ from . import writer
 
 _log = logging.getLogger(__name__)
 
-# this is no-op function, only used to mark translatable strings,
-# to extract all strings run "pygettext -k TR ..."
 
-
-def TR(x): return x  # NOQA
+def TR(x):
+    """This is no-op function, only used to mark translatable strings,
+    to extract all strings run ``pygettext -k TR ...``
+    """
+    return x  # NOQA
 
 
 class HtmlWriter(writer.Writer):
     """Transforms GEDCOM file into nicely formatted HTML page.
 
-    This is a sub-class of :py:class:`~ged2doc.writer.Writer` class providing
+    This is a sub-class of `~ged2doc.writer.Writer` class providing
     implementation for rendering methods which transform GEDCOM info into
     HTML constructs. Constructor takes a large number of arguments which
     configure appearance of the resulting HTML page. After instantiating
-    an object of this type one has to call
-    :py:meth:`~ged2doc.writer.Writer.save` method to produce output file.
+    an object of this type one has to call `~ged2doc.writer.Writer.save()`
+    method to produce output file.
 
-    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
-    :param str output: Name for the output file or file object
-    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
-    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
-        determined from file itself
-    :param str encoding_errors: Controls error handling behavior during string
-        decoding, one of "strict" (default), "ignore", or "replace".
-    :param sort_order: Determines ordering of person in output file, one of
-        the constants defined in :py:mod:`ged4py.model` module.
-    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
-    :param bool make_images: If ``True`` (default) then generate images for
-        persons.
-    :param bool make_stat: If ``True`` (default) then generate statistics
-        section.
-    :param bool make_toc: If ``True`` (default) then generate Table of
-        Contents.
-    :param bool events_without_dates: If ``True`` (default) then show events
-        that have no associated dates.
-    :param Size page_width: Width of the produced HTML page.
-    :param Size image_width: Size of the images.
-    :param Size image_height: Size of the images.
-    :param bool image_upscale: If True then smaller images will be
-        re-scaled to extend to image size.
-    :param int tree_width: Number of generations in ancestor tree.
+    Parameters
+    ----------
+    flocator : `ged2doc.input.FileLocator`
+        File locator instance.
+    output : `str` or `io.TextIOBase`
+        Name for the output file or file object.
+    tr : `ged2doc.i18n.I18N`
+        Object supporting translation.
+    encoding : `str`, optional
+        GEDCOM file encoding, if ``None`` then encoding is determined from
+        file itself.
+    encoding_errors : `str`, optional
+        Controls error handling behavior during string decoding, one of
+        "strict" (default), "ignore", or "replace".
+    sort_order : `str`, optional
+        Determines ordering of person in output file, one of the constants
+        defined in `ged4py.model` module.
+    name_fmt : `int`, optional
+        Bit mask with flags from `ged2doc.name` module.
+    make_images : `bool`, optional
+        If ``True`` (default) then generate images for persons.
+    make_stat : `bool`, optional
+        If ``True`` (default) then generate statistics section.
+    make_toc : `bool`, optional
+        If ``True`` (default) then generate Table of Contents.
+    events_without_dates : `bool`, optional
+        If ``True`` (default) then show events that have no associated dates.
+    page_width : `ged2doc.size.Size`
+        Width of the produced HTML page.
+    image_width : `ged2doc.size.Size`
+        Size of the images.
+    image_height : `ged2doc.size.Size`
+        Size of the images.
+    image_upscale : `bool`
+        If True then smaller images will be re-scaled to extend to image size.
+    tree_width : `int`
+        Number of generations in ancestor tree.
     """
-
     def __init__(self, flocator, output, tr, encoding=None,
                  encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
@@ -95,8 +108,7 @@ class HtmlWriter(writer.Writer):
         self._toc = []
 
     def _render_prolog(self):
-        """Generate initial document header/title.
-        """
+        # docstring inherited from base class
         doc = ['<!DOCTYPE html>']
         doc += ['<html>', '<head>']
         doc += ['<meta http-equiv="Content-Type" content="text/html;'
@@ -112,8 +124,18 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _interpolate(self, text):
-        """Takes text with embedded references and returns proporly
+        """Takes text with embedded references and returns properly
         escaped text with HTML links.
+
+        Parameters
+        ----------
+        text : `str`
+            Arbitrary text with references.
+
+        Returns
+        -------
+        html : `str`
+            HTML as text.
         """
         result = ""
         for piece in utils.split_refs(text):
@@ -126,15 +148,7 @@ class HtmlWriter(writer.Writer):
         return result
 
     def _render_section(self, level, ref_id, title, newpage=False):
-        """Produces new section in the output document.
-
-        This method should also save section reference so that TOC can be
-        later produced when :py:meth:`_render_toc` method is called.
-
-        :param int level: Section level (1, 2, 3, etc.).
-        :param str ref_id: Unique section identifier.
-        :param str title: Printable section name.
-        """
+        # docstring inherited from base class
         self._toc += [(level, ref_id, title)]
         doc = ['<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
                                                     html_escape(title))]
@@ -143,34 +157,12 @@ class HtmlWriter(writer.Writer):
 
     def _render_person(self, person, image_data, attributes, families,
                        events, notes):
-        """Output person information.
-
-        TExtual information in parameters to this method can include
-        references to other persons (e.g. moter/father). Such references are
-        embedded into text in encoded format determined by
-        :py:meth:`_person_ref` method. It is responsibility of the subclasses
-        to extract these references from text and re-encode them using proper
-        bacenf representation.
-
-        :param person: :py:class:`ged4py.Individual` instance
-        :param bytes image_data: Either `None` or binary image data (typically
-                content of JPEG image)
-        :param list attributes: List of (attr_name, text) tuples, may be empty.
-        :param list families: List of strings (possibly empty), each string
-                contains description of one family and should be typically
-                rendered as a separate paragraph.
-        :param list events: List of (date, text) tuples, may be empty. Date
-                is properly formatted string and does not need any other
-                formatting.
-        :param list notes: List of strings, each string should be rendered
-                as separate paragraph.
-        """
-
+        # docstring inherited from base class
         doc = []
 
         # image if present
         if image_data:
-            img = self._getImageFragment(image_data)
+            img = self._get_image_fragment(image_data)
             if img:
                 doc += [img]
 
@@ -208,15 +200,7 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _render_name_stat(self, n_total, n_females, n_males):
-        """Produces summary table.
-
-        Sum of male and female counters can be lower than total count due to
-        individuals with unknown/unspecified gender.
-
-        :param int n_total: Total number of individuals.
-        :param int n_females: Number of female individuals.
-        :param int n_males: Number of male individuals.
-        """
+        # docstring inherited from base class
         doc = []
         doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')), n_total)]
         doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')), n_females)]
@@ -225,10 +209,7 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _render_name_freq(self, freq_table):
-        """Produces name statistics table.
-
-        :param freq_table: list of (name, count) tuples.
-        """
+        # docstring inherited from base class
         def _gencouples(namefreq):
             halflen = (len(namefreq) + 1) // 2
             for i in range(halflen):
@@ -263,8 +244,7 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _render_toc(self):
-        """Produce table of contents using info collected in _render_section().
-        """
+        # docstring inherited from base class
         section = self._tr.tr(TR("Table Of Contents"))
         doc = ['<h1>{0}</h1>\n'.format(html_escape(section))]
         lvl = 0
@@ -283,15 +263,23 @@ class HtmlWriter(writer.Writer):
             self._output.write(line.encode('utf-8'))
 
     def _finalize(self):
-        """Finalize output.
-        """
+        # docstring inherited from base class
         if self._close:
             self._output.close()
 
-    def _getImageFragment(self, image_data):
-        '''Returns <img> HTML fragment for given image data (byte array).
-        '''
+    def _get_image_fragment(self, image_data):
+        """Returns <img> HTML fragment for given image data (byte array).
 
+        Parameters
+        ----------
+        image_data : `bytes`
+            Image data.
+
+        Returns
+        -------
+        html : `str`
+            HTML text containing image.
+        """
         try:
             imgfile = io.BytesIO(image_data)
             img = Image.open(imgfile)
@@ -329,10 +317,17 @@ class HtmlWriter(writer.Writer):
                 return tag.format(mime=mimetype, data=data)
 
     def _make_ancestor_tree(self, person):
-        """"Returns SVG picture for parent tree or None.
+        """Make SVG picture for parent tree.
 
-        :param person: Individual record
-        :return: Image data (XML contents), bytes
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record
+
+        Returns
+        -------
+        html : `list` [ `str` ]
+            SVG data (HTML contents), list of strings.
         """
         width = self._page_width ^ 'px'
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
