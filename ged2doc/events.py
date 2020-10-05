@@ -8,6 +8,29 @@ from collections import namedtuple
 # Event structure, reflection of <EVENT_DETAIL>. Only relevant
 # pieces appear here.
 Event = namedtuple("Event", "tag value type date place note cause")
+"""Class representing GEDCOM event structure.
+
+This is a reflection of <EVENT_DETAIL>, but only relevant pieces appear
+in this class.
+
+Attributes
+----------
+tag : `str`
+    GEDCOM tag name for the event.
+value : `str`
+    GEDCOM record value, can be ``None``
+type : `str`
+    GEDCOM event type.
+date : `ged4py.model.Date`
+    Event date.
+place : `str`
+    Place where event happened.
+note : `str`
+    Arbitrary text note.
+cause : `str`
+    What caused the event.
+"""
+
 
 _indi_events_tags = set([
     'BIRT', 'CHR', 'DEAT', 'BURI', 'CREM', 'ADOP',
@@ -27,9 +50,17 @@ _fam_events_tags = set([
 def _get_events(record, tags):
     """Return events corresponding to a record.
 
-    :param record: GEDCOM record (:py:class:`ged4py.model.Record` instance)
-    :param tags: List/set of tag names.
-    :return: List of :py:class:`Event` instances.
+    Parameters
+    ----------
+    record : `ged4py.model.Record`
+        GEDCOM record.
+    tags : collection of `str`
+        List/set of tag names.
+
+    Returns
+    -------
+    events : `list` [ `Event` ]
+        List of events.
     """
     events = []
     for rec in record.sub_records:
@@ -47,9 +78,17 @@ def _get_events(record, tags):
 def indi_events(person, tags=None):
     """Returns all events for a given individual.
 
-    :param person: INDI record (:py:class:`ged4py.model.Record` instance)
-    :param list tags: Set of tags to return, default is all event tags.
-    :return: List of :py:class:`Event` instances.
+    Parameters
+    ----------
+    person : `ged4py.model.Individual`
+        GEDCOM INDI record.
+    tags : `list` [ `str` ], optional
+        Set of tags to return, default is all event tags.
+
+    Returns
+    -------
+    events : `list` [ `Event` ]
+        List of events.
     """
     return _get_events(person, tags or _indi_events_tags)
 
@@ -57,9 +96,17 @@ def indi_events(person, tags=None):
 def indi_attributes(person, tags=None):
     """Returns all attributes for a given individual.
 
-    :param person: INDI record (:py:class:`ged4py.model.Record` instance)
-    :param list tags: Set of tags to return, default is all event tags.
-    :return: List of :py:class:`Event` instances.
+    Parameters
+    ----------
+    person : `ged4py.model.Individual`
+        GEDCOM INDI record.
+    tags : `list` [ `str` ], optional
+        Set of tags to return, default is all attribute tags.
+
+    Returns
+    -------
+    events : `list` [ `Event` ]
+        List of events.
     """
     return _get_events(person, tags or _indi_attr_tags)
 
@@ -67,8 +114,16 @@ def indi_attributes(person, tags=None):
 def family_events(family, tags=None):
     """Returns all events for a given family.
 
-    :param family: FAM record (:py:class:`ged4py.model.Record` instance)
-    :param list tags: Set of tags to return, default is all event tags.
-    :return: List of :py:class:`Event` instances.
+    Parameters
+    ----------
+    family : `ged4py.model.Record`
+        GEDCOM FAM record.
+    tags : `list` [ `str` ], optional
+        Set of tags to return, default is all attribute tags.
+
+    Returns
+    -------
+    events : `list` [ `Event` ]
+        List of events.
     """
     return _get_events(family, tags or _fam_events_tags)

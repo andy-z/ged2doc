@@ -40,24 +40,23 @@ import ged2doc
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'numpydoc']
 
 
-def run_apidoc(_):
-    from sphinx.ext.apidoc import main
-    parentFolder = os.path.join(os.path.dirname(__file__), '..')
-    cur_dir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(parentFolder)
-    module = os.path.join(parentFolder, 'ged2doc')
-    main(['-e', '-f', '-o', cur_dir, module])
+autosummary_generate = ["api.rst"]
 
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'undoc-members': True,
+    'inherited-members': False,
+    'show-inheritance': True,
+    'private-members': True,
+}
 
-def setup(app):
-    # overrides for wide tables in RTD theme
-    app.add_stylesheet('theme_overrides.css')
-    # trigger the run_apidoc
-    app.connect('builder-inited', run_apidoc)
+autodoc_member_order = 'bysource'
 
+default_role = "py:obj"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -159,7 +158,7 @@ html_theme = 'default'
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.

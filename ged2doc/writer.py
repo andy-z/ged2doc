@@ -3,6 +3,7 @@
 
 __all__ = ["Writer"]
 
+import abc
 import locale
 import logging
 
@@ -16,11 +17,12 @@ from ged4py.date import DateValue
 
 _log = logging.getLogger(__name__)
 
-# this is no-op function, only used to mark translatable strings,
-# to extract all strings run "pygettext -k TR ..."
 
-
-def TR(x): return x  # NOQA
+def TR(x):
+    """This is no-op function, only used to mark translatable strings,
+    to extract all strings run ``pygettext -k TR ...``
+    """
+    return x  # NOQA
 
 
 def _spouse(person, fam):
@@ -36,7 +38,7 @@ def _spouse(person, fam):
     return None
 
 
-class Writer:
+class Writer(metaclass=abc.ABCMeta):
     """Base class for document writers.
 
     This class knows how to extract all relevant information from GEDCOM data
@@ -46,30 +48,36 @@ class Writer:
     into document-specific format. Subclasses will need to implement small set
     of methods (see _render methods below).
 
-    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
-    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
-    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
-        determined from file itself
-    :param str encoding_errors: Controls error handling behavior during string
-        decoding, one of "strict" (default), "ignore", or "replace".
-    :param sort_order: Determines ordering of person in output file, one of
-        the constants defined in :py:mod:`ged4py.model` module.
-    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
-    :param bool make_images: If ``True`` (default) then generate images for
-        persons.
-    :param bool make_stat: If ``True`` (default) then generate statistics
-        section.
-    :param bool make_toc: If ``True`` (default) then generate Table of
-        Contents.
-    :param bool events_without_dates: If ``True`` (default) then show events
-        that have no associated dates.
+    Parameters
+    ----------
+    flocator : `ged2doc.input.FileLocator`
+        File locator instance.
+    tr : `ged2doc.i18n.I18N`
+        Object supporting translation.
+    encoding : `str`, optional
+        GEDCOM file encoding, if ``None`` then encoding is determined from
+        file itself.
+    encoding_errors : `str`, optional
+        Controls error handling behavior during string decoding, one of
+        "strict" (default), "ignore", or "replace".
+    sort_order : `str`, optional
+        Determines ordering of person in output file, one of the constants
+        defined in `ged4py.model` module.
+    name_fmt : `int`, optional
+        Bit mask with flags from `ged2doc.name` module.
+    make_images : `bool`, optional
+        If ``True`` (default) then generate images for persons.
+    make_stat : `bool`, optional
+        If ``True`` (default) then generate statistics section.
+    make_toc : `bool`, optional
+        If ``True`` (default) then generate Table of Contents.
+    events_without_dates : `bool`, optional
+        If ``True`` (default) then show events that have no associated dates.
     """
-
     def __init__(self, flocator, tr, encoding=None, encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
                  make_images=True, make_stat=True, make_toc=True,
                  events_without_dates=True):
-
         self._floc = flocator
         self._encoding = encoding
         self._encoding_errors = encoding_errors
@@ -88,7 +96,6 @@ class Writer:
         writers, it will parse GEDCOM structure and produce output document
         from it.
         """
-
         gfile = self._floc.open_gedcom()
         if not gfile:
             raise OSError("Failed to locate input file")
@@ -162,7 +169,7 @@ class Writer:
                         'RELI', 'FACT']:
                 for attrib in indi_attr:
                     if attrib.tag == tag:
-                        attributes += [self._formatIndiAttr(person, attrib)]
+                        attributes += [self._format_indi_attr(person, attrib)]
 
             # all families as spouse
             families = []
@@ -243,7 +250,16 @@ class Writer:
         self._finalize()
 
     def _indi_sort_key(self, indi):
-        """Return name ordering key for individual
+        """Return name ordering key for individual.
+
+        Parameters
+        ----------
+        indi : `ged4py.model.Individual`
+            INDI record representation.
+
+        Returns
+        -------
+        order : `tuple` [ `str` ]
         """
         # make key from name, this is a tuple of unicode strings
         key = indi.name.order(self._sort_order)
@@ -257,6 +273,16 @@ class Writer:
         """Returns a list of events for a given person.
 
         Returned list contains tuples (date, info).
+
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record representation.
+
+        Returns
+        -------
+        events : `list` [ `tuple` ]
+            List of tuples with two elements: date and event information.
         """
         # collect all events from person and families
         events = []
@@ -327,16 +353,23 @@ class Writer:
         return sevents
 
     def _make_main_image(self, person):
-        '''Returns image for a person.
+        """Returns image for a person.
 
-        :param person: Individual record
-        :return: Bytes of the image data or None.
-        '''
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record representation.
+
+        Returns
+        -------
+        image_data : `bytes` or ``None``
+            Bytes of the image data or ``None``.
+        """
 
         if not self._make_images:
             return None
 
-        path = utils.personImageFile(person)
+        path = utils.person_image_file(person)
         if path:
 
             _log.debug('Found media file name %s', path)
@@ -353,7 +386,17 @@ class Writer:
         return None
 
     def _name_freq(self, people):
-        """Returns name frequency table,list of (name, count) ordered by name.
+        """Returns name frequency table.
+
+        Parameters
+        ----------
+        people : iterable of `ged4py.model.Individual`
+            Sequence of INDI records.
+
+        Returns
+        -------
+        table : `list` [ `tuple` ]
+            List of (name, count) ordered by name.
         """
         namefreq = {}
         for person in people:
@@ -364,12 +407,22 @@ class Writer:
         namefreq.sort()
         return namefreq
 
-    def _formatIndiAttr(self, person, attrib, prefix="ATTR."):
+    def _format_indi_attr(self, person, attrib, prefix="ATTR."):
         """Formatting of the individual's attributes.
 
-        :param Record person: Individual record
-        :param events.Event attrib: Attribute structure.
-        :return: Tuple (attribute, value).
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record representation.
+        attrib : `ged2doc.events.Event`
+            Attribute structure.
+        prefix : `str`, optional
+            Prefix added to attribute tag before translation.
+
+        Returns
+        -------
+        attribute : `tuple`
+            Tuple (attribute, value).
         """
 
         # for generic FACT attribute, use TYPE as fact name, we cannot
@@ -399,9 +452,20 @@ class Writer:
 
         Encoded reference consists of ASCII character SOH (\001) followed by
         reference ID, STX (\002), person name, and ETX (\003). This sequence
-        will be embedded in the text and it should be interpreted lated by a
+        will be embedded in the text and it should be interpreted later by
         subclasses to produce properly formatted reference in a backend-
         specific format.
+
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record representation.
+        name : `str`, optional
+            Name to use instead of person name.
+
+        Returns
+        -------
+        person_ref : `str`
         """
         if person is None:
             return None
@@ -409,75 +473,106 @@ class Writer:
             name = name_fmt(person.name, self._name_fmt)
         return utils.embed_ref(person.xref_id, name)
 
+    @abc.abstractmethod
     def _render_prolog(self):
         """Generate initial document header/title.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _render_section(self, level, ref_id, title, newpage=False):
         """Produces new section in the output document.
 
         This method should also save section reference so that TOC can be
-        later produced when :py:meth:`_render_toc` method is called.
+        later produced when `_render_toc` method is called.
 
-        :param int level: Section level (1, 2, 3, etc.).
-        :param str ref_id: Unique section identifier.
-        :param str title: Printable section name.
-        :param newpage: If ``True`` then start new page (for documents that
-                support pagination).
+        Parameters
+        ----------
+        level : `int`
+            Section level (1, 2, 3, etc.).
+        ref_id : `str`
+            Unique section identifier.
+        title : `str`
+            Printable section name.
+        newpage : `bool`, optional
+            If ``True`` then start new page (for documents that support
+            pagination).
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _render_person(self, person, image_data, attributes, families,
                        events, notes):
         """Output person information.
 
-        TExtual information in parameters to this method can include
-        references to other persons (e.g. moter/father). Such references are
-        embedded into text in encoded format determined by
-        :py:meth:`_person_ref` method. It is responsibility of the subclasses
-        to extract these references from text and re-encode them using proper
-        bacenf representation.
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record representation.
+        image_data : `bytes` or ``None``
+            Either `None` or binary image data (typically content of JPEG
+            image).
+        attributes : `list` [ `tuple` ]
+            List of (attr_name, text) tuples, may be empty.
+        families : `list` [ `str` ]
+            List of strings (possibly empty), each string contains description
+            of one family and should be typically rendered as a separate
+            paragraph.
+        events : `list` [ `tuple` ]
+            List of (date, text) tuples, may be empty. Date is properly
+            formatted string and does not need any other formatting.
+        notes : `list` [ `str` ]
+            List of strings, each string should be rendered as separate
+            paragraph.
 
-        :param person: :py:class:`ged4py.Individual` instance
-        :param bytes image_data: Either `None` or binary image data (typically
-                content of JPEG image)
-        :param list attributes: List of (attr_name, text) tuples, may be empty.
-        :param list families: List of strings (possibly empty), each string
-                contains description of one family and should be typically
-                rendered as a separate paragraph.
-        :param list events: List of (date, text) tuples, may be empty. Date
-                is properly formatted string and does not need any other
-                formatting.
-        :param list notes: List of strings, each string should be rendered
-                as separate paragraph.
+        Notes
+        -----
+        Textual information in parameters to this method can include
+        references to other persons (e.g. mother/father). Such references are
+        embedded into text in encoded format determined by `_person_ref`
+        method. It is responsibility of the subclasses to extract these
+        references from text and re-encode them using proper backend
+        representation.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _render_name_stat(self, n_total, n_females, n_males):
         """Produces summary table.
 
         Sum of male and female counters can be lower than total count due to
         individuals with unknown/unspecified gender.
 
-        :param int n_total: Total number of individuals.
-        :param int n_females: Number of female individuals.
-        :param int n_males: Number of male individuals.
+        Parameters
+        ----------
+        n_total : `int`
+            Total number of individuals.
+        n_females : `int`
+            Number of female individuals.
+        n_males : `int`
+            Number of male individuals.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _render_name_freq(self, freq_table):
         """Produces name statistics table.
 
-        :param freq_table: list of (name, count) tuples.
+        Parameters
+        ----------
+        freq_table : `list` [ `tuple` ]
+            List of (name, count) tuples.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _render_toc(self):
-        """Produce table of contents using info collected in _render_section().
+        """Produce table of contents using info collected in
+        `_render_section()`.
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def _finalize(self):
         """Finalize output.
         """

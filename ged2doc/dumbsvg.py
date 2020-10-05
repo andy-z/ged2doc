@@ -10,8 +10,10 @@ __all__ = ['Doc', 'Element', 'Line', 'Rect', 'Text', 'Tspan', 'Hyperlink']
 class Doc:
     """Class for SVG document, top-level structure.
 
-    :param width: Document width, int for pixels or string.
-    :param height: Document height, int for pixels or string.
+    Parameters
+    ----------
+    width, height : `int` or `str`
+        Document width and height, int for pixels or string.
     """
     def __init__(self, width, height):
         self._width = width
@@ -25,17 +27,26 @@ class Doc:
     def add(self, element):
         """Add new element to the document.
 
-        :param Element element: Instance of :py:class:`Element`.
+        Parameters
+        ----------
+        element : `Element`
+            Element to add.
         """
         self._top.add(element)
 
     def xml(self, full_xml=True):
         """Produce XML representation of the document.
 
-        :param boolean full_xml: If True then proper XML header is added.
-        :return: String (unicode) with XML.
-        """
+        Parameters
+        ----------
+        full_xml : `bool`, optional
+            If True then proper XML header is added.
 
+        Returns
+        -------
+        doc : `str`
+            String containing XML.
+        """
         text = ""
         if full_xml:
             text += '<?xml version="1.0" standalone="no"?>\n'\
@@ -48,9 +59,14 @@ class Doc:
 class Element:
     """Base class for all SVG elements.
 
-    :param str tag: SVG tag name
-    :param list attributes: List of tuples (attribute, attr_value)
-    :param str value: element value (text).
+    Parameters
+    ----------
+    tag : `str`
+        SVG tag name
+    attributes :`list` [ `tuple` ], optional
+        List of tuples (attribute, attr_value).
+    value : `str`, optional
+        Element value (text).
     """
     def __init__(self, tag, attributes=None, value=""):
         self._tag = tag
@@ -61,12 +77,20 @@ class Element:
     def add(self, element):
         """Add new sub-element to the element.
 
-        :param Element element: Instance of :py:class:`Element`.
+        Parameters
+        ----------
+        element : `Element`
+            Element to add.
         """
         self._elements.append(element)
 
     def xml(self):
         """Produce XML fragment for this element.
+
+        Returns
+        -------
+        xml : `str`
+            String containing XML fragment.
         """
         lines = []
         txt = "<" + self._tag
@@ -87,6 +111,13 @@ class Element:
 
 class Line(Element):
     """Class for SVG line element.
+
+    Parameters
+    ----------
+    x1, y1, x2, y2 : `str`
+        Coordinates of line ends.
+    style : `str`, optional
+        Line style.
     """
     def __init__(self, x1, y1, x2, y2, style=None):
         attr = [("x1", x1), ("y1", y1), ("x2", x2), ("y2", y2)]
@@ -97,6 +128,15 @@ class Line(Element):
 
 class Rect(Element):
     """Class for SVG rect element.
+
+    Parameters
+    ----------
+    x, y : `str`
+        Coordinates of top left corner of the box.
+    width, height : `str`
+        Width and height of the box.
+    style : `str`, optional
+        Line style.
     """
     def __init__(self, x, y, width, height, style=None):
         attr = [("x", x), ("y", y), ("width", width), ("height", height)]
@@ -107,6 +147,19 @@ class Rect(Element):
 
 class Text(Element):
     """Class for SVG text element.
+
+    Parameters
+    ----------
+    value : `str`, optional
+        Text to display.
+    font_size : `str`, optional
+        Font size for text.
+    text_anchor : `str`
+        Text anchor property.
+    style : `str`, optional
+        Text style.
+    class_ : `str`, optional
+        Text CSS class.
     """
     def __init__(self, value="", font_size=None, text_anchor=None,
                  style=None, class_=None):
@@ -124,6 +177,13 @@ class Text(Element):
 
 class Tspan(Element):
     """Class for SVG tspan element.
+
+    Parameters
+    ----------
+    x, y : `str`
+        Coordinates of the box.
+    value : `str`, optional
+        Text to display.
     """
     def __init__(self, x, y, value=""):
         attr = [("x", x), ("y", y)]
@@ -132,6 +192,11 @@ class Tspan(Element):
 
 class Hyperlink(Element):
     """Class for SVG "a" element.
+
+    Parameters
+    ----------
+    href : `str`
+        Hyperlink value.
     """
     def __init__(self, href):
         attr = [("xlink:href", href)]

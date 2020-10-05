@@ -23,57 +23,75 @@ from odf import text, style, draw, table
 _log = logging.getLogger(__name__)
 
 
-# page layout, size and margins
 PageLayout = namedtuple("PageLayout", "width height left right top bottom")
+"""Class representing page layout, size and margins
 
-# this is no-op function, only used to mark translatable strings,
-# to extract all strings run "pygettext -k TR ..."
+Attributes
+----------
+width, height : ged2doc.size.Size`
+    Page size.
+left, right, top, bottom : `ged2doc.size.Size`
+    Page margins.
+"""
 
 
-def TR(x): return x  # NOQA
+def TR(x):
+    """This is no-op function, only used to mark translatable strings,
+    to extract all strings run ``pygettext -k TR ...``
+    """
+    return x  # NOQA
 
 
 class OdtWriter(writer.Writer):
     """Transforms GEDCOM file into nicely formatted OpenDocument Text (ODT).
 
-    This is a sub-class of :py:class:`~ged2doc.writer.Writer` class providing
+    This is a sub-class of `~ged2doc.writer.Writer` class providing
     implementation for rendering methods which transform GEDCOM info into
     ODT structures. Constructor takes a large number of arguments which
     configure appearance of the resulting HTML page. After instantiating
-    an object of this type one has to call
-    :py:meth:`~ged2doc.writer.Writer.save` method to produce output file.
+    an object of this type one has to call `~ged2doc.writer.Writer.save`
+    method to produce output file.
 
-    :param flocator: Instance of :py:class:`ged2doc.input.FileLocator`
-    :param str output: Name for the output file or file object
-    :param tr: Instance of :py:class:`ged2doc.i18n.I18N` class
-    :param str encoding: GEDCOM file encoding, if ``None`` then encoding is
-        determined from file itself
-    :param str encoding_errors: Controls error handling behavior during string
-        decoding, one of "strict" (default), "ignore", or "replace".
-    :param sort_order: Determines ordering of person in output file, one of
-        the constants defined in :py:mod:`ged4py.model` module.
-    :param int name_fmt: Bit mask with flags from :py:mod:`ged2doc.name`
-    :param bool make_images: If ``True`` (default) then generate images for
-        persons.
-    :param bool make_stat: If ``True`` (default) then generate statistics
-        section.
-    :param bool make_toc: If ``True`` (default) then generate Table of
-        Contents.
-    :param bool events_without_dates: If ``True`` (default) then show events
-        that have no associated dates.
-    :param Size page_width: Page width of the produced document.
-    :param Size page_height: Page height of the produced document.
-    :param Size margin_left: Left page margin of the produced document.
-    :param Size margin_right: Right page margin of the produced document.
-    :param Size margin_top: Top page margin of the produced document.
-    :param Size margin_bottom: Bottom page margin of the produced document.
-    :param Size image_width: Size of the images.
-    :param Size image_height: Size of the images.
-    :param int tree_width: Number of generations in ancestor tree.
-    :param int first_page: Number of the first generated page.
-    :param str tree_format: Image format for ancestor tree, "emf" or "svg".
+    Parameters
+    ----------
+    flocator : `ged2doc.input.FileLocator`
+        File locator instance.
+    output : `str` or `io.TextIOBase`
+        Name for the output file or file object.
+    tr : `ged2doc.i18n.I18N`
+        Object supporting translation.
+    encoding : `str`, optional
+        GEDCOM file encoding, if ``None`` then encoding is determined from
+        file itself.
+    encoding_errors : `str`, optional
+        Controls error handling behavior during string decoding, one of
+        "strict" (default), "ignore", or "replace".
+    sort_order : `str`, optional
+        Determines ordering of person in output file, one of the constants
+        defined in `ged4py.model` module.
+    name_fmt : `int`, optional
+        Bit mask with flags from `ged2doc.name` module.
+    make_images : `bool`, optional
+        If ``True`` (default) then generate images for persons.
+    make_stat : `bool`, optional
+        If ``True`` (default) then generate statistics section.
+    make_toc : `bool`, optional
+        If ``True`` (default) then generate Table of Contents.
+    events_without_dates : `bool`, optional
+        If ``True`` (default) then show events that have no associated dates.
+    page_width, page_height : `ged2doc.size.Size`, optional
+        Page size of the produced document.
+    margin_left, margin_right, margin_top, margin_bottom : `ged2doc.size.Size`, optional
+        Page margins of the produced document.
+    image_width, image_height : `ged2doc.size.Size`, optional
+        Size of the images.
+    tree_width : `int`
+        Number of generations in ancestor tree.
+    first_page : `int`
+        Number of the first generated page.
+    tree_format : `str`
+        Image format for ancestor tree, "emf" or "svg".
     """
-
     def __init__(self, flocator, output, tr, encoding=None,
                  encoding_errors="strict",
                  sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
@@ -117,7 +135,17 @@ class OdtWriter(writer.Writer):
         self.doc = doc
 
     def _make_layout(self, doc, layout, firstpage):
-        # set paper dimensions
+        """Set paper dimensions.
+
+        Parameters
+        ----------
+        doc : `OpenDocumentText`
+            ODT document object.
+        layout : `PageLayout`
+            ODT page layout.
+        firstpage : `int`
+            Number of the first generated page.
+        """
         pageLayout = style.PageLayout(name="pl1")
         doc.automaticstyles.addElement(pageLayout)
         plProp = style.PageLayoutProperties(pageheight=str(layout.height),
@@ -145,7 +173,15 @@ class OdtWriter(writer.Writer):
         doc.masterstyles.addElement(masterpage)
 
     def _make_styles(self, doc, layout):
+        """Generate set of styles for the document.
 
+        Parameters
+        ----------
+        doc : `OpenDocumentText`
+            ODT document object.
+        layout : `PageLayout`
+            ODT page layout.
+        """
         styles = {}
 
         # heading styles, occupies whole page, centered
@@ -244,8 +280,17 @@ class OdtWriter(writer.Writer):
         return styles
 
     def _interpolate(self, text):
-        """Takes text with embedded references and returns proporly
-        escaped text with HTML links.
+        """Takes text with embedded references and returns text.
+
+        Parameters
+        ----------
+        text : `str`
+            Arbitrary text with references.
+
+        Returns
+        -------
+        text : `str`
+            Resulting text.
         """
         result = ""
         for piece in utils.split_refs(text):
@@ -257,20 +302,11 @@ class OdtWriter(writer.Writer):
         return result
 
     def _render_prolog(self):
-        """Generate initial document header/title.
-        """
+        # docstring inherited from base class
         pass
 
     def _render_section(self, level, ref_id, title, newpage=False):
-        """Produces new section in the output document.
-
-        This method should also save section reference so that TOC can be
-        later produced when :py:meth:`_render_toc` method is called.
-
-        :param int level: Section level (1, 2, 3, etc.).
-        :param str ref_id: Unique section identifier.
-        :param str title: Printable section name.
-        """
+        # docstring inherited from base class
         style = "h" + str(level)
         if newpage:
             style += "br"
@@ -282,35 +318,11 @@ class OdtWriter(writer.Writer):
 
     def _render_person(self, person, image_data, attributes, families,
                        events, notes):
-        """Output person information.
-
-        TExtual information in parameters to this method can include
-        references to other persons (e.g. moter/father). Such references are
-        embedded into text in encoded format determined by
-        :py:meth:`_person_ref` method. It is responsibility of the subclasses
-        to extract these references from text and re-encode them using proper
-        bacenf representation.
-
-        :param person: :py:class:`ged4py.Individual` instance
-        :param bytes image_data: Either `None` or binary image data (typically
-                content of JPEG image)
-        :param list attributes: List of (attr_name, text) tuples, may be empty.
-        :param list families: List of strings (possibly empty), each string
-                contains description of one family and should be typically
-                rendered as a separate paragraph.
-        :param list events: List of (date, text) tuples, may be empty. Date
-                is properly formatted string and does not need any other
-                formatting.
-        :param list notes: List of strings, each string should be rendered
-                as separate paragraph.
-        :param tuple tree_svg: `None` or tuple containing SVG element with
-                ancestor tree (only <svg> but no XML header), MIME type of
-                data, and image width and height
-        """
+        # docstring inherited from base class
 
         # image if present
         if image_data:
-            imgframe = self._getImageFragment(image_data)
+            imgframe = self._get_image_fragment(image_data)
             if imgframe:
                 p = text.P()
                 imgframe.setAttribute('stylename', self.styles['img'])
@@ -346,15 +358,7 @@ class OdtWriter(writer.Writer):
         self._make_ancestor_tree(person)
 
     def _render_name_stat(self, n_total, n_females, n_males):
-        """Produces summary table.
-
-        Sum of male and female counters can be lower than total count due to
-        individuals with unknown/unspecified gender.
-
-        :param int n_total: Total number of individuals.
-        :param int n_females: Number of female individuals.
-        :param int n_males: Number of male individuals.
-        """
+        # docstring inherited from base class
         items = ((TR('Person count'), n_total),
                  (TR('Female count'), n_females),
                  (TR('Male count'), n_males))
@@ -363,10 +367,7 @@ class OdtWriter(writer.Writer):
             self.doc.text.addElement(p)
 
     def _render_name_freq(self, freq_table):
-        """Produces name statistics table.
-
-        :param freq_table: list of (name, count) tuples.
-        """
+        # docstring inherited from base class
         def _gencouples(namefreq):
             halflen = (len(namefreq) + 1) // 2
             for i in range(halflen):
@@ -413,8 +414,7 @@ class OdtWriter(writer.Writer):
         self.doc.text.addElement(tbl)
 
     def _render_toc(self):
-        """Produce table of contents using info collected in _render_section().
-        """
+        # docstring inherited from base class
         self.doc.text.addElement(text.P(text='', stylename=self.styles['br']))
         toc = text.TableOfContent(name='TOC')
         tocsrc = text.TableOfContentSource(outlinelevel=2)
@@ -425,17 +425,27 @@ class OdtWriter(writer.Writer):
         self.doc.text.addElement(toc)
 
     def _finalize(self):
-        """Finalize output.
-        """
+        # docstring inherited from base class
+
         # save the result
         if hasattr(self._output, 'write'):
             self.doc.write(self._output)
         else:
             self.doc.save(self._output)
 
-    def _getImageFragment(self, image_data):
-        '''Adds Image to the document as person's picture.
-        '''
+    def _get_image_fragment(self, image_data):
+        """Adds Image to the document as person's picture.
+
+        Parameters
+        ----------
+        image_data : `bytes`
+            Image data.
+
+        Returns
+        -------
+        frame : `odf.draw.Frame`
+            Frame containing image.
+        """
 
         try:
             img = Image.open(io.BytesIO(image_data))
@@ -461,7 +471,10 @@ class OdtWriter(writer.Writer):
     def _make_ancestor_tree(self, person):
         """"Add a picture for ancestor tree.
 
-        :param person: Individual record
+        Parameters
+        ----------
+        person : `ged4py.model.Individual`
+            INDI record
         """
         width = self.layout.width - self.layout.left - self.layout.right
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")

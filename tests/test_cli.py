@@ -5,7 +5,7 @@ import pytest
 import shutil
 import tempfile
 
-from ged2doc.cli import _makeWriter
+from ged2doc.cli import _make_writer
 from ged2doc.utils import languages
 from ged2doc.i18n import DATE_FORMATS
 
@@ -30,5 +30,5 @@ def tmp_folder():
 def test_writer(data_folder, tmp_folder, type, lang, datefmt):
     input = os.path.join(data_folder, "allged.ged")
     output = os.path.join(tmp_folder, "output." + type)
-    args, writer = _makeWriter(["-t", type, "-l", lang, "-d", datefmt, input, output])
+    args, writer = _make_writer(["-t", type, "-l", lang, "-d", datefmt, input, output])
     writer.save()

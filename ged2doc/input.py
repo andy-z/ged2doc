@@ -43,6 +43,7 @@ for images.
 
 __all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
 
+import abc
 import errno
 import fnmatch
 import io
@@ -63,10 +64,11 @@ class MultipleMatchesError(RuntimeError):
     pass
 
 
-class FileLocator:
+class FileLocator(metaclass=abc.ABCMeta):
     """Abstract interface for file locator instances.
     """
 
+    @abc.abstractmethod
     def open_gedcom(self):
         """Returns file object for the input GEDCOM file.
 
@@ -78,13 +80,20 @@ class FileLocator:
         ``seek()`` and ``tell()`` methods. Note that this may be a temporary
         file which will be deleted after file is closed.
 
-        :return: File object open in binary mode supporting ``seek()``
-                and ``tell()`` methods.
-        :raises: :py:exc:`MultipleMatchesError` in case more than one file
-                file is found.
-        """
-        raise NotImplementedError("Method open_gedcom() is not implemented")
+        Returns
+        -------
+        file
+            File object open in binary mode supporting ``seek()`` and
+            ``tell()`` methods.
 
+        Raises
+        ------
+        MultipleMatchesError
+            Raised if more than one file file is found.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
     def open_image(self, name):
         """Returns open file object for the named image file.
 
@@ -96,14 +105,24 @@ class FileLocator:
         an object inside zip archive for example) so you may need to copy it if
         you want full file protocol support.
 
-        :param str name: Name of the image file to open. This can be relative
-                or absolute path name. Usually this is the name that is
-                stored in GEDCOM file and it can use separator character which
-                is different from a system reading this file.
-        :return: File object open in binary mode, only ``read()`` method is
-                guaranteed to work.
-        :raises: :py:exc:`MultipleMatchesError` in case more than one file
-                file is found.
+        Parameters
+        ----------
+        name : `str`
+            Name of the image file to open. This can be relative or absolute
+            path name. Usually this is the name that is stored in GEDCOM file
+            and it can use separator character which is different from a
+            system reading this file.
+
+        Returns
+        -------
+        image
+            File object open in binary mode, only ``read()`` method is
+            guaranteed to work.
+
+        Raises
+        ------
+        MultipleMatchesError
+            Raised if more than one file is found.
         """
         raise NotImplementedError("Method open_image() is not implemented")
 
@@ -114,8 +133,12 @@ class _Path:
     In this representation path is a just a sequence of path components -
     zero or more folders and a file name.
 
-    :param list components: List of (unicode) strings representing path
-    :param str dirname: optional prefix directory
+    Parameters
+    ----------
+    components : `list` [ `str` ]
+        List of (unicode) strings representing path.
+    dirname : `str`, optional
+        Optional prefix directory.
     """
 
     def __init__(self, components, dirname=None):
@@ -126,8 +149,12 @@ class _Path:
     def from_path(cls, path, dirname=None):
         """Construct instance of this type from full path name.
 
-        :param str: (unicode) string representing path
-        :param str dirname: optional prefix directory
+        Parameters
+        ----------
+        path : `str`
+            String representing path.
+        dirname : `str`, optional
+            Optional prefix directory.
         """
         # Trouble here is that GEDCOM file can be prepared on different type
         # of system with different path separator. First try to convert path
@@ -145,6 +172,16 @@ class _Path:
         """Returns match "rank" with the other path.
 
         Rank is a count of identical matching components at the end of paths.
+
+        Parameters
+        ----------
+        other : `_Path`
+            Path instance to match.
+
+        Returns
+        -------
+        rank : `int`
+            Match rank.
         """
         if self.components[-1] != other.components[-1]:
             return 0
@@ -157,6 +194,12 @@ class _Path:
         return rank
 
     def os_path(self):
+        """Return full path of the file as a string.
+
+        Returns
+        -------
+        path : `str`
+        """
         if self.dirname:
             return os.path.join(self.dirname, *self.components)
         else:
@@ -166,11 +209,11 @@ class _Path:
         return "/".join(self.components)
 
 
-class _FileSearch:
+class _FileSearch(metaclass=abc.ABCMeta):
     """Implementation of recursive file search in a folder tree.
 
     This is an abstract class which can match files but does not know how
-    to build folder tree. Sub classes must implement _paths() method which
+    to build folder tree. Sub classes must implement `_paths()` method which
     returns the list of file "paths" to match.
     """
 
@@ -189,11 +232,14 @@ class _FileSearch:
         return [_FileSearch._enc(comp) for comp in path]
 
     def find_file(self, name):
-        '''Returns file path for the named file.
+        """Returns file path for the named file.
 
-        :param str name: File name to search, this is usually the path as
-                it comes directly from GEDCOM file.
-        '''
+        Parameters
+        ----------
+        name : `str`
+            File name to search, this is usually the path as it comes directly
+            from GEDCOM file.
+        """
 
         path = _Path.from_path(name)
 
@@ -230,9 +276,14 @@ class _FileSearch:
             self._path_cache = self._paths()
         return self._path_cache
 
+    @abc.abstractmethod
     def _paths(self):
         """Return list of file paths (_Path instances), must be implemented
         in a subclass.
+
+        Returns
+        -------
+        paths : `list` [ `_Path` ]
         """
         raise NotImplementedError()
 
@@ -245,7 +296,10 @@ class _FSFileSearch(_FileSearch):
     convert self._path to unicode using UTF-8 encoding. This could fail in
     some cases.
 
-    :param str path: Directory on a file system to search for files.
+    Parameters
+    ----------
+    path : `str`
+        Directory on a file system to search for files.
     """
 
     def __init__(self, path):
@@ -255,8 +309,7 @@ class _FSFileSearch(_FileSearch):
         self._path = path
 
     def _paths(self):
-        """Return list of file paths (_Path instances).
-        """
+        # docstring inherited from _FileSearch class
         _log.debug("_FSFileSearch.find_file: recursively scan "
                    "directory %r", self._path)
         if self._path is None:
@@ -267,6 +320,17 @@ class _FSFileSearch(_FileSearch):
     def _scan(self, path, current=None):
         """Recursively scan folder, return each file path as a list of
         its components.
+
+        Parameters
+        ----------
+        path : `str`
+            Filesystem directory to scan.
+        current : `list` [ `str` ], optional
+            Current context, to support recursion.
+
+        Yields
+        ------
+        path : `_Path`
         """
         for fname in os.listdir(path):
             fpath = os.path.join(path, fname)
@@ -284,16 +348,16 @@ class _FSFileSearch(_FileSearch):
 class _ZIPFileSearch(_FileSearch):
     """Implementation of recursive file search on file system.
 
-    :param list toc: list of entries in ZIP archive.
+    Parameters
+    ----------
+    toc : `list` [ `str` ]
+        List of entries in ZIP archive.
     """
-
     def __init__(self, toc):
-
         self._toc = toc
 
     def _paths(self):
-        """Return list of file paths (_Path instances).
-        """
+        # docstring inherited from _FileSearch class
         paths = []
         for entry in self._toc:
             paths.append(_Path([comp for comp in entry.split('/') if comp]))
@@ -301,19 +365,21 @@ class _ZIPFileSearch(_FileSearch):
 
 
 class _FSLocator(FileLocator):
-    """Implementation of FileLocator interface which can find files located
+    """Implementation of `FileLocator` interface which can find files located
     on a regular file system.
 
-    :param str input_file: Path of the input GEDCOM file or file object.
-            If argument is a file object then it must support ``seek()``
-            method and be open in a binary mode.
-    :param str image_path: Directory on a file system where images are found.
-            Images could be located in sub-directories of the given path.
-            If ``image_path`` is ``None`` then file system is not searched for
-            files. If `image_path` is an empty string then current directory is
-            searched.
+    Parameters
+    ----------
+    input_file : `str`
+        Path of the input GEDCOM file or file object. If argument is a file
+        object then it must support ``seek()`` method and be open in a binary
+        mode.
+    image_path : `str`
+        Directory on a file system where images are found. Images could be
+        located in sub-directories of the given path. If ``image_path`` is
+        ``None`` then file system is not searched for files. If ``image_path``
+        is an empty string then current directory is searched.
     """
-
     def __init__(self, input_file, image_path=None):
 
         self._input_file = input_file
@@ -331,8 +397,7 @@ class _FSLocator(FileLocator):
         self._fsearch = _FSFileSearch(image_path)
 
     def open_gedcom(self):
-        '''Returns file object for the input GEDCOM file.'''
-
+        # docstring inherited from base class
         _log.debug("_FSLocator.open_gedcom")
         if hasattr(self._input_file, 'read'):
             # it's likely a file
@@ -340,17 +405,15 @@ class _FSLocator(FileLocator):
         return io.open(self._input_file, 'rb')
 
     def open_image(self, name):
-        '''Returns file object for the named image file.
+        # docstring inherited from base class
 
-        `name` could be an absolute or relative path name, usually this is
-        the name given in GEDCOM file. GEDCOM file can be prepared on a
-        a different type of system where file names can use different
-        separators. This method first tries to open the file using argument
-        as a file name, if that does not succeed then it strips folder part
-        from file name and tries to search recursively for that file name
-        in the configured folder.
-        '''
-
+        # `name` could be an absolute or relative path name, usually this is
+        # the name given in GEDCOM file. GEDCOM file can be prepared on a
+        # a different type of system where file names can use different
+        # separators. This method first tries to open the file using argument
+        # as a file name, if that does not succeed then it strips folder part
+        # from file name and tries to search recursively for that file name
+        # in the configured folder.
         _log.debug("_FSLocator.open_image: find image %s", name)
 
         # first, if file name looks like absolute path (on current OS)
@@ -380,19 +443,22 @@ class _FSLocator(FileLocator):
 
 
 class _ZipLocator(FileLocator):
-    """Implementation of FileLocator interface which can find files located
+    """Implementation of `FileLocator` interface which can find files located
     in zip archive.
 
-    :param str input_file: Path of the input ZIP file or file object.
-    :param str file_name_pattern: name pattern to search for a GEDCOM file
-    :param str image_path: Directory on a filesystem where images are found.
-            Images could be located in sub-directories of the given path.
-            Images are searched inside ZIP archive and then in ``image_path``.
-            If ``image_path`` is ``None`` then filesystem is not searched
-            for files. If ``image_path`` is an empty string then current
-            directory is searched.
+    Parameters
+    ----------
+    input_file : `str`
+        Path of the input ZIP file or file object.
+    file_name_pattern : `str`
+        Name pattern (in ``fnmatch`` syntax) to search for a GEDCOM file.
+    image_path : `str`
+        Directory on a filesystem where images are found. Images could be
+        located in sub-directories of the given path. Images are searched
+        inside ZIP archive and then in ``image_path``. If ``image_path`` is
+        ``None`` then filesystem is not searched for files. If ``image_path``
+        is an empty string then current directory is searched.
     """
-
     def __init__(self, input_file, file_name_pattern, image_path):
         self._zip = zipfile.ZipFile(input_file, 'r')
         self._toc = self._zip.namelist()
@@ -401,8 +467,7 @@ class _ZipLocator(FileLocator):
         self._fsearch = _FSFileSearch(image_path)
 
     def open_gedcom(self):
-        '''Returns file object for the input GEDCOM file.'''
-
+        # docstring inherited from base class
         matches = [f for f in self._toc if fnmatch.fnmatch(f, self._pattern)]
         if not matches:
             return None
@@ -421,8 +486,7 @@ class _ZipLocator(FileLocator):
         return fobj
 
     def open_image(self, name):
-        '''Returns file object for the named image file.'''
-
+        # docstring inherited from base class
         _log.debug("_ZipLocator.open_image: find image %s", name)
 
         _log.debug('_ZipLocator.open_image: Trying archive name %r', name)
@@ -454,23 +518,36 @@ def make_file_locator(input_file, file_name_pattern, image_path):
     corresponding file locator object (instance of :py:class:`FileLocator`
     type).
 
-    :param input_file: Path of the input file or file object, can be a ZIP
-            archive or a GEDCOM file. If argument is a file object then it
-            must support ``seek()`` method and be open in a binary mode.
-    :param str file_name_pattern: If input file is a ZIP archive then this
-            pattern is used to search for a GEDCOM file in archive. Could
-            be ``"*.ged"`` for example or can include more specific pattern.
-    :param str image_path: Directory on a filesystem where images are found.
-            Images could be located in sub-directories of the given path.
-            If ``file_name`` is a ZIP archive then images are searched inside
-            ZIP archive and then in ``image_path``. If ``image_path`` is
-            ``None`` then filesystem is not searched for files. If
-            ``image_path`` is an empty string then current directory is
-            searched.
-    :return: :py:class:`FileLocator` instance.
-    :raises OSError: if file is not found
-    :raises AttributeError: if file object is given as input file but it
-            does not support ``seek()`` method.
+    Parameters
+    ----------
+    input_file
+        Path of the input file or file object, can be a ZIP archive or a
+        GEDCOM file. If argument is a file object then it must support
+        ``seek()`` method and be open in a binary mode.
+    file_name_pattern : `str`
+        If input file is a ZIP archive then this pattern is used to search
+        for a GEDCOM file in archive. Could be ``"*.ged"`` for example or can
+        include more specific pattern.
+    image_path : `str`
+        Directory on a filesystem where images are found. Images could be
+        located in sub-directories of the given path. If ``file_name`` is a
+        ZIP archive then images are searched inside ZIP archive and then in
+        ``image_path``. If ``image_path`` is ``None`` then filesystem is not
+        searched for files. If ``image_path`` is an empty string then current
+        directory is searched.
+
+    Returns
+    -------
+    locator : `FileLocator`
+        File locator instance.
+
+    Raises
+    ------
+    OSError
+        Raised if file is not found.
+    AttributeError
+        Raised if file object is given as input file but it does not support
+        ``seek()`` method.
     """
 
     if zipfile.is_zipfile(input_file):

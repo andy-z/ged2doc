@@ -49,8 +49,8 @@ def test_002_resize():
     assert resized == (10, 5)
 
 
-def test_050_personImageFile():
-    """Test personImageFile method."""
+def test_050_person_image_file():
+    """Test person_image_file method."""
 
     # FORM is subordinate of OBJE
     dialect = model.DIALECT_MYHERITAGE
@@ -62,7 +62,7 @@ def test_050_personImageFile():
                              file, form], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file.jpeg"
+    assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of FILE
     dialect = model.DIALECT_MYHERITAGE
@@ -74,7 +74,7 @@ def test_050_personImageFile():
                              file], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file.jpeg"
+    assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of OBJE
     dialect = model.DIALECT_MYHERITAGE
@@ -86,7 +86,7 @@ def test_050_personImageFile():
                              file, form], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) is None
+    assert utils.person_image_file(person) is None
 
     # FORM is subordinate of FILE
     dialect = model.DIALECT_MYHERITAGE
@@ -98,7 +98,7 @@ def test_050_personImageFile():
                              file], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) is None
+    assert utils.person_image_file(person) is None
 
     # _PRIM flag is set on one of the two OBJE
     dialect = model.DIALECT_MYHERITAGE
@@ -118,10 +118,10 @@ def test_050_personImageFile():
                               file, form, prim_y], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje1, obje2], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file_primary.jpg"
+    assert utils.person_image_file(person) == "/path/to/file_primary.jpg"
     person = model.make_record(0, None, "INDI", "", [
                                obje2, obje1], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file_primary.jpg"
+    assert utils.person_image_file(person) == "/path/to/file_primary.jpg"
 
     # multiple FILEs per OBJE, choose JPG over WAV
     dialect = model.DIALECT_MYHERITAGE
@@ -137,12 +137,12 @@ def test_050_personImageFile():
                              file1, file2], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file.jpeg"
+    assert utils.person_image_file(person) == "/path/to/file.jpeg"
     obje = model.make_record(1, None, "OBJE", "", [
                              file2, file1], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [
                                obje], 0, dialect, None).freeze()
-    assert utils.personImageFile(person) == "/path/to/file.jpeg"
+    assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
 
 def test_60_embed_ref():

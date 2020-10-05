@@ -3,9 +3,9 @@
 It covers all aspects that are language- or locale-dependent. In particular
 it does these things:
 
-  - translates short string messages from application language into output
-    language
-  - translates dates into printable format according to locale preferences
+- translates short string messages from application language into output
+  language
+- translates dates into printable format according to locale preferences
 
 Note that we do not use system locale, instead we expect client to provide
 small set of configuration options such as output language and date format.
@@ -35,9 +35,13 @@ DEFAULT_DATE_FORMAT = {
     "ru": "D.M.Y"
     }
 
-# this is no-op function, only used to mark translatable strings,
-# to extract all strings run "pygettext -k TR ..."
-TR = lambda x: x  # NOQA
+
+def TR(x):
+    """This is no-op function, only used to mark translatable strings,
+    to extract all strings run ``pygettext -k TR ...``
+    """
+    return x  # NOQA
+
 
 # These are extra strings that do not appear in the source as they are
 # constructed dynamically. List all of them here so that pygettext could
@@ -207,11 +211,15 @@ class _TemplateDateVisitor(DateValueVisitor):
 class I18N:
     """Class with methods responsible for various aspects of translations.
 
-    :param str lang: Output language such as "en", "ru".
-    :param str datefmt: Printable date format.
-    :param domain: gettext domain (message file name)
+    Parameters
+    ----------
+    lang : `str`
+        Output language such as "en", "ru".
+    datefmt : `str`, optional
+        Printable date format.
+    domain : `str`, optional
+        ``gettext`` domain (message file name).
     """
-
     def __init__(self, lang, datefmt=None, domain="ged2doc"):
         self._lang = lang
         self._datefmt = datefmt
@@ -232,10 +240,19 @@ class I18N:
             _LOG.warning("Cannot locate translations for language %r", lang)
 
     def tr(self, text, gender=None):
-        """Translates given text , takes into account gender.
+        """Translates given text, takes into account gender.
 
-        :param str text: Text to translate
-        :param str gender: One of 'F', 'M', 'U', or None.
+        Parameters
+        ----------
+        text : `str`
+            Text to translate.
+        gender : `str`, optional
+            One of 'F', 'M', 'U', or ``None``.
+
+        Returns
+        -------
+        text : `str`
+            Translated text.
         """
         _LOG.debug("text = %r", text)
         if self._tr:
@@ -258,8 +275,14 @@ class I18N:
     def tr_date(self, date):
         """Produce language-specific date representation.
 
-        :param date: Instance of :py:class:`ged4py.date.DateValue`.
-        :return: String representation of a date.
+        Parameters
+        ----------
+        date : `ged4py.date.DateValue`
+
+        Returns
+        -------
+        text_date : `str`
+            String representation of a date.
         """
         visitor = _TemplateDateVisitor()
         tmpl, datekw = date.accept(visitor)
@@ -280,8 +303,14 @@ class I18N:
         Uses date format provided in constructor, month name is translated
         into a destination language.
 
-        :param date: Instance of :py:class:`ged4py.date.CalendarDate`.
-        :return: String representation of a date.
+        Parameters
+        ----------
+        date : `ged4py.date.CalendarDate`
+
+        Returns
+        -------
+        text_date : `str`
+            String representation of a date.
         """
         items = []
         for code in self._datefmt:
@@ -317,8 +346,15 @@ class I18N:
 
         For a given GEDCOM month name return translated month name.
 
-        :param str month: Month name in GEDCOM format.
-        :return: Name of this month in destination language
+        Parameters
+        ----------
+        month : `str`
+            Month name in GEDCOM format.
+
+        Returns
+        -------
+        month : `str`
+            Name of this month in destination language.
         """
         if month is not None:
             month = self.tr("MONTH." + month.upper())
