@@ -8,7 +8,7 @@ from ged4py import model
 def test_001_indi_events():
     """Test indi_events method."""
 
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
 
     rtype = model.make_record(2, None, "TYPE", "SomeType", [], 0, dialect, None).freeze()
     rec1 = model.make_record(1, None, "BIRT", "", [rtype], 0, dialect, None).freeze()
@@ -39,7 +39,7 @@ def test_001_indi_events():
 def test_002_indi_attributes():
     """Test indi_attributes method."""
 
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
 
     rec1 = model.make_record(1, None, "BIRT", "", [], 0, dialect, None).freeze()
     rec2 = model.make_record(1, None, "DEAT", "Y", [], 0, dialect, None).freeze()
@@ -67,7 +67,7 @@ def test_002_indi_attributes():
 def test_003_family_events():
     """Test family_events method."""
 
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
 
     rtype = model.make_record(2, None, "TYPE", "SomeType", [], 0, dialect, None).freeze()
     rec1 = model.make_record(1, None, "MARR", "Y", [rtype], 0, dialect, None).freeze()

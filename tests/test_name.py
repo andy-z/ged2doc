@@ -3,8 +3,7 @@
 
 from collections import namedtuple
 
-from ged2doc.name import (name_fmt, FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
-                          FMT_MAIDEN_ONLY, FMT_CAPITAL)
+from ged2doc.name import name_fmt, NameFormat
 
 
 # mock for Name class
@@ -28,7 +27,7 @@ def test_001_default():
 
 def test_002_surname_first():
 
-    flags = FMT_SURNAME_FIRST
+    flags = NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Smith Jane"
@@ -45,7 +44,7 @@ def test_002_surname_first():
 
 def test_003_comma():
 
-    flags = FMT_COMMA
+    flags = NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Jane Smith"
@@ -59,7 +58,7 @@ def test_003_comma():
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Jane Smith"
 
-    flags = FMT_COMMA | FMT_SURNAME_FIRST
+    flags = NameFormat.COMMA | NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Smith, Jane"
@@ -76,7 +75,7 @@ def test_003_comma():
 
 def test_004_maiden():
 
-    flags = FMT_MAIDEN
+    flags = NameFormat.MAIDEN
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Jane Smith"
@@ -84,12 +83,12 @@ def test_004_maiden():
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Jane Smith (Sawyer)"
 
-    flags = FMT_MAIDEN | FMT_SURNAME_FIRST
+    flags = NameFormat.MAIDEN | NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Smith (Sawyer) Jane"
 
-    flags = FMT_MAIDEN | FMT_SURNAME_FIRST | FMT_COMMA
+    flags = NameFormat.MAIDEN | NameFormat.SURNAME_FIRST | NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Smith (Sawyer), Jane"
@@ -97,7 +96,7 @@ def test_004_maiden():
 
 def test_005_maiden_only():
 
-    flags = FMT_MAIDEN_ONLY
+    flags = NameFormat.MAIDEN_ONLY
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Jane Smith"
@@ -105,12 +104,12 @@ def test_005_maiden_only():
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Jane Sawyer"
 
-    flags = FMT_MAIDEN_ONLY | FMT_SURNAME_FIRST
+    flags = NameFormat.MAIDEN_ONLY | NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Sawyer Jane"
 
-    flags = FMT_MAIDEN_ONLY | FMT_SURNAME_FIRST | FMT_COMMA
+    flags = NameFormat.MAIDEN_ONLY | NameFormat.SURNAME_FIRST | NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Sawyer, Jane"
@@ -118,7 +117,7 @@ def test_005_maiden_only():
 
 def test_006_capital():
 
-    flags = FMT_MAIDEN | FMT_CAPITAL
+    flags = NameFormat.MAIDEN | NameFormat.CAPITAL
 
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name, flags) == "Jane SMITH"
@@ -126,12 +125,12 @@ def test_006_capital():
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "Jane SMITH (SAWYER)"
 
-    flags = FMT_CAPITAL | FMT_MAIDEN | FMT_SURNAME_FIRST
+    flags = NameFormat.CAPITAL | NameFormat.MAIDEN | NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "SMITH (SAWYER) Jane"
 
-    flags = FMT_CAPITAL | FMT_SURNAME_FIRST | FMT_MAIDEN | FMT_COMMA
+    flags = NameFormat.CAPITAL | NameFormat.SURNAME_FIRST | NameFormat.MAIDEN | NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden="Sawyer")
     assert name_fmt(name, flags) == "SMITH (SAWYER), Jane"

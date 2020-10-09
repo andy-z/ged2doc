@@ -60,9 +60,9 @@ class Writer(metaclass=abc.ABCMeta):
     encoding_errors : `str`, optional
         Controls error handling behavior during string decoding, one of
         "strict" (default), "ignore", or "replace".
-    sort_order : `str`, optional
+    sort_order : `ged4py.model.NameOrder`, optional
         Determines ordering of person in output file, one of the constants
-        defined in `ged4py.model` module.
+        defined in `ged4py.model.NameOrder` enum.
     name_fmt : `int`, optional
         Bit mask with flags from `ged2doc.name` module.
     make_images : `bool`, optional
@@ -75,7 +75,7 @@ class Writer(metaclass=abc.ABCMeta):
         If ``True`` (default) then show events that have no associated dates.
     """
     def __init__(self, flocator, tr, encoding=None, encoding_errors="strict",
-                 sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
+                 sort_order=model.NameOrder.SURNAME_GIVEN, name_fmt=0,
                  make_images=True, make_stat=True, make_toc=True,
                  events_without_dates=True):
         self._floc = flocator

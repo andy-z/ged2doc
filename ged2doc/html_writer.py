@@ -53,9 +53,9 @@ class HtmlWriter(writer.Writer):
     encoding_errors : `str`, optional
         Controls error handling behavior during string decoding, one of
         "strict" (default), "ignore", or "replace".
-    sort_order : `str`, optional
+    sort_order : `ged4py.model.NameOrder`, optional
         Determines ordering of person in output file, one of the constants
-        defined in `ged4py.model` module.
+        defined in `ged4py.model.NameOrder` enum.
     name_fmt : `int`, optional
         Bit mask with flags from `ged2doc.name` module.
     make_images : `bool`, optional
@@ -79,7 +79,7 @@ class HtmlWriter(writer.Writer):
     """
     def __init__(self, flocator, output, tr, encoding=None,
                  encoding_errors="strict",
-                 sort_order=model.ORDER_SURNAME_GIVEN, name_fmt=0,
+                 sort_order=model.NameOrder.SURNAME_GIVEN, name_fmt=0,
                  make_images=True, make_stat=True, make_toc=True,
                  events_without_dates=True,
                  page_width="800px", image_width="300px",
