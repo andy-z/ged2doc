@@ -2,6 +2,9 @@
 History
 =======
 
+0.5.0 (2020-10-09)
+------------------
+
 * Python3 goodies, use enum classes for enums
 
 0.4.2 (2020-10-04)
