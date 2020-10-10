@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ged2doc"
-#define MyAppVersion "0.4.2"
+#define MyAppVersion "0.5.0"
 #define MyAppPublisher "Andy Salnikov"
 #define MyAppURL "https://github.com/andy-z/ged2doc"
 #define MyAppExeName "ged2doc.exe"
