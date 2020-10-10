@@ -281,10 +281,16 @@ def _make_writer(args=None):
     return args, writer
 
 
-def main():
-    """Console script for ged2doc."""
+def main(args=None):
+    """Console script for ged2doc.
 
-    args, writer = _make_writer()
+    Parameters
+    ----------
+    args : `list` [ `str` ], optional
+        Command line arguments, be default ``sys.argv`` is used.
+    """
+
+    args, writer = _make_writer(args)
 
     try:
         writer.save()
