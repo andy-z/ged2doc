@@ -53,7 +53,7 @@ def test_050_person_image_file():
     """Test person_image_file method."""
 
     # FORM is subordinate of OBJE
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(2, None, "FORM", "JPG",
                              [], 0, dialect, None).freeze()
     file = model.make_record(
@@ -65,7 +65,7 @@ def test_050_person_image_file():
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of FILE
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(3, None, "FORM", "JPG",
                              [], 0, dialect, None).freeze()
     file = model.make_record(
@@ -77,7 +77,7 @@ def test_050_person_image_file():
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of OBJE
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(2, None, "FORM", "WAV",
                              [], 0, dialect, None).freeze()
     file = model.make_record(
@@ -89,7 +89,7 @@ def test_050_person_image_file():
     assert utils.person_image_file(person) is None
 
     # FORM is subordinate of FILE
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(3, None, "FORM", "WAV",
                              [], 0, dialect, None).freeze()
     file = model.make_record(
@@ -101,7 +101,7 @@ def test_050_person_image_file():
     assert utils.person_image_file(person) is None
 
     # _PRIM flag is set on one of the two OBJE
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(2, None, "FORM", "JPG",
                              [], 0, dialect, None).freeze()
     file = model.make_record(
@@ -124,7 +124,7 @@ def test_050_person_image_file():
     assert utils.person_image_file(person) == "/path/to/file_primary.jpg"
 
     # multiple FILEs per OBJE, choose JPG over WAV
-    dialect = model.DIALECT_MYHERITAGE
+    dialect = model.Dialect.MYHERITAGE
     form = model.make_record(3, None, "FORM", "JPG",
                              [], 0, dialect, None).freeze()
     file1 = model.make_record(

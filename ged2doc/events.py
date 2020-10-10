@@ -3,33 +3,48 @@
 
 __all__ = ['Event', 'indi_events', 'indi_attributes', 'family_events']
 
-from collections import namedtuple
+from typing import NamedTuple
+import ged4py.model
+
 
 # Event structure, reflection of <EVENT_DETAIL>. Only relevant
 # pieces appear here.
-Event = namedtuple("Event", "tag value type date place note cause")
-"""Class representing GEDCOM event structure.
+class Event(NamedTuple):
+    """Class representing GEDCOM event structure.
 
-This is a reflection of <EVENT_DETAIL>, but only relevant pieces appear
-in this class.
+    This is a reflection of <EVENT_DETAIL>, but only relevant pieces appear
+    in this class.
 
-Attributes
-----------
-tag : `str`
-    GEDCOM tag name for the event.
-value : `str`
-    GEDCOM record value, can be ``None``
-type : `str`
-    GEDCOM event type.
-date : `ged4py.model.Date`
-    Event date.
-place : `str`
-    Place where event happened.
-note : `str`
-    Arbitrary text note.
-cause : `str`
-    What caused the event.
-"""
+    Attributes
+    ----------
+    tag : `str`
+    value : `str`, optional
+    type : `str`, optional
+    date : `ged4py.model.Date`, optional
+    place : `str`, optional
+    note : `str`, optional
+    cause : `str`, optional
+    """
+    tag: str
+    """GEDCOM tag name for the event."""
+
+    value: str
+    """GEDCOM record value, optional (`str` or ``None``)"""
+
+    type: str
+    """GEDCOM event type, optional (`str` or ``None``)"""
+
+    date: ged4py.model.Date
+    """Event date, optional (`ged4py.model.Date` or ``None``)"""
+
+    place: str
+    """Place where event happened, optional (`str` or ``None``)"""
+
+    note: str
+    """Arbitrary text note, optional (`str` or ``None``)"""
+
+    cause: str
+    """What caused the event, optional (`str` or ``None``)"""
 
 
 _indi_events_tags = set([

@@ -13,15 +13,17 @@ from .size import String2Size
 from .i18n import I18N, DATE_FORMATS
 from .input import make_file_locator
 from .html_writer import HtmlWriter
-from .name import (FMT_SURNAME_FIRST, FMT_COMMA, FMT_MAIDEN,
-                   FMT_MAIDEN_ONLY, FMT_CAPITAL)
+from .name import NameFormat
 from .odt_writer import OdtWriter
 from .utils import languages, system_lang
 import ged2doc
 import ged4py
-from ged4py.model import (ORDER_LIST, ORDER_SURNAME_GIVEN)
+from ged4py.model import NameOrder
 
 _log = logging.getLogger(__name__)
+
+
+NAME_ORDER_LIST = [item.value for item in NameOrder]
 
 
 def _make_writer(args=None):
@@ -91,8 +93,8 @@ def _make_writer(args=None):
                        help="Date format in output document, one of "
                        "%(choices)s; if missing then language-specific "
                        "format is used.")
-    group.add_argument('-s', "--sort-order", default=ORDER_SURNAME_GIVEN,
-                       metavar="ORDER", choices=ORDER_LIST,
+    group.add_argument('-s', "--sort-order", default=NameOrder.SURNAME_GIVEN.value,
+                       metavar="ORDER", choices=NAME_ORDER_LIST,
                        help="Ordering of the individuals, one of "
                        "%(choices)s; default: %(default)s.")
     group.add_argument("--locale", default=None, metavar="LOCALE",
@@ -113,21 +115,21 @@ def _make_writer(args=None):
 
     group = parser.add_argument_group("Name Format Options")
     group.add_argument("--name-surname-first", dest='name_fmt',
-                       action='append_const', const=FMT_SURNAME_FIRST,
+                       action='append_const', const=NameFormat.SURNAME_FIRST,
                        help="Format names with surname in leading position.")
     group.add_argument("--name-comma", dest='name_fmt',
-                       action='append_const', const=FMT_COMMA,
+                       action='append_const', const=NameFormat.COMMA,
                        help="Format names with surname followed by comma "
                        "(only if surname is in leading position).")
     group.add_argument("--name-maiden", dest='name_fmt',
-                       action='append_const', const=FMT_MAIDEN,
+                       action='append_const', const=NameFormat.MAIDEN,
                        help="Format names with surname followed by maiden "
                        "name in parentheses.")
     group.add_argument("--name-maiden-only", dest='name_fmt',
-                       action='append_const', const=FMT_MAIDEN_ONLY,
+                       action='append_const', const=NameFormat.MAIDEN_ONLY,
                        help="Format names with maiden name for surname.")
     group.add_argument("--name-capital", dest='name_fmt',
-                       action='append_const', const=FMT_CAPITAL,
+                       action='append_const', const=NameFormat.CAPITAL,
                        help="Format names with surname and maiden name in "
                        "all capital.")
 
@@ -222,7 +224,7 @@ def _make_writer(args=None):
 
     tr = I18N(args.language, args.date_format)
 
-    name_fmt = 0
+    name_fmt = NameFormat(0)
     for option in args.name_fmt or []:
         name_fmt |= option
 
@@ -243,7 +245,7 @@ def _make_writer(args=None):
         writer = HtmlWriter(flocator, args.output, tr,
                             encoding=args.encoding,
                             encoding_errors=args.encoding_errors,
-                            sort_order=args.sort_order,
+                            sort_order=NameOrder(args.sort_order),
                             name_fmt=name_fmt,
                             events_without_dates=not args.no_missing_date,
                             make_toc=not args.no_toc,
@@ -258,7 +260,7 @@ def _make_writer(args=None):
         writer = OdtWriter(flocator, args.output, tr,
                            encoding=args.encoding,
                            encoding_errors=args.encoding_errors,
-                           sort_order=args.sort_order,
+                           sort_order=NameOrder(args.sort_order),
                            events_without_dates=not args.no_missing_date,
                            make_toc=not args.no_toc,
                            make_stat=not args.no_stat,
@@ -279,10 +281,16 @@ def _make_writer(args=None):
     return args, writer
 
 
-def main():
-    """Console script for ged2doc."""
+def main(args=None):
+    """Console script for ged2doc.
 
-    args, writer = _make_writer()
+    Parameters
+    ----------
+    args : `list` [ `str` ], optional
+        Command line arguments, be default ``sys.argv`` is used.
+    """
+
+    args, writer = _make_writer(args)
 
     try:
         writer.save()

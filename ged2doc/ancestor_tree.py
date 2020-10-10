@@ -134,11 +134,13 @@ class AncestorTree:
         self.font_size = Size(font_size)
         self.root = None
 
-        def _genDepth(person):
+        def _genDepth(person, max_gen):
             """Return number known generations for a person"""
             if not person:
                 return 0
-            return max(_genDepth(person.father), _genDepth(person.mother)) + 1
+            if max_gen == 0:
+                return 0
+            return max(_genDepth(person.father, max_gen - 1), _genDepth(person.mother, max_gen - 1)) + 1
 
         def _boxes(box):
             """Generator for person parents, returns None for unknown parent"""
@@ -150,7 +152,7 @@ class AncestorTree:
                     yield p
 
         # get the number of generations, limit to max_gen
-        ngen = min(_genDepth(person), self.max_gen)
+        ngen = _genDepth(person, self.max_gen)
         _log.debug('parent_tree: person = %s', person.name)
         _log.debug('parent_tree: ngen = %d', ngen)
 
