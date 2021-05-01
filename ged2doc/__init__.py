@@ -4,4 +4,4 @@
 
 __author__ = """Andy Salnikov"""
 __email__ = 'ged4py@py-dev.com'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
