@@ -1,5 +1,4 @@
-"""Unit test for name module
-"""
+"""Unit test for name module"""
 
 from collections import namedtuple
 
@@ -11,7 +10,6 @@ Name = namedtuple("Name", "given surname maiden")
 
 
 def test_001_default():
-
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name) == "Jane Smith"
 
@@ -26,7 +24,6 @@ def test_001_default():
 
 
 def test_002_surname_first():
-
     flags = NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -43,7 +40,6 @@ def test_002_surname_first():
 
 
 def test_003_comma():
-
     flags = NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -74,7 +70,6 @@ def test_003_comma():
 
 
 def test_004_maiden():
-
     flags = NameFormat.MAIDEN
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -95,7 +90,6 @@ def test_004_maiden():
 
 
 def test_005_maiden_only():
-
     flags = NameFormat.MAIDEN_ONLY
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -116,7 +110,6 @@ def test_005_maiden_only():
 
 
 def test_006_capital():
-
     flags = NameFormat.MAIDEN | NameFormat.CAPITAL
 
     name = Name(given="Jane", surname="Smith", maiden=None)

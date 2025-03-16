@@ -1,7 +1,6 @@
-"""Utilities related to individual or family events.
-"""
+"""Utilities related to individual or family events."""
 
-__all__ = ['Event', 'indi_events', 'indi_attributes', 'family_events']
+__all__ = ["Event", "indi_events", "indi_attributes", "family_events"]
 
 from typing import NamedTuple
 import ged4py.model
@@ -25,6 +24,7 @@ class Event(NamedTuple):
     note : `str`, optional
     cause : `str`, optional
     """
+
     tag: str
     """GEDCOM tag name for the event."""
 
@@ -47,19 +47,56 @@ class Event(NamedTuple):
     """What caused the event, optional (`str` or ``None``)"""
 
 
-_indi_events_tags = set([
-    'BIRT', 'CHR', 'DEAT', 'BURI', 'CREM', 'ADOP',
-    'BAPM', 'BARM', 'BASM', 'BLES', 'CHRA', 'CONF', 'FCOM', 'ORDN',
-    'NATU', 'EMIG', 'IMMI', 'CENS', 'PROB', 'WILL',
-    'GRAD', 'RETI', 'EVEN'])
+_indi_events_tags = set(
+    [
+        "BIRT",
+        "CHR",
+        "DEAT",
+        "BURI",
+        "CREM",
+        "ADOP",
+        "BAPM",
+        "BARM",
+        "BASM",
+        "BLES",
+        "CHRA",
+        "CONF",
+        "FCOM",
+        "ORDN",
+        "NATU",
+        "EMIG",
+        "IMMI",
+        "CENS",
+        "PROB",
+        "WILL",
+        "GRAD",
+        "RETI",
+        "EVEN",
+    ]
+)
 
-_indi_attr_tags = set([
-    'CAST', 'DSCR', 'EDUC', 'IDNO', 'NATI', 'NCHI', 'NMR', 'OCCU',
-    'PROP', 'RELI', 'RESI', 'SSN', 'TITL', 'FACT'])
+_indi_attr_tags = set(
+    [
+        "CAST",
+        "DSCR",
+        "EDUC",
+        "IDNO",
+        "NATI",
+        "NCHI",
+        "NMR",
+        "OCCU",
+        "PROP",
+        "RELI",
+        "RESI",
+        "SSN",
+        "TITL",
+        "FACT",
+    ]
+)
 
-_fam_events_tags = set([
-    'ANUL', 'CENS', 'DIV', 'DIVF', 'ENGA', 'MARB', 'MARC',
-    'MARR', 'MARL', 'MARS', 'RESI', 'EVEN'])
+_fam_events_tags = set(
+    ["ANUL", "CENS", "DIV", "DIVF", "ENGA", "MARB", "MARC", "MARR", "MARL", "MARS", "RESI", "EVEN"]
+)
 
 
 def _get_events(record, tags):
@@ -80,13 +117,17 @@ def _get_events(record, tags):
     events = []
     for rec in record.sub_records:
         if rec.tag in tags:
-            events.append(Event(tag=rec.tag,
-                                value=rec.value,
-                                type=rec.sub_tag_value('TYPE'),
-                                date=rec.sub_tag_value('DATE'),
-                                place=rec.sub_tag_value('PLAC'),
-                                note=rec.sub_tag_value('NOTE'),
-                                cause=rec.sub_tag_value('CAUS')))
+            events.append(
+                Event(
+                    tag=rec.tag,
+                    value=rec.value,
+                    type=rec.sub_tag_value("TYPE"),
+                    date=rec.sub_tag_value("DATE"),
+                    place=rec.sub_tag_value("PLAC"),
+                    note=rec.sub_tag_value("NOTE"),
+                    cause=rec.sub_tag_value("CAUS"),
+                )
+            )
     return events
 
 

@@ -1,5 +1,4 @@
-"""Module which defines base class for all writer classes.
-"""
+"""Module which defines base class for all writer classes."""
 
 __all__ = ["Writer"]
 
@@ -26,12 +25,10 @@ def TR(x):
 
 
 def _spouse(person, fam):
-    """Returns person spouse in a given family
-    """
+    """Returns person spouse in a given family"""
     # list of Pointers
     spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
-    spouses = [rec for rec in spouses
-               if rec.value != person.xref_id]
+    spouses = [rec for rec in spouses if rec.value != person.xref_id]
     # more than one spouse is odd (from the structural concern)
     if spouses:
         return spouses[0].ref
@@ -74,10 +71,20 @@ class Writer(metaclass=abc.ABCMeta):
     events_without_dates : `bool`, optional
         If ``True`` (default) then show events that have no associated dates.
     """
-    def __init__(self, flocator, tr, encoding=None, encoding_errors="strict",
-                 sort_order=model.NameOrder.SURNAME_GIVEN, name_fmt=0,
-                 make_images=True, make_stat=True, make_toc=True,
-                 events_without_dates=True):
+
+    def __init__(
+        self,
+        flocator,
+        tr,
+        encoding=None,
+        encoding_errors="strict",
+        sort_order=model.NameOrder.SURNAME_GIVEN,
+        name_fmt=0,
+        make_images=True,
+        make_stat=True,
+        make_toc=True,
+        events_without_dates=True,
+    ):
         self._floc = flocator
         self._encoding = encoding
         self._encoding_errors = encoding_errors
@@ -100,22 +107,21 @@ class Writer(metaclass=abc.ABCMeta):
         if not gfile:
             raise OSError("Failed to locate input file")
 
-        reader = parser.GedcomReader(gfile, encoding=self._encoding,
-                                     errors=self._encoding_errors)
+        reader = parser.GedcomReader(gfile, encoding=self._encoding, errors=self._encoding_errors)
 
         # generate starting sequence
         self._render_prolog()
 
         # title page
         title = self._tr.tr(TR("Person List"))
-        self._render_section(1, 'personList', title)
+        self._render_section(1, "personList", title)
 
         # Index of all INDI records
-        _log.debug('Scan all INDI records')
+        _log.debug("Scan all INDI records")
 
         # filter out some fake records that some apps add
         indis = []
-        for indi in reader.records0('INDI'):
+        for indi in reader.records0("INDI"):
             if indi.sub_tag_value("_UID") == "Unassociated photos":
                 continue
             indis.append(indi)
@@ -123,14 +129,13 @@ class Writer(metaclass=abc.ABCMeta):
         # loop over all individuals
         indis.sort(key=self._indi_sort_key)
         for person in indis:
-
             name = name_fmt(person.name, self._name_fmt)
 
             person_id = "person." + person.xref_id
             self._render_section(2, person_id, name, True)
 
-            _log.debug('Found INDI: %s', person)
-            _log.debug('INDI name: %r', name)
+            _log.debug("Found INDI: %s", person)
+            _log.debug("INDI name: %r", name)
 
             image_data = self._make_main_image(person)
 
@@ -142,31 +147,31 @@ class Writer(metaclass=abc.ABCMeta):
             if bday:
                 born += [self._tr.tr_date(bday.value)]
             else:
-                born += [self._tr.tr(TR('Date Unknown'), person.sex)]
+                born += [self._tr.tr(TR("Date Unknown"), person.sex)]
             bplace = person.sub_tag_value("BIRT/PLAC")
             if bplace:
                 born += [bplace]
-            born = ', '.join(born)
-            if born:
-                attributes += [(self._tr.tr(TR('Born'), person.sex), born)]
+            born_str = ", ".join(born)
+            if born_str:
+                attributes += [(self._tr.tr(TR("Born"), person.sex), born_str)]
 
             # maiden name
             if person.name.maiden:
-                attributes += [(self._tr.tr(TR('Maiden name'), person.sex),
-                                person.name.maiden)]
+                attributes += [(self._tr.tr(TR("Maiden name"), person.sex), person.name.maiden)]
 
             # Parents
             if person.mother:
-                attributes += [(self._tr.tr(TR('Mother'), person.mother.sex),
-                                self._person_ref(person.mother))]
+                attributes += [
+                    (self._tr.tr(TR("Mother"), person.mother.sex), self._person_ref(person.mother))
+                ]
             if person.father:
-                attributes += [(self._tr.tr(TR('Father'), person.father.sex),
-                                self._person_ref(person.father))]
+                attributes += [
+                    (self._tr.tr(TR("Father"), person.father.sex), self._person_ref(person.father))
+                ]
 
             # add some extra info
             indi_attr = indi_attributes(person)
-            for tag in ['EDUC', 'OCCU', 'RESI', 'NMR', 'NCHI', 'TITL', 'DSCR',
-                        'RELI', 'FACT']:
+            for tag in ["EDUC", "OCCU", "RESI", "NMR", "NCHI", "TITL", "DSCR", "RELI", "FACT"]:
                 for attrib in indi_attr:
                     if attrib.tag == tag:
                         attributes += [self._format_indi_attr(person, attrib)]
@@ -176,31 +181,26 @@ class Writer(metaclass=abc.ABCMeta):
             own_kids = []
             fams = person.sub_tags("FAMS")
             for fam in fams:
-
                 spouse = _spouse(person, fam)
                 children = fam.sub_tags("CHIL")
 
                 children_ids = [rec.xref_id for rec in children]
-                _log.debug('spouse = %s; children ids = %s; children = %s',
-                           spouse, children_ids, children)
+                _log.debug("spouse = %s; children ids = %s; children = %s", spouse, children_ids, children)
 
                 if spouse:
-                    pfmt = '{person}: {ref}'
-                    family = pfmt.format(person=self._tr.tr(TR('Spouse'),
-                                                            spouse.sex),
-                                         ref=self._person_ref(spouse))
+                    pfmt = "{person}: {ref}"
+                    family = pfmt.format(
+                        person=self._tr.tr(TR("Spouse"), spouse.sex), ref=self._person_ref(spouse)
+                    )
                     kids = []
                     if children:
-                        kids = [self._person_ref(c, c.name.first)
-                                for c in children]
-                        family += "; " + self._tr.tr(TR('kids')) + ': ' + \
-                            ', '.join(kids)
+                        kids = [self._person_ref(c, c.name.first) for c in children]
+                        family += "; " + self._tr.tr(TR("kids")) + ": " + ", ".join(kids)
                     families += [family]
                 else:
-                    own_kids += [self._person_ref(c, c.name.first)
-                                 for c in children]
+                    own_kids += [self._person_ref(c, c.name.first) for c in children]
             if own_kids:
-                family = self._tr.tr(TR('Kids')) + ': ' + ', '.join(own_kids)
+                family = self._tr.tr(TR("Kids")) + ": " + ", ".join(own_kids)
                 families += [family]
 
             # collect all events from person and families
@@ -208,38 +208,35 @@ class Writer(metaclass=abc.ABCMeta):
 
             # Comments are published as set of paragraphs
             notes = []
-            for note in person.sub_tags('NOTE'):
-                notes += note.value.split('\n')
+            for note in person.sub_tags("NOTE"):
+                notes += note.value.split("\n")
 
             # render whole person info
-            self._render_person(person, image_data, attributes, families,
-                                events, notes)
+            self._render_person(person, image_data, attributes, families, events, notes)
 
         # generate some stats
         if self._make_stat:
             section = self._tr.tr(TR("Statistics"))
-            self._render_section(1, 'statistics', section)
+            self._render_section(1, "statistics", section)
 
             section = self._tr.tr(TR("Total Statistics"))
-            self._render_section(2, 'total_statistics', section)
+            self._render_section(2, "total_statistics", section)
 
-            nmales = len([person for person in indis if person.sex == 'M'])
-            nfemales = len([person for person in indis if person.sex == 'F'])
+            nmales = len([person for person in indis if person.sex == "M"])
+            nfemales = len([person for person in indis if person.sex == "F"])
             self._render_name_stat(len(indis), nfemales, nmales)
 
             section = self._tr.tr(TR("Name Statistics"))
-            self._render_section(2, 'name_statistics', section)
+            self._render_section(2, "name_statistics", section)
 
             section = self._tr.tr(TR("Female Name Frequency"))
-            self._render_section(3, 'female_name_freq', section)
-            name_freq = self._name_freq(person for person in indis
-                                        if person.sex == 'F')
+            self._render_section(3, "female_name_freq", section)
+            name_freq = self._name_freq(person for person in indis if person.sex == "F")
             self._render_name_freq(name_freq)
 
             section = self._tr.tr(TR("Male Name Frequency"))
-            self._render_section(3, 'male_name_freq', section)
-            name_freq = self._name_freq(person for person in indis
-                                        if person.sex == 'M')
+            self._render_section(3, "male_name_freq", section)
+            name_freq = self._name_freq(person for person in indis if person.sex == "M")
             self._render_name_freq(name_freq)
 
         # add table of contents
@@ -288,47 +285,37 @@ class Writer(metaclass=abc.ABCMeta):
         events = []
         for evt in indi_events(person):
             # BIRT was already rendered
-            if evt.tag != 'BIRT':
+            if evt.tag != "BIRT":
                 # for generic EVEN event, use TYPE as even name, we cannot
                 # translate it because it can be anything
-                if evt.tag == 'EVEN' and evt.type:
+                if evt.tag == "EVEN" and evt.type:
                     event = evt.type
                 else:
                     event = self._tr.tr("EVENT." + evt.tag, person.sex)
-                facts = [event,
-                         evt.value,
-                         evt.place,
-                         evt.note]
+                facts = [event, evt.value, evt.place, evt.note]
                 if evt.cause:
                     pfmt = self._tr.tr(TR("EVENT.CAUSE: {cause}"), person.sex)
                     facts.append(pfmt.format(cause=evt.cause))
                 events += [(evt.date, facts)]
 
         for fam in person.sub_tags("FAMS"):
-
             spouse = _spouse(person, fam)
 
             for evt in family_events(fam):
                 facts = [self._tr.tr("FAMEVT." + evt.tag)]
                 if spouse:
-                    note = '{spouse}: {ref}'.format(
-                        spouse=self._tr.tr(TR('Spouse'), spouse.sex),
-                        ref=self._person_ref(spouse))
+                    note = "{spouse}: {ref}".format(
+                        spouse=self._tr.tr(TR("Spouse"), spouse.sex), ref=self._person_ref(spouse)
+                    )
                     facts += [note]
-                facts += [evt.value,
-                          evt.place,
-                          evt.note]
+                facts += [evt.value, evt.place, evt.note]
                 events += [(evt.date, facts)]
 
             for child in fam.sub_tags("CHIL"):
-                for evt in indi_events(child, ['BIRT']):
-                    pfmt = self._tr.tr(TR("CHILD.BORN {child}"),
-                                       child.sex)
+                for evt in indi_events(child, ["BIRT"]):
+                    pfmt = self._tr.tr(TR("CHILD.BORN {child}"), child.sex)
                     childRef = self._person_ref(child, child.name.first)
-                    facts = [pfmt.format(child=childRef),
-                             evt.value,
-                             evt.place,
-                             evt.note]
+                    facts = [pfmt.format(child=childRef), evt.value, evt.place, evt.note]
                     events += [(evt.date, facts)]
 
         def _date_key(event):
@@ -343,12 +330,12 @@ class Writer(metaclass=abc.ABCMeta):
         sevents = []
         for date, facts in sorted(events, key=_date_key):
             facts = [fact for fact in facts if fact]
-            facts = "; ".join(facts)
+            facts_str = "; ".join(facts)
             if date is None:
                 if self._events_without_dates:
-                    sevents += [(self._tr.tr(TR("Event Date Unknown")), facts)]
+                    sevents += [(self._tr.tr(TR("Event Date Unknown")), facts_str)]
             else:
-                sevents += [(self._tr.tr_date(date), facts)]
+                sevents += [(self._tr.tr_date(date), facts_str)]
 
         return sevents
 
@@ -371,15 +358,14 @@ class Writer(metaclass=abc.ABCMeta):
 
         path = utils.person_image_file(person)
         if path:
-
-            _log.debug('Found media file name %s', path)
+            _log.debug("Found media file name %s", path)
 
             # find image file, try to open it
             imgfile = self._floc.open_image(path)
             if not imgfile:
                 _log.warning('Failed to locate image file "%s"', path)
             else:
-                _log.debug('Opened image file %s', path)
+                _log.debug("Opened image file %s", path)
                 imgdata = imgfile.read()
                 return imgdata
 
@@ -398,14 +384,14 @@ class Writer(metaclass=abc.ABCMeta):
         table : `list` [ `tuple` ]
             List of (name, count) ordered by name.
         """
-        namefreq = {}
+        namefreq: dict[str, int] = {}
         for person in people:
             namefreq.setdefault(person.name.first, 0)
             namefreq[person.name.first] += 1
-        namefreq = [(key, val) for key, val in namefreq.items()]
+        namefreq_list = [(key, val) for key, val in namefreq.items()]
         # sort ascending in name
-        namefreq.sort()
-        return namefreq
+        namefreq_list.sort()
+        return namefreq_list
 
     def _format_indi_attr(self, person, attrib, prefix="ATTR."):
         """Formatting of the individual's attributes.
@@ -427,7 +413,7 @@ class Writer(metaclass=abc.ABCMeta):
 
         # for generic FACT attribute, use TYPE as fact name, we cannot
         # translate it because it can be anything
-        if attrib.tag == 'FACT' and attrib.type:
+        if attrib.tag == "FACT" and attrib.type:
             attr = attrib.type
         else:
             attr = self._tr.tr(prefix + attrib.tag, person.sex)
@@ -441,8 +427,8 @@ class Writer(metaclass=abc.ABCMeta):
             props.append(attrib.place)
         if attrib.note:
             props.append(attrib.note)
-        props = ", ".join(props)
-        return (attr, props)
+        props_str = ", ".join(props)
+        return (attr, props_str)
 
     def _person_ref(self, person, name=None):
         """Returns encoded person reference.
@@ -475,8 +461,7 @@ class Writer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _render_prolog(self):
-        """Generate initial document header/title.
-        """
+        """Generate initial document header/title."""
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -501,8 +486,7 @@ class Writer(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _render_person(self, person, image_data, attributes, families,
-                       events, notes):
+    def _render_person(self, person, image_data, attributes, families, events, notes):
         """Output person information.
 
         Parameters
@@ -574,6 +558,5 @@ class Writer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _finalize(self):
-        """Finalize output.
-        """
+        """Finalize output."""
         raise NotImplementedError()

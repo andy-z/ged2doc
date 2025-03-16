@@ -1,5 +1,4 @@
-"""Unit test for dumbemf module
-"""
+"""Unit test for dumbemf module"""
 
 import logging
 import pytest
@@ -10,7 +9,7 @@ from ged2doc.size import Size
 
 logging.basicConfig(level=logging.DEBUG)
 
-_dpi = 300.
+_dpi = 300.0
 _size = Size("5in", _dpi), Size("3in", _dpi)
 
 _header_bytes = 124
@@ -48,7 +47,6 @@ def test_001_empty():
 
 
 def test_use_pen():
-
     emf = EMF(*_size)
 
     with emf.use_pen("solid", Size("1pt", _dpi), 0) as pen:
@@ -60,7 +58,6 @@ def test_use_pen():
 
 
 def test_use_font():
-
     emf = EMF(*_size)
 
     with emf.use_font(Size("10pt", _dpi)) as font:
@@ -72,22 +69,18 @@ def test_use_font():
 
 
 def test_rectangle():
-
     emf = EMF(*_size)
 
     # it needs a pen
     with emf.use_pen("solid", Size("1pt", _dpi), 0):
-        emf.rectangle(Size("0pt", _dpi), Size("0pt", _dpi),
-                      Size("1000pt", _dpi), Size("1000pt", _dpi))
+        emf.rectangle(Size("0pt", _dpi), Size("0pt", _dpi), Size("1000pt", _dpi), Size("1000pt", _dpi))
 
     data = emf.data()
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + \
-        _rect_bytes
+    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + _rect_bytes
 
 
 def test_text_align():
-
     for align in "lrc":
         emf = EMF(*_size)
 
@@ -103,8 +96,7 @@ def test_text_align():
 
 
 def test_text_color():
-
-    for color in [0, 0xffffff, 0xff00ff]:
+    for color in [0, 0xFFFFFF, 0xFF00FF]:
         emf = EMF(*_size)
 
         emf.text_color(color)
@@ -115,7 +107,6 @@ def test_text_color():
 
 
 def test_text():
-
     emf = EMF(*_size)
 
     # it needs a font
@@ -125,24 +116,23 @@ def test_text():
 
     data = emf.data()
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes + \
-        _text_bytes(text)
+    assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes + _text_bytes(text)
 
 
 def test_polyline():
-
     emf = EMF(*_size)
 
     # it needs a pen
     with emf.use_pen("solid", Size("1pt", _dpi), 0):
-        emf.polyline([
-            (Size("1in", _dpi), Size("1in", _dpi)),
-            (Size("1in", _dpi), Size("2in", _dpi)),
-            (Size("2in", _dpi), Size("2in", _dpi)),
-            (Size("2in", _dpi), Size("1in", _dpi)),
-        ])
+        emf.polyline(
+            [
+                (Size("1in", _dpi), Size("1in", _dpi)),
+                (Size("1in", _dpi), Size("2in", _dpi)),
+                (Size("2in", _dpi), Size("2in", _dpi)),
+                (Size("2in", _dpi), Size("1in", _dpi)),
+            ]
+        )
 
     data = emf.data()
     assert isinstance(data, type(b""))
-    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + \
-        _polyline_bytes(4)
+    assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + _polyline_bytes(4)

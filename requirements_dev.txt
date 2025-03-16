@@ -1,11 +1,13 @@
 pip>=9.0.0
-bumpversion
+pillow
+odfpy
+bumpver
 wheel
 watchdog
-flake8
 tox
 coverage
 Sphinx>=3.0
 pytest
-pytest-runner
 numpydoc
+build
+twine

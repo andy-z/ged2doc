@@ -1,9 +1,7 @@
-"""Module which defines class for manipulating size values.
-"""
-
+"""Module which defines class for manipulating size values."""
 
 MM_PER_INCH = 25.4
-PT_PER_INCH = 72.
+PT_PER_INCH = 72.0
 
 
 class Size:
@@ -43,25 +41,25 @@ class Size:
         Raised if input value has unsupported type.
     """
 
-    dpi = 96.
+    dpi = 96.0
     """Class constant used for pixels-to-inches conversion, default
     value is 96., it is used as default DPI for ``Size`` instances that
     do not specify explicit ``dpi`` argument
     """
-    def __init__(self, value=0, dpi=None):
 
+    def __init__(self, value=0, dpi=None):
         if isinstance(value, str):
             # convert units to inches
             self.dpi = float(dpi) if dpi is not None else Size.dpi
-            if value.endswith('pt'):
+            if value.endswith("pt"):
                 self.value = float(value[:-2]) / PT_PER_INCH
-            elif value.endswith('in'):
+            elif value.endswith("in"):
                 self.value = float(value[:-2])
-            elif value.endswith('cm'):
+            elif value.endswith("cm"):
                 self.value = float(value[:-2]) / (MM_PER_INCH / 10)
-            elif value.endswith('mm'):
+            elif value.endswith("mm"):
                 self.value = float(value[:-2]) / MM_PER_INCH
-            elif value.endswith('px'):
+            elif value.endswith("px"):
                 self.value = float(value[:-2]) / self.dpi
             else:
                 # without suffix assume it's inches
@@ -75,17 +73,16 @@ class Size:
                 self.dpi = float(dpi) if dpi is not None else Size.dpi
                 self.value = float(value)
             except (TypeError, ValueError):
-                raise TypeError("incorrect type of the argument: " +
-                                str(type(value)))
+                raise TypeError("incorrect type of the argument: " + str(type(value)))
 
     @property
     def pt(self):
         """Size in points (`float`)"""
-        return self.value * 72.
+        return self.value * 72.0
 
     @property
     def px(self):
-        """Size in pixels, (`int`) """
+        """Size in pixels, (`int`)"""
         return int(round(self.value * self.dpi))
 
     @property
@@ -111,84 +108,84 @@ class Size:
         return Size(self, dpi)
 
     def __str__(self):
-        """ Returns string representation, e.g. "12in" """
-        return str(self.value) + 'in'
+        """Returns string representation, e.g. "12in" """
+        return str(self.value) + "in"
 
     def __repr__(self):
-        """ Returns string representation, e.g. Size("12in") """
+        """Returns string representation, e.g. Size("12in")"""
         return "Size({}in)".format(self.value)
 
     def __lt__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value < self._coerce(other).value
 
     def __le__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value <= self._coerce(other).value
 
     def __eq__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value == self._coerce(other).value
 
     def __ne__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value != self._coerce(other).value
 
     def __ge__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value >= self._coerce(other).value
 
     def __gt__(self, other):
-        """ Compare two sizes """
+        """Compare two sizes"""
         return self.value > self._coerce(other).value
 
     def __sub__(self, other):
-        """ Subtract size from other size """
+        """Subtract size from other size"""
         return Size(self.value - self._coerce(other).value, self.dpi)
 
     def __rsub__(self, other):
-        """ Subtract size from other size """
+        """Subtract size from other size"""
         return self._coerce(other) - self
 
     def __add__(self, other):
-        """ Add two sizes """
+        """Add two sizes"""
         return Size(self.value + self._coerce(other).value, self.dpi)
 
     def __radd__(self, other):
-        """ Add size and something: x + size"""
+        """Add size and something: x + size"""
         return self._coerce(other) + self
 
     def __mul__(self, other):
-        """ Multiply size by a factor """
+        """Multiply size by a factor"""
         return Size(self.value * other, self.dpi)
 
     def __rmul__(self, other):
-        """ Multiply size by a factor: other * size """
+        """Multiply size by a factor: other * size"""
         return Size(self.value * other, self.dpi)
 
     def __div__(self, other):
-        """ Divide size by a factor """
+        """Divide size by a factor"""
         return Size(self.value / other, self.dpi)
 
     def __truediv__(self, other):
-        """ Divide size by a factor """
+        """Divide size by a factor"""
         return Size(self.value / other, self.dpi)
 
     def __floordiv__(self, other):
-        """ Divide size by a factor """
+        """Divide size by a factor"""
         return Size(self.value // other, self.dpi)
 
     def __xor__(self, units):
-        """ Size(1.)^"mm"  will return "25.4mm" """
-        if units == 'in':
+        """Size(1.)^"mm"  will return "25.4mm" """
+        if units == "in":
             return "%gin" % (self.value,)
-        elif units == 'pt':
+        elif units == "pt":
             return "%gpt" % (self.value * PT_PER_INCH,)
-        elif units == 'cm':
+        elif units == "cm":
             return "%gcm" % (self.value * MM_PER_INCH / 10,)
-        elif units == 'mm':
+        elif units == "mm":
             return "%gmm" % (self.value * MM_PER_INCH,)
-        elif units == 'px':
+        elif units == "px":
             return "%gpx" % (int(round(self.value * self.dpi)),)
         else:
             return "%gin" % (self.value,)
@@ -221,12 +218,11 @@ class String2Size:
         is passed to this argument then check is not performed.
     """
 
-    all_units = ('pt', 'in', 'cm', 'mm', 'px')
+    all_units = ("pt", "in", "cm", "mm", "px")
     """All known unit names.
     """
 
-    def __init__(self, default_unit="in", accepted_units=None,
-                 rejected_units=None):
+    def __init__(self, default_unit="in", accepted_units=None, rejected_units=None):
         self._default_unit = default_unit
         self._accepted_units = accepted_units
         self._rejected_units = rejected_units
@@ -258,17 +254,14 @@ class String2Size:
             pass
 
         if not any(value.endswith(unit) for unit in self.all_units):
-            raise ValueError("String {} does not contain valid "
-                             "unit".format(value))
+            raise ValueError("String {} does not contain valid unit".format(value))
 
         if self._accepted_units:
             if not any(value.endswith(unit) for unit in self._accepted_units):
-                raise ValueError("String {} does not contain acceptable "
-                                 "unit".format(value))
+                raise ValueError("String {} does not contain acceptable unit".format(value))
 
         if self._rejected_units:
             if any(value.endswith(unit) for unit in self._rejected_units):
-                raise ValueError("String {} contains unacceptable "
-                                 "unit".format(value))
+                raise ValueError("String {} contains unacceptable unit".format(value))
 
         return Size(value)
