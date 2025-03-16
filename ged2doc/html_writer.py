@@ -6,10 +6,10 @@ __all__ = ["HtmlWriter"]
 import base64
 import io
 import logging
-import pkg_resources
 import string
 from PIL import Image
 from html import escape as html_escape
+from importlib import resources
 
 from ged4py import model
 from .ancestor_tree import AncestorTree
@@ -115,7 +115,7 @@ class HtmlWriter(writer.Writer):
                 ' charset=utf-8">\n']
         doc += ['<title>', 'Family Tree', '</title>\n']
         d = dict(page_width=self._page_width ^ 'px')
-        style = pkg_resources.resource_string(__name__, "data/styles/default")
+        style = resources.files("ged2doc").joinpath("data/styles/default").read_bytes()
         style = style.decode('utf-8')
         doc += [string.Template(style).substitute(d)]
         doc += ['</head>\n', '<body>\n']

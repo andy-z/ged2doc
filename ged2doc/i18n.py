@@ -12,9 +12,10 @@ small set of configuration options such as output language and date format.
 '''
 
 import gettext
+import io
 import logging
-import pkg_resources
 import string
+from importlib import resources
 
 from ged4py.date import CalendarDate, DateValueVisitor
 
@@ -231,7 +232,8 @@ class I18N:
         path = "data/lang/{}/{}.mo".format(lang, domain)
         try:
             _LOG.debug("Opening translations file %r", path)
-            mofile = pkg_resources.resource_stream(__name__, path)
+            modata = resources.files("ged2doc").joinpath(path).read_bytes()
+            mofile = io.BytesIO(modata)
             _LOG.debug("mofile = %r", mofile)
             self._tr = gettext.GNUTranslations(mofile)
             self._tr.add_fallback(_NullFallback())
