@@ -1,5 +1,4 @@
-"""Unit test for input module
-"""
+"""Unit test for input module"""
 
 import os
 import pytest
@@ -12,14 +11,15 @@ from ged2doc import input as ged2doc_input
 
 @pytest.fixture
 def files_on_disk():
-    """Fixture that creates directory tree with files on disk
-    """
+    """Fixture that creates directory tree with files on disk"""
     tmpdir = tempfile.mkdtemp()
-    files = [("xxx.ged",),
-             ("dir1", "one.jpg"),
-             ("dir1", "dir2", "one.jpg"),
-             ("dir1", "two.gif"),
-             ("dir2", "two.gif")]
+    files = [
+        ("xxx.ged",),
+        ("dir1", "one.jpg"),
+        ("dir1", "dir2", "one.jpg"),
+        ("dir1", "two.gif"),
+        ("dir2", "two.gif"),
+    ]
     for fname in files:
         fdir = os.path.join(tmpdir, *fname[:-1])
         if fdir != tmpdir:
@@ -29,7 +29,7 @@ def files_on_disk():
                 pass
         path = os.path.join(tmpdir, *fname)
         with open(path, "wb") as fobj:
-            data = '/'.join(fname).encode('ascii')
+            data = "/".join(fname).encode("ascii")
             fobj.write(data)
 
     yield tmpdir
@@ -39,19 +39,20 @@ def files_on_disk():
 
 @pytest.fixture
 def files_in_zip():
-    """Fixture that creates zip archive with few files
-    """
+    """Fixture that creates zip archive with few files"""
     fd, aname = tempfile.mkstemp(".zip")
     os.close(fd)
     with zipfile.ZipFile(aname, "w") as archive:
-        files = [("xxx.ged",),
-                 ("dir1", "one.jpg"),
-                 ("dir1", "dir2", "one.jpg"),
-                 ("dir1", "two.gif"),
-                 ("dir2", "two.gif")]
+        files = [
+            ("xxx.ged",),
+            ("dir1", "one.jpg"),
+            ("dir1", "dir2", "one.jpg"),
+            ("dir1", "two.gif"),
+            ("dir2", "two.gif"),
+        ]
         for fname in files:
-            path = '/'.join(fname)
-            data = path.encode('ascii')
+            path = "/".join(fname)
+            data = path.encode("ascii")
             archive.writestr(path, data)
 
     yield aname
@@ -94,8 +95,7 @@ def checkFilesLoc(loc):
 
 
 def test_FSLocator_name(files_on_disk):
-    """Test for _FSLocator with file name.
-    """
+    """Test for _FSLocator with file name."""
     tmpdir = files_on_disk
 
     loc = ged2doc_input._FSLocator(os.path.join(tmpdir, "xxx.ged"), tmpdir)
@@ -103,18 +103,16 @@ def test_FSLocator_name(files_on_disk):
 
 
 def test_FSLocator_fobj(files_on_disk):
-    """Test for _FSLocator with file object.
-    """
+    """Test for _FSLocator with file object."""
     tmpdir = files_on_disk
 
-    with open(os.path.join(tmpdir, "xxx.ged"), 'rb') as fobj:
+    with open(os.path.join(tmpdir, "xxx.ged"), "rb") as fobj:
         loc = ged2doc_input._FSLocator(fobj, tmpdir)
         checkFilesLoc(loc)
 
 
 def test_make_file_locator_name(files_on_disk):
-    """Test for make_file_locator with file name.
-    """
+    """Test for make_file_locator with file name."""
     tmpdir = files_on_disk
 
     loc = ged2doc_input.make_file_locator(os.path.join(tmpdir, "xxx.ged"), "", tmpdir)
@@ -123,19 +121,17 @@ def test_make_file_locator_name(files_on_disk):
 
 
 def test_make_file_locator_fobj(files_on_disk):
-    """Test for make_file_locator with file object.
-    """
+    """Test for make_file_locator with file object."""
     tmpdir = files_on_disk
 
-    with open(os.path.join(tmpdir, "xxx.ged"), 'rb') as fobj:
+    with open(os.path.join(tmpdir, "xxx.ged"), "rb") as fobj:
         loc = ged2doc_input.make_file_locator(fobj, "", tmpdir)
         assert isinstance(loc, ged2doc_input._FSLocator)
         checkFilesLoc(loc)
 
 
 def test_ZipLocator_name(files_in_zip):
-    """Test for _ZipLocator with file name.
-    """
+    """Test for _ZipLocator with file name."""
     archive = files_in_zip
 
     loc = ged2doc_input._ZipLocator(archive, "*.ged", None)
@@ -153,18 +149,15 @@ def test_ZipLocator_name(files_in_zip):
 
 
 def test_ZipLocator_fobj(files_in_zip):
-    """Test for _ZipLocator with file object.
-    """
+    """Test for _ZipLocator with file object."""
     archive = files_in_zip
-    with open(archive, 'rb') as fobj:
-
+    with open(archive, "rb") as fobj:
         loc = ged2doc_input._ZipLocator(fobj, "*.ged", None)
         checkFilesLoc(loc)
 
 
 def test_make_file_locator_zip_name(files_in_zip):
-    """Test for make_file_locator with zip file name.
-    """
+    """Test for make_file_locator with zip file name."""
     archive = files_in_zip
 
     loc = ged2doc_input.make_file_locator(archive, "*.ged", None)
@@ -173,11 +166,10 @@ def test_make_file_locator_zip_name(files_in_zip):
 
 
 def test_make_file_locator_zip_fobj(files_in_zip):
-    """Test for make_file_locator with file object.
-    """
+    """Test for make_file_locator with file object."""
     archive = files_in_zip
 
-    with open(archive, 'rb') as fobj:
+    with open(archive, "rb") as fobj:
         loc = ged2doc_input.make_file_locator(fobj, "*.ged", None)
         assert isinstance(loc, ged2doc_input._ZipLocator)
         checkFilesLoc(loc)

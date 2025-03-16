@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 from pytest import approx
 
@@ -11,7 +10,6 @@ MockIndividual = namedtuple("MockIndividual", "name mother father xref_id")
 
 
 class MockTreeVisitor(AncestorTreeVisitor):
-
     node_count = 0
     edge_count = 0
 
@@ -26,15 +24,15 @@ class MockTreeVisitor(AncestorTreeVisitor):
 
 
 def test_tree_node():
-
     kw = dict(box_width=Size(2), max_box_width=Size(3), font_size="10pt", gen_dist="10pt")
 
-    oneLineHeightPt = 10. + 2 * 4.  # 4pt is default padding
-    twoLineHeightPt = 2 * 10. + 1.5 + 2 * 4.  # 4pt is default padding
+    oneLineHeightPt = 10.0 + 2 * 4.0  # 4pt is default padding
+    twoLineHeightPt = 2 * 10.0 + 1.5 + 2 * 4.0  # 4pt is default padding
 
     # single person, no parents
-    person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
-                            mother=None, father=None, xref_id="@id0@")
+    person = MockIndividual(
+        name=MockName(first="John", surname="Smith", maiden=None), mother=None, father=None, xref_id="@id0@"
+    )
     node = TreeNode(person, 0, motherNode=None, fatherNode=None, **kw)
     assert node.person is person
     assert node.mother is None
@@ -47,10 +45,15 @@ def test_tree_node():
     assert node.textbox.y0 == Size()
 
     # person, one parent
-    mother = MockIndividual(name=MockName(first="Jane", surname="Smith", maiden="Huang"),
-                            mother=None, father=None, xref_id="@id1@")
-    person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
-                            mother=mother, father=None, xref_id="@id0@")
+    mother = MockIndividual(
+        name=MockName(first="Jane", surname="Smith", maiden="Huang"),
+        mother=None,
+        father=None,
+        xref_id="@id1@",
+    )
+    person = MockIndividual(
+        name=MockName(first="John", surname="Smith", maiden=None), mother=mother, father=None, xref_id="@id0@"
+    )
     mother_node = TreeNode(mother, 1, motherNode=None, fatherNode=None, **kw)
     father_node = TreeNode(None, 1, motherNode=None, fatherNode=None, **kw)
     node = TreeNode(person, 0, motherNode=mother_node, fatherNode=father_node, **kw)
@@ -66,13 +69,23 @@ def test_tree_node():
     assert node.textbox.midy.pt == approx(node.subTreeHeight.pt / 2)
 
     # person, two parents, father's name is very long
-    mother = MockIndividual(name=MockName(first="Jane", surname="Smith", maiden="Huang"),
-                            mother=None, father=None, xref_id="@id1@")
-    father = MockIndividual(name=MockName(first="King Huan Carlos TwentySecond",
-                                          surname="Smith-and-sometimes-Ivanov", maiden=None),
-                            mother=None, father=None, xref_id="@id1@")
-    person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
-                            mother=mother, father=None, xref_id="@id0@")
+    mother = MockIndividual(
+        name=MockName(first="Jane", surname="Smith", maiden="Huang"),
+        mother=None,
+        father=None,
+        xref_id="@id1@",
+    )
+    father = MockIndividual(
+        name=MockName(
+            first="King Huan Carlos TwentySecond", surname="Smith-and-sometimes-Ivanov", maiden=None
+        ),
+        mother=None,
+        father=None,
+        xref_id="@id1@",
+    )
+    person = MockIndividual(
+        name=MockName(first="John", surname="Smith", maiden=None), mother=mother, father=None, xref_id="@id0@"
+    )
     mother_node = TreeNode(mother, 1, motherNode=None, fatherNode=None, **kw)
     father_node = TreeNode(father, 1, motherNode=None, fatherNode=None, **kw)
     node = TreeNode(person, 0, motherNode=mother_node, fatherNode=father_node, **kw)
@@ -90,20 +103,25 @@ def test_tree_node():
 
 
 def test_tree():
-
-    oneLineHeightPt = 10. + 2 * 4.  # 4pt is default padding
+    oneLineHeightPt = 10.0 + 2 * 4.0  # 4pt is default padding
 
     # single person, no parents
-    person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
-                            mother=None, father=None, xref_id="@id0@")
+    person = MockIndividual(
+        name=MockName(first="John", surname="Smith", maiden=None), mother=None, father=None, xref_id="@id0@"
+    )
     tree = AncestorTree(person)
     assert tree.root is None
 
     # person, one parent
-    mother = MockIndividual(name=MockName(first="Jane", surname="Smith", maiden="Huang"),
-                            mother=None, father=None, xref_id="@id1@")
-    person = MockIndividual(name=MockName(first="John", surname="Smith", maiden=None),
-                            mother=mother, father=None, xref_id="@id0@")
+    mother = MockIndividual(
+        name=MockName(first="Jane", surname="Smith", maiden="Huang"),
+        mother=None,
+        father=None,
+        xref_id="@id1@",
+    )
+    person = MockIndividual(
+        name=MockName(first="John", surname="Smith", maiden=None), mother=mother, father=None, xref_id="@id0@"
+    )
     tree = AncestorTree(person)
     assert tree.root is not None
     assert tree.width.pt == approx(((5 * 72 - 3 * 12 - 4) / 4) * 2 + 12 + 4)

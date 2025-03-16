@@ -1,5 +1,4 @@
-"""Module which produces ODT output.
-"""
+"""Module which produces ODT output."""
 
 __all__ = ["OdtWriter"]
 
@@ -33,6 +32,7 @@ class PageLayout(NamedTuple):
     left, right, top, bottom : `ged2doc.size.Size`
         Page margins.
     """
+
     width: Size
     height: Size
     left: Size
@@ -98,23 +98,45 @@ class OdtWriter(writer.Writer):
     tree_format : `str`
         Image format for ancestor tree, "emf" or "svg".
     """
-    def __init__(self, flocator, output, tr, encoding=None,
-                 encoding_errors="strict",
-                 sort_order=model.NameOrder.SURNAME_GIVEN, name_fmt=0,
-                 make_images=True, make_stat=True, make_toc=True,
-                 events_without_dates=True,
-                 page_width="6in", page_height="9in",
-                 margin_left="0.5in", margin_right="0.5in",
-                 margin_top="0.5in", margin_bottom="0.25in",
-                 image_width="2in", image_height="2in",
-                 tree_width=4, first_page=1, tree_format="emf"):
 
-        writer.Writer.__init__(self, flocator, tr, encoding=encoding,
-                               encoding_errors=encoding_errors,
-                               sort_order=sort_order, name_fmt=name_fmt,
-                               make_images=make_images, make_stat=make_stat,
-                               make_toc=make_toc,
-                               events_without_dates=events_without_dates)
+    def __init__(
+        self,
+        flocator,
+        output,
+        tr,
+        encoding=None,
+        encoding_errors="strict",
+        sort_order=model.NameOrder.SURNAME_GIVEN,
+        name_fmt=0,
+        make_images=True,
+        make_stat=True,
+        make_toc=True,
+        events_without_dates=True,
+        page_width="6in",
+        page_height="9in",
+        margin_left="0.5in",
+        margin_right="0.5in",
+        margin_top="0.5in",
+        margin_bottom="0.25in",
+        image_width="2in",
+        image_height="2in",
+        tree_width=4,
+        first_page=1,
+        tree_format="emf",
+    ):
+        writer.Writer.__init__(
+            self,
+            flocator,
+            tr,
+            encoding=encoding,
+            encoding_errors=encoding_errors,
+            sort_order=sort_order,
+            name_fmt=name_fmt,
+            make_images=make_images,
+            make_stat=make_stat,
+            make_toc=make_toc,
+            events_without_dates=events_without_dates,
+        )
 
         self._output = output
         self._image_width = Size(image_width)
@@ -132,7 +154,8 @@ class OdtWriter(writer.Writer):
             left=Size(margin_left),
             right=Size(margin_right),
             top=Size(margin_top),
-            bottom=Size(margin_bottom))
+            bottom=Size(margin_bottom),
+        )
         # starting page number
         self._make_layout(doc, self.layout, self._first_page)
 
@@ -154,27 +177,27 @@ class OdtWriter(writer.Writer):
         """
         pageLayout = style.PageLayout(name="pl1")
         doc.automaticstyles.addElement(pageLayout)
-        plProp = style.PageLayoutProperties(pageheight=str(layout.height),
-                                            pagewidth=str(layout.width),
-                                            marginleft=str(layout.left),
-                                            marginright=str(layout.right),
-                                            margintop=str(layout.top),
-                                            marginbottom=str(layout.bottom))
+        plProp = style.PageLayoutProperties(
+            pageheight=str(layout.height),
+            pagewidth=str(layout.width),
+            marginleft=str(layout.left),
+            marginright=str(layout.right),
+            margintop=str(layout.top),
+            marginbottom=str(layout.bottom),
+        )
         pageLayout.addElement(plProp)
 
         # add page numbers to the footers
         footer = style.Footer()
         foostyle = style.Style(name="Footer", family="paragraph")
-        foostyle.addElement(style.ParagraphProperties(textalign='center'))
-        foostyle.addElement(style.TextProperties(fontsize='10pt'))
+        foostyle.addElement(style.ParagraphProperties(textalign="center"))
+        foostyle.addElement(style.TextProperties(fontsize="10pt"))
         doc.automaticstyles.addElement(foostyle)
         p = text.P(stylename=foostyle)
-        p.addElement(text.PageNumber(selectpage="current",
-                                     pageadjust=str(firstpage - 1)))
+        p.addElement(text.PageNumber(selectpage="current", pageadjust=str(firstpage - 1)))
         footer.addElement(p)
 
-        masterpage = style.MasterPage(name="Standard",
-                                      pagelayoutname=pageLayout)
+        masterpage = style.MasterPage(name="Standard", pagelayoutname=pageLayout)
         masterpage.addElement(footer)
         doc.masterstyles.addElement(masterpage)
 
@@ -191,97 +214,91 @@ class OdtWriter(writer.Writer):
         styles = {}
 
         # heading styles, occupies whole page, centered
-        h1font = '22pt'
+        h1font = "22pt"
         h1topmrg = (layout.height - layout.top - layout.bottom) * 0.5
         h1topmrg -= Size(h1font)
         h1style = style.Style(name="Heading 1", family="paragraph")
-        h1style.addElement(style.ParagraphProperties(
-            textalign='center', breakbefore='page', margintop=str(h1topmrg)))
-        h1style.addElement(style.TextProperties(fontsize=h1font,
-                                                fontweight='bold'))
+        h1style.addElement(
+            style.ParagraphProperties(textalign="center", breakbefore="page", margintop=str(h1topmrg))
+        )
+        h1style.addElement(style.TextProperties(fontsize=h1font, fontweight="bold"))
         doc.styles.addElement(h1style)
-        styles['h1'] = h1style
+        styles["h1"] = h1style
 
         brstyle = style.Style(name="Break", family="paragraph")
-        brstyle.addElement(style.ParagraphProperties(
-            textalign='center', breakafter='page'))
+        brstyle.addElement(style.ParagraphProperties(textalign="center", breakafter="page"))
         doc.automaticstyles.addElement(brstyle)
-        styles['br'] = brstyle
+        styles["br"] = brstyle
 
         h2namestyle = style.Style(name="Heading 2 (Name)", family="paragraph")
-        h2namestyle.addElement(style.ParagraphProperties(
-            textalign='center', breakbefore='page', marginbottom="14pt"))
-        h2namestyle.addElement(style.TextProperties(
-            fontsize='14pt', fontweight='bold'))
+        h2namestyle.addElement(
+            style.ParagraphProperties(textalign="center", breakbefore="page", marginbottom="14pt")
+        )
+        h2namestyle.addElement(style.TextProperties(fontsize="14pt", fontweight="bold"))
         doc.styles.addElement(h2namestyle)
-        styles['h2br'] = h2namestyle
+        styles["h2br"] = h2namestyle
 
         h2style = style.Style(name="Heading 2", family="paragraph")
-        h2style.addElement(style.ParagraphProperties(
-            textalign='center', margintop="12pt"))
-        h2style.addElement(style.TextProperties(
-            fontsize='14pt', fontweight='bold'))
+        h2style.addElement(style.ParagraphProperties(textalign="center", margintop="12pt"))
+        h2style.addElement(style.TextProperties(fontsize="14pt", fontweight="bold"))
         doc.styles.addElement(h2style)
-        styles['h2'] = h2style
+        styles["h2"] = h2style
 
         h3style = style.Style(name="Heading 3", family="paragraph")
         # h3style.addElement(style.ParagraphProperties(textalign='center',
         # margintop="12pt", borderbottom="0.06pt solid #000000"))
-        h3style.addElement(style.ParagraphProperties(
-            textalign='center', margintop="12pt"))
-        h3style.addElement(style.TextProperties(fontweight='bold'))
+        h3style.addElement(style.ParagraphProperties(textalign="center", margintop="12pt"))
+        h3style.addElement(style.TextProperties(fontweight="bold"))
         doc.styles.addElement(h3style)
-        styles['h3'] = h3style
+        styles["h3"] = h3style
 
         # style for image
-        imgstyle = style.Style(
-            name="ImgStyle", family="graphic", parentstylename="Graphics")
-        imgstyle.addElement(style.GraphicProperties(
-            verticalpos='top', verticalrel='paragraph-content',
-            horizontalpos='right', horizontalrel='page-content',
-            marginleft="0.1in", marginbottom="0.1in"))
+        imgstyle = style.Style(name="ImgStyle", family="graphic", parentstylename="Graphics")
+        imgstyle.addElement(
+            style.GraphicProperties(
+                verticalpos="top",
+                verticalrel="paragraph-content",
+                horizontalpos="right",
+                horizontalrel="page-content",
+                marginleft="0.1in",
+                marginbottom="0.1in",
+            )
+        )
         doc.automaticstyles.addElement(imgstyle)
-        styles['img'] = imgstyle
+        styles["img"] = imgstyle
 
         # centered paragraph
         centered = style.Style(name="centered", family="paragraph")
-        centered.addElement(style.ParagraphProperties(textalign='center'))
+        centered.addElement(style.ParagraphProperties(textalign="center"))
         doc.styles.addElement(centered)
-        styles['center'] = centered
+        styles["center"] = centered
 
         # centered frame
-        frame_center = style.Style(
-            name="frame-center",
-            family="graphic",
-            parentstylename="Graphics"
-        )
-        frame_center.addElement(style.GraphicProperties(
-            horizontalpos="center", horizontalrel="paragraph"
-        ))
+        frame_center = style.Style(name="frame-center", family="graphic", parentstylename="Graphics")
+        frame_center.addElement(style.GraphicProperties(horizontalpos="center", horizontalrel="paragraph"))
         doc.automaticstyles.addElement(frame_center)
-        styles['frame_center'] = frame_center
+        styles["frame_center"] = frame_center
 
         # style for tree table
         treetablestyle = style.Style(name="TreeTableStyle", family="table")
-        treetablestyle.addElement(style.TableProperties(align='center'))
+        treetablestyle.addElement(style.TableProperties(align="center"))
         doc.automaticstyles.addElement(treetablestyle)
-        styles['treetable'] = treetablestyle
+        styles["treetable"] = treetablestyle
 
-        treecellstyle = style.Style(
-            name="TreeTableCellStyle", family="table-cell")
-        treecellstyle.addElement(style.TableCellProperties(
-            verticalalign='middle', padding='0.03in'))
+        treecellstyle = style.Style(name="TreeTableCellStyle", family="table-cell")
+        treecellstyle.addElement(style.TableCellProperties(verticalalign="middle", padding="0.03in"))
         doc.automaticstyles.addElement(treecellstyle)
-        styles['treecell'] = treecellstyle
+        styles["treecell"] = treecellstyle
 
-        treeparastyle = style.Style(
-            name="TreeTableParaStyle", family="paragraph")
-        treeparastyle.addElement(style.ParagraphProperties(
-            textalign='center', verticalalign='middle',
-            border="0.06pt solid #000000", padding='0.01in'))
-        treeparastyle.addElement(style.TextProperties(fontsize='10pt'))
+        treeparastyle = style.Style(name="TreeTableParaStyle", family="paragraph")
+        treeparastyle.addElement(
+            style.ParagraphProperties(
+                textalign="center", verticalalign="middle", border="0.06pt solid #000000", padding="0.01in"
+            )
+        )
+        treeparastyle.addElement(style.TextProperties(fontsize="10pt"))
         doc.automaticstyles.addElement(treeparastyle)
-        styles['treepara'] = treeparastyle
+        styles["treepara"] = treeparastyle
 
         return styles
 
@@ -316,14 +333,12 @@ class OdtWriter(writer.Writer):
         style = "h" + str(level)
         if newpage:
             style += "br"
-        self.doc.text.addElement(text.H(text=title, outlinelevel=level,
-                                        stylename=self.styles.get(style)))
+        self.doc.text.addElement(text.H(text=title, outlinelevel=level, stylename=self.styles.get(style)))
         if level == 1:
             # page break after H1
-            self.doc.text.addElement(text.P(text='', stylename="Break"))
+            self.doc.text.addElement(text.P(text="", stylename="Break"))
 
-    def _render_person(self, person, image_data, attributes, families,
-                       events, notes):
+    def _render_person(self, person, image_data, attributes, families, events, notes):
         # docstring inherited from base class
 
         # image if present
@@ -331,15 +346,14 @@ class OdtWriter(writer.Writer):
             imgframe = self._get_image_fragment(image_data)
             if imgframe:
                 p = text.P()
-                imgframe.setAttribute('stylename', self.styles['img'])
-                imgframe.setAttribute('anchortype', 'paragraph')
+                imgframe.setAttribute("stylename", self.styles["img"])
+                imgframe.setAttribute("anchortype", "paragraph")
                 p.addElement(imgframe)
                 self.doc.text.addElement(p)
 
         # all attributes follow
         for attr, value in attributes:
-            self.doc.text.addElement(text.P(text=attr + ": " +
-                                            self._interpolate(value)))
+            self.doc.text.addElement(text.P(text=attr + ": " + self._interpolate(value)))
 
         if families:
             hdr = self._tr.tr(TR("Spouses and children"), person.sex)
@@ -365,11 +379,9 @@ class OdtWriter(writer.Writer):
 
     def _render_name_stat(self, n_total, n_females, n_males):
         # docstring inherited from base class
-        items = ((TR('Person count'), n_total),
-                 (TR('Female count'), n_females),
-                 (TR('Male count'), n_males))
+        items = ((TR("Person count"), n_total), (TR("Female count"), n_females), (TR("Male count"), n_males))
         for key, val in items:
-            p = text.P(text='%s: %d' % (self._tr.tr(key), val))
+            p = text.P(text="%s: %d" % (self._tr.tr(key), val))
             self.doc.text.addElement(p)
 
     def _render_name_freq(self, freq_table):
@@ -392,27 +404,23 @@ class OdtWriter(writer.Writer):
         tbl.addElement(table.TableColumn())
 
         for name1, count1, name2, count2 in _gencouples(freq_table):
-
             row = table.TableRow()
 
             cell = table.TableCell()
-            cell.addElement(text.P(text=name1 or '-'))
+            cell.addElement(text.P(text=name1 or "-"))
             row.addElement(cell)
 
             cell = table.TableCell()
-            cell.addElement(text.P(text='%d (%.1f%%)' %
-                                   (count1, count1 / total * 100)))
+            cell.addElement(text.P(text="%d (%.1f%%)" % (count1, count1 / total * 100)))
             row.addElement(cell)
 
             if count2 is not None:
-
                 cell = table.TableCell()
-                cell.addElement(text.P(text=name2 or '-'))
+                cell.addElement(text.P(text=name2 or "-"))
                 row.addElement(cell)
 
                 cell = table.TableCell()
-                cell.addElement(text.P(text='%d (%.1f%%)' %
-                                       (count2, count2 / total * 100)))
+                cell.addElement(text.P(text="%d (%.1f%%)" % (count2, count2 / total * 100)))
                 row.addElement(cell)
 
             tbl.addElement(row)
@@ -421,8 +429,8 @@ class OdtWriter(writer.Writer):
 
     def _render_toc(self):
         # docstring inherited from base class
-        self.doc.text.addElement(text.P(text='', stylename=self.styles['br']))
-        toc = text.TableOfContent(name='TOC')
+        self.doc.text.addElement(text.P(text="", stylename=self.styles["br"]))
+        toc = text.TableOfContent(name="TOC")
         tocsrc = text.TableOfContentSource(outlinelevel=2)
         title = self._tr.tr(TR("Table Of Contents"))
         toctitle = text.IndexTitleTemplate(text=title)
@@ -434,7 +442,7 @@ class OdtWriter(writer.Writer):
         # docstring inherited from base class
 
         # save the result
-        if hasattr(self._output, 'write'):
+        if hasattr(self._output, "write"):
             self.doc.write(self._output)
         else:
             self.doc.save(self._output)
@@ -461,21 +469,18 @@ class OdtWriter(writer.Writer):
             _log.error("error while loading image: %s", exc)
             return None
 
-        filename = "Pictures/" + \
-            hashlib.sha1(image_data).hexdigest() + '.' + img.format.lower()
+        filename = "Pictures/" + hashlib.sha1(image_data).hexdigest() + "." + img.format.lower()
 
         # calculate size of the frame
-        maxsize = (self._image_width.inches,
-                   self._image_height.inches)
+        maxsize = (self._image_width.inches, self._image_height.inches)
         w, h = utils.resize(img.size, maxsize)
         frame = draw.Frame(width="%.3fin" % w, height="%.3fin" % h)
-        imgref = self.doc.addPicture(filename, utils.img_mime_type(img),
-                                     image_data)
+        imgref = self.doc.addPicture(filename, utils.img_mime_type(img), image_data)
         frame.addElement(draw.Image(href=imgref))
         return frame
 
     def _make_ancestor_tree(self, person):
-        """"Add a picture for ancestor tree.
+        """ "Add a picture for ancestor tree.
 
         Parameters
         ----------
@@ -493,7 +498,7 @@ class OdtWriter(writer.Writer):
                 return
             img_data, mime, width, height = img
         else:
-            visitor = SVGTreeVisitor(units='in', fullxml=True)
+            visitor = SVGTreeVisitor(units="in", fullxml=True)
             tree.visit(visitor)
             img = visitor.makeSVG(width=tree.width, height=tree.height)
             if not img:
@@ -503,16 +508,16 @@ class OdtWriter(writer.Writer):
             img_data = img_data.encode("utf_8")
 
         # store image
-        filename = "Pictures/" + \
-            hashlib.sha1(img_data).hexdigest() + '.' + self._tree_format
+        filename = "Pictures/" + hashlib.sha1(img_data).hexdigest() + "." + self._tree_format
         imgref = self.doc.addPicture(filename, mime, img_data)
 
-        frame = draw.Frame(width=str(width), height=str(height), anchortype="as-char",
-                           stylename=self.styles["frame_center"])
+        frame = draw.Frame(
+            width=str(width), height=str(height), anchortype="as-char", stylename=self.styles["frame_center"]
+        )
         frame.addElement(draw.Image(href=imgref))
 
         hdr = self._tr.tr(TR("Ancestor tree"))
         self._render_section(3, "", hdr)
-        p = text.P(stylename=self.styles['center'])
+        p = text.P(stylename=self.styles["center"])
         p.addElement(frame)
         self.doc.text.addElement(p)

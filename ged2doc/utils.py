@@ -1,5 +1,4 @@
-"""Various utility methods.
-"""
+"""Various utility methods."""
 
 import locale
 import logging
@@ -87,21 +86,20 @@ def person_image_file(person):
     to images.
     """
     first = None
-    for obje in person.sub_tags('OBJE'):
-
+    for obje in person.sub_tags("OBJE"):
         # assume by default it is some image format
         objform = obje.sub_tag("FORM")
-        objform = objform.value if objform else 'jpg'
+        objform = objform.value if objform else "jpg"
 
         primary = obje.sub_tag("_PRIM")
-        primary = primary.value == 'Y' if primary is not None else False
+        primary = primary.value == "Y" if primary is not None else False
 
         files = obje.sub_tags("FILE")
         for file in files:
             form = file.sub_tag("FORM")
             form = form.value if form is not None else objform
 
-            if form.lower() in ('jpg', 'gif', 'tif', 'bmp'):
+            if form.lower() in ("jpg", "gif", "tif", "bmp"):
                 if primary:
                     return file.value
                 elif not first:
@@ -120,7 +118,7 @@ def languages():
     -------
     languages : `list` [ `str` ]
     """
-    return ['en', 'ru', 'pl', 'cz']
+    return ["en", "ru", "pl", "cz"]
 
 
 def system_lang():
@@ -174,10 +172,10 @@ def split_refs(text):
         else:
             if pos > 0:
                 yield text[:pos]
-            text = text[pos + 1:]
+            text = text[pos + 1 :]
             pos = text.find("\x03")
             ref_text = text[:pos]
-            text = text[pos + 1:]
+            text = text[pos + 1 :]
             ref, _, name = ref_text.partition("\x02")
             yield (ref, name)
 
@@ -224,7 +222,7 @@ def img_resize(img, size):
     newsize = (int(newsize[0]), int(newsize[1]))
     if newsize != img.size:
         # means size was reduced
-        _log.debug('Resize image to %s', newsize)
+        _log.debug("Resize image to %s", newsize)
         img = img.resize(newsize, Image.LANCZOS)
 
     return img
@@ -251,7 +249,7 @@ def img_save(img, file):
         # save in the original format
         img.save(file, img.format)
         return img_mime_type(img)
-    elif img.mode in ('P', 'RGBA'):
+    elif img.mode in ("P", "RGBA"):
         # palette or transparency - save it as PNG
         img.save(file, "PNG", optimize=True)
         return mimetypes.types_map.get(".png")

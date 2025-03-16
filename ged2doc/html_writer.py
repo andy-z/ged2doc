@@ -1,5 +1,4 @@
-"""Module which produces HTML output.
-"""
+"""Module which produces HTML output."""
 
 __all__ = ["HtmlWriter"]
 
@@ -77,21 +76,39 @@ class HtmlWriter(writer.Writer):
     tree_width : `int`
         Number of generations in ancestor tree.
     """
-    def __init__(self, flocator, output, tr, encoding=None,
-                 encoding_errors="strict",
-                 sort_order=model.NameOrder.SURNAME_GIVEN, name_fmt=0,
-                 make_images=True, make_stat=True, make_toc=True,
-                 events_without_dates=True,
-                 page_width="800px", image_width="300px",
-                 image_height="300px", image_upscale=False,
-                 tree_width=4):
 
-        writer.Writer.__init__(self, flocator, tr, encoding=encoding,
-                               encoding_errors=encoding_errors,
-                               sort_order=sort_order, name_fmt=name_fmt,
-                               make_images=make_images, make_stat=make_stat,
-                               make_toc=make_toc,
-                               events_without_dates=events_without_dates)
+    def __init__(
+        self,
+        flocator,
+        output,
+        tr,
+        encoding=None,
+        encoding_errors="strict",
+        sort_order=model.NameOrder.SURNAME_GIVEN,
+        name_fmt=0,
+        make_images=True,
+        make_stat=True,
+        make_toc=True,
+        events_without_dates=True,
+        page_width="800px",
+        image_width="300px",
+        image_height="300px",
+        image_upscale=False,
+        tree_width=4,
+    ):
+        writer.Writer.__init__(
+            self,
+            flocator,
+            tr,
+            encoding=encoding,
+            encoding_errors=encoding_errors,
+            sort_order=sort_order,
+            name_fmt=name_fmt,
+            make_images=make_images,
+            make_stat=make_stat,
+            make_toc=make_toc,
+            events_without_dates=events_without_dates,
+        )
 
         self._page_width = Size(page_width)
         self._image_width = Size(image_width)
@@ -99,29 +116,28 @@ class HtmlWriter(writer.Writer):
         self._image_upscale = image_upscale
         self._tree_width = tree_width
 
-        if hasattr(output, 'write'):
+        if hasattr(output, "write"):
             self._output = output
             self._close = False
         else:
-            self._output = open(output, 'wb')
+            self._output = open(output, "wb")
             self._close = True
         self._toc = []
 
     def _render_prolog(self):
         # docstring inherited from base class
-        doc = ['<!DOCTYPE html>']
-        doc += ['<html>', '<head>']
-        doc += ['<meta http-equiv="Content-Type" content="text/html;'
-                ' charset=utf-8">\n']
-        doc += ['<title>', 'Family Tree', '</title>\n']
-        d = dict(page_width=self._page_width ^ 'px')
+        doc = ["<!DOCTYPE html>"]
+        doc += ["<html>", "<head>"]
+        doc += ['<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n']
+        doc += ["<title>", "Family Tree", "</title>\n"]
+        d = dict(page_width=self._page_width ^ "px")
         style = resources.files("ged2doc").joinpath("data/styles/default").read_bytes()
-        style = style.decode('utf-8')
+        style = style.decode("utf-8")
         doc += [string.Template(style).substitute(d)]
-        doc += ['</head>\n', '<body>\n']
+        doc += ["</head>\n", "<body>\n"]
         doc += ['<div id="contents_div"/>\n']
         for line in doc:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
     def _interpolate(self, text):
         """Takes text with embedded references and returns properly
@@ -141,8 +157,7 @@ class HtmlWriter(writer.Writer):
         for piece in utils.split_refs(text):
             if isinstance(piece, tuple):
                 xref, name = piece
-                result += '<a href="#{0}">{1}</a>'.format(html_escape(xref),
-                                                          html_escape(name))
+                result += '<a href="#{0}">{1}</a>'.format(html_escape(xref), html_escape(name))
             else:
                 result += html_escape(piece)
         return result
@@ -150,13 +165,11 @@ class HtmlWriter(writer.Writer):
     def _render_section(self, level, ref_id, title, newpage=False):
         # docstring inherited from base class
         self._toc += [(level, ref_id, title)]
-        doc = ['<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id,
-                                                    html_escape(title))]
+        doc = ['<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id, html_escape(title))]
         for line in doc:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
-    def _render_person(self, person, image_data, attributes, families,
-                       events, notes):
+    def _render_person(self, person, image_data, attributes, families, events, notes):
         # docstring inherited from base class
         doc = []
 
@@ -168,45 +181,43 @@ class HtmlWriter(writer.Writer):
 
         # all attributes follow
         for attr, value in attributes:
-            doc += ['<p>' + self._interpolate(attr) + ": " +
-                    self._interpolate(value) + '</p>\n']
+            doc += ["<p>" + self._interpolate(attr) + ": " + self._interpolate(value) + "</p>\n"]
 
         if families:
             hdr = self._tr.tr(TR("Spouses and children"), person.sex)
-            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
+            doc += ["<h3>" + html_escape(hdr) + "</h3>\n"]
             for family in families:
                 family = self._interpolate(family)
-                doc += ['<p>' + family + '</p>\n']
+                doc += ["<p>" + family + "</p>\n"]
 
         if events:
             hdr = self._tr.tr(TR("Events and dates"))
-            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
+            doc += ["<h3>" + html_escape(hdr) + "</h3>\n"]
             for date, facts in events:
                 facts = self._interpolate(facts)
-                doc += ['<p>' + html_escape(date) + ": " + facts +
-                        '</p>\n']
+                doc += ["<p>" + html_escape(date) + ": " + facts + "</p>\n"]
 
         if notes:
             hdr = self._tr.tr(TR("Comments"))
-            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
+            doc += ["<h3>" + html_escape(hdr) + "</h3>\n"]
             for note in notes:
                 note = self._interpolate(note)
-                doc += ['<p>' + note + '</p>\n']
+                doc += ["<p>" + note + "</p>\n"]
 
         # plot ancestors tree
         doc += self._make_ancestor_tree(person)
 
         for line in doc:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
     def _render_name_stat(self, n_total, n_females, n_males):
         # docstring inherited from base class
         doc = []
-        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Person count')), n_total)]
-        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Female count')), n_females)]
-        doc += ['<p>%s: %d</p>' % (self._tr.tr(TR('Male count')), n_males)]
+        doc += ["<p>%s: %d</p>" % (self._tr.tr(TR("Person count")), n_total)]
+        doc += ["<p>%s: %d</p>" % (self._tr.tr(TR("Female count")), n_females)]
+        doc += ["<p>%s: %d</p>" % (self._tr.tr(TR("Male count")), n_males)]
         for line in doc:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
     def _render_name_freq(self, freq_table):
         # docstring inherited from base class
@@ -224,43 +235,39 @@ class HtmlWriter(writer.Writer):
         tbl = ['<table class="statTable">\n']
 
         for name1, count1, name2, count2 in _gencouples(freq_table):
+            tbl += ["<tr>\n"]
 
-            tbl += ['<tr>\n']
-
-            tbl += ['<td width="25%">{0}</td>'.format(name1 or '-')]
-            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
-                count1, count1 / total)]
+            tbl += ['<td width="25%">{0}</td>'.format(name1 or "-")]
+            tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count1, count1 / total)]
 
             if count2 is not None:
+                tbl += ['<td width="25%">{0}</td>'.format(name2 or "-")]
+                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(count2, count2 / total)]
 
-                tbl += ['<td width="25%">{0}</td>'.format(name2 or '-')]
-                tbl += ['<td width="20%">{0} ({1:.1%})</td>'.format(
-                    count2, count2 / total)]
+            tbl += ["</tr>\n"]
 
-            tbl += ['</tr>\n']
-
-        tbl += ['</table>\n']
+        tbl += ["</table>\n"]
         for line in tbl:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
     def _render_toc(self):
         # docstring inherited from base class
         section = self._tr.tr(TR("Table Of Contents"))
-        doc = ['<h1>{0}</h1>\n'.format(html_escape(section))]
+        doc = ["<h1>{0}</h1>\n".format(html_escape(section))]
         lvl = 0
         for toclvl, tocid, text in self._toc:
             while lvl < toclvl:
-                doc += ['<ul>']
+                doc += ["<ul>"]
                 lvl += 1
             while lvl > toclvl:
-                doc += ['</ul>']
+                doc += ["</ul>"]
                 lvl -= 1
             doc += ['<li><a href="#{0}">{1}</a></li>\n'.format(tocid, text)]
         while lvl > 0:
-            doc += ['</ul>']
+            doc += ["</ul>"]
             lvl -= 1
         for line in doc:
-            self._output.write(line.encode('utf-8'))
+            self._output.write(line.encode("utf-8"))
 
     def _finalize(self):
         # docstring inherited from base class
@@ -300,20 +307,17 @@ class HtmlWriter(writer.Writer):
                 imgsize = ' width="{}" height="{}"'.format(*extend)
 
             # reuse original image data
-            tag = '<img class="personImage"{imgsize} '\
-                  'src="data:{mime};base64,{data}"/>'
-            data = base64.b64encode(image_data).decode('ascii')
-            return tag.format(mime=utils.img_mime_type(img),
-                              data=data, imgsize=imgsize)
+            tag = '<img class="personImage"{imgsize} src="data:{mime};base64,{data}"/>'
+            data = base64.b64encode(image_data).decode("ascii")
+            return tag.format(mime=utils.img_mime_type(img), data=data, imgsize=imgsize)
 
         else:
             # new image, need to convert it to bytes
             imgfile = io.BytesIO()
             mimetype = utils.img_save(newimg, imgfile)
             if mimetype:
-                tag = '<img class="personImage" '\
-                      'src="data:{mime};base64,{data}"/>'
-                data = base64.b64encode(imgfile.getvalue()).decode('ascii')
+                tag = '<img class="personImage" src="data:{mime};base64,{data}"/>'
+                data = base64.b64encode(imgfile.getvalue()).decode("ascii")
                 return tag.format(mime=mimetype, data=data)
 
     def _make_ancestor_tree(self, person):
@@ -329,19 +333,19 @@ class HtmlWriter(writer.Writer):
         html : `list` [ `str` ]
             SVG data (HTML contents), list of strings.
         """
-        width = self._page_width ^ 'px'
+        width = self._page_width ^ "px"
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
-        visitor = SVGTreeVisitor(units='px', fullxml=False)
+        visitor = SVGTreeVisitor(units="px", fullxml=False)
         tree.visit(visitor)
         img = visitor.makeSVG(width=tree.width, height=tree.height)
         doc = []
         if img is not None:
             tree_svg = img[0]
             hdr = self._tr.tr(TR("Ancestor tree"))
-            doc += ['<h3>' + html_escape(hdr) + '</h3>\n']
+            doc += ["<h3>" + html_escape(hdr) + "</h3>\n"]
             doc += ['<div class="centered">\n']
             doc += [tree_svg]
-            doc += ['</div>\n']
+            doc += ["</div>\n"]
         else:
             doc += ['<svg width="100%" height="1pt"/>\n']
         return doc

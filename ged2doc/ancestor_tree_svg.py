@@ -1,5 +1,4 @@
-"""Module containing methods/classes for laying out ancestor trees.
-"""
+"""Module containing methods/classes for laying out ancestor trees."""
 
 __all__ = ["SVGTreeVisitor"]
 
@@ -28,7 +27,8 @@ class SVGTreeVisitor(AncestorTreeVisitor):
     fullxml : `bool`, optional
         If ``True`` then generate full XML header.
     """
-    def __init__(self, units='in', fullxml=True):
+
+    def __init__(self, units="in", fullxml=True):
         self._units = units
         self._fullxml = fullxml
         self._elements = []
@@ -37,10 +37,9 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         # docstring inherited from base class
         units = self._units
 
-        textclass = None if node.person is None else 'svglink'
+        textclass = None if node.person is None else "svglink"
         style = _rect_unknown_style if node.person is None else _rect_style
-        self._elements += self._textbox_svg(node.textbox, textclass=textclass,
-                                            units=units, rect_style=style)
+        self._elements += self._textbox_svg(node.textbox, textclass=textclass, units=units, rect_style=style)
 
     def visitMotherEdge(self, node, parentNode):
         # docstring inherited from base class
@@ -108,25 +107,28 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         # generate full XML
         xml = svg.xml(self._fullxml)
 
-        return xml, 'image/svg', width, height
+        return xml, "image/svg", width, height
 
-    def _textbox_svg(self, textbox, textclass=None, units='in', rect_style=None):
-        """Produces list of SVG elements for a textbox.
-        """
+    def _textbox_svg(self, textbox, textclass=None, units="in", rect_style=None):
+        """Produces list of SVG elements for a textbox."""
         shapes = []
 
         # render box
-        kw = dict(x=textbox.x0 ^ units, y=textbox.y0 ^ units,
-                  width=textbox.width ^ units, height=textbox.height ^ units)
+        kw = dict(
+            x=textbox.x0 ^ units,
+            y=textbox.y0 ^ units,
+            width=textbox.width ^ units,
+            height=textbox.height ^ units,
+        )
         if rect_style:
-            kw['style'] = rect_style
+            kw["style"] = rect_style
         rect = Rect(**kw)
         shapes.append(rect)
 
         # render text
-        kw = dict(text_anchor='middle', font_size=textbox.font_size ^ 'pt')
+        kw = dict(text_anchor="middle", font_size=textbox.font_size ^ "pt")
         if textclass:
-            kw['class_'] = textclass
+            kw["class_"] = textclass
         txt = Text(**kw)
         if textbox.href:
             a = Hyperlink(textbox.href)

@@ -1,10 +1,10 @@
-'''Python module for generating EMF.
+"""Python module for generating EMF.
 
 Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
-'''
+"""
 
-__all__ = ['EMF', 'BackgroundMode']
+__all__ = ["EMF", "BackgroundMode"]
 
 import abc
 import contextlib
@@ -161,7 +161,7 @@ def _pack(*args):
 
 
 def _strencode(str, size):
-    encoded = str[:size//2].encode("utf_16_le", "strict")
+    encoded = str[: size // 2].encode("utf_16_le", "strict")
     encoded += b"\0" * (size - len(encoded))
     return encoded
 
@@ -175,12 +175,14 @@ class EMF:
         Document width and height, accepts anything convertible to
         `ged2doc.size.Size`.
     """
+
     def __init__(self, width, height):
         self._width = Size(width)
         self._height = Size(height)
         self._records = []  # List of all records added so far
-        _LOG.debug("EMF: size = %s x %s (dpi %s x %s)",
-                   self._width, self._height, self._width.dpi, self._height.dpi)
+        _LOG.debug(
+            "EMF: size = %s x %s (dpi %s x %s)", self._width, self._height, self._width.dpi, self._height.dpi
+        )
         # self._handles = {}
 
         # self._records += [
@@ -238,8 +240,7 @@ class EMF:
         # rec = GeneralRecord(EMR_CREATEPEN, ("I", pen_handle, style, width, width, color))
         rec = GeneralRecord(EMR_EXTCREATEPEN, ("I", pen_handle, 0, 0, 0, 0, style, width, 0, color, 6, 0, 0))
         self._records.append(rec)
-        _LOG.debug("EMF: create_pen: id=%s style=%s width=%s color=%s",
-                   pen_handle, style, width, color)
+        _LOG.debug("EMF: create_pen: id=%s style=%s width=%s color=%s", pen_handle, style, width, color)
         rec = GeneralRecord(EMR_SELECTOBJECT, ("I", pen_handle))
         self._records.append(rec)
         yield pen_handle
@@ -262,7 +263,7 @@ class EMF:
         """
         font_handle = 1  # self._handle_for("font")
 
-        height = - size.px  # negative to enable matching
+        height = -size.px  # negative to enable matching
         width = 0
         weight = 400  # normal
 
@@ -328,10 +329,7 @@ class EMF:
         for x, y in points:
             coords += [x, y]
         rec = GeneralRecord(
-            EMR_POLYLINE,
-            ("i", left, top, right, bottom),
-            ("I", len(points)),
-            ("i",) + tuple(coords)
+            EMR_POLYLINE, ("i", left, top, right, bottom), ("I", len(points)), ("i",) + tuple(coords)
         )
         self._records.append(rec)
 
@@ -401,7 +399,7 @@ class EMF:
         """
         pos = tuple(pos.px for pos in (x, y))
         iGraphicsMode = GM_COMPATIBLE
-        exScale, eyScale = 1., 1.
+        exScale, eyScale = 1.0, 1.0
 
         nChars = len(text)  # number of characters, not bytes
         # encode as UTF16-LE and pad to 4-byte
@@ -427,13 +425,12 @@ class EMF:
             ("i", 0, 0, -1, -1),  # Rectangle
             ("I", offDx),
             ("{}s".format(len(txt_bytes)), txt_bytes),
-            )
+        )
         self._records.append(rec)
 
 
 class Record(metaclass=abc.ABCMeta):
-    """Base class for all EMF records.
-    """
+    """Base class for all EMF records."""
 
     @abc.abstractmethod
     def size(self):
@@ -468,6 +465,7 @@ class GeneralRecord(Record):
     *pack_args : `tuple`
         Data to pack into record, same format as for `_pack` method.
     """
+
     def __init__(self, type, *pack_args):
         if pack_args:
             rec = _pack(*pack_args)
@@ -500,6 +498,7 @@ class _HeaderRecord(Record):
     rec_size : `int`
         Size of all of records in file, not including header.
     """
+
     def __init__(self, width, height, n_rec, rec_size, n_handles):
         self._type = EMR_HEADER
         self._width = width
@@ -524,8 +523,15 @@ class _HeaderRecord(Record):
         bOpenGL = 0
         MicrometersX = sizeXmm * 1000
         MicrometersY = sizeYmm * 1000
-        _LOG.debug("EMF: header: bounds = %s x %s; frame = %s x %s; size_mm = %s x %s",
-                   boundsX, boundsY, frameX, frameY, sizeXmm, sizeYmm)
+        _LOG.debug(
+            "EMF: header: bounds = %s x %s; frame = %s x %s; size_mm = %s x %s",
+            boundsX,
+            boundsY,
+            frameX,
+            frameY,
+            sizeXmm,
+            sizeYmm,
+        )
         return _pack(
             ("I", self._type, self.size()),
             ("I", 0, 0, boundsX, boundsY),
@@ -559,9 +565,7 @@ class _EOFRecord(Record):
     def data(self):
         # docstring inherited from base class
         size = self.size()
-        return _pack(
-            ("I", self._type, size, 0, 16, size)
-        )
+        return _pack(("I", self._type, size, 0, 16, size))
 
     def size(self):
         # docstring inherited from base class
@@ -579,13 +583,11 @@ def _parse():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("file", type=argparse.FileType("rb"))
-    parser.add_argument("-v", dest="verbose", action="store_true", default=False,
-                        help="verbose output")
+    parser.add_argument("-v", dest="verbose", action="store_true", default=False, help="verbose output")
     args = parser.parse_args()
 
     data = args.file.read(8)
     while data:
-
         rectype, size = struct.unpack("II", data)
         for name, value in globals().items():
             if name.startswith("EMR_") and value == rectype:
@@ -622,7 +624,7 @@ def _parse():
 
                 for i in (0, 4, 8, 12):
                     if i < len(line):
-                        v, = struct.unpack("I", line[i:i+4])
+                        (v,) = struct.unpack("I", line[i : i + 4])
                         fline += " {:010d}".format(v)
 
                 print(fline)

@@ -1,5 +1,4 @@
-"""Methods for manipulating/formatting names.
-"""
+"""Methods for manipulating/formatting names."""
 
 import enum
 
@@ -48,20 +47,20 @@ def name_fmt(name, fmt=NameFormat(0)):
         surname = name.surname
         if name.maiden:
             if surname:
-                surname += ' '
+                surname += " "
             surname += "(" + name.maiden + ")"
     if fmt & NameFormat.CAPITAL and surname:
         surname = surname.upper()
 
     if fmt & NameFormat.SURNAME_FIRST:
         if surname and name.given and fmt & NameFormat.COMMA:
-            return surname + ', ' + name.given
+            return surname + ", " + name.given
         if surname and name.given:
-            return surname + ' ' + name.given
+            return surname + " " + name.given
         else:
             return name.given or surname
     else:
         if surname and name.given:
-            return name.given + ' ' + surname
+            return name.given + " " + surname
         else:
             return name.given or surname

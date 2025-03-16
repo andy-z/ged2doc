@@ -61,12 +61,12 @@ class MultipleMatchesError(RuntimeError):
     """Class for exceptions generated when there is more than one file
     matching specified criteria.
     """
+
     pass
 
 
 class FileLocator(metaclass=abc.ABCMeta):
-    """Abstract interface for file locator instances.
-    """
+    """Abstract interface for file locator instances."""
 
     @abc.abstractmethod
     def open_gedcom(self):
@@ -160,13 +160,13 @@ class _Path:
         # of system with different path separator. First try to convert path
         # into canonical form using slashes as separators and stripping
         # Windows drive.
-        if len(path) > 2 and path[0].isalpha() and path[1] == ':':
+        if len(path) > 2 and path[0].isalpha() and path[1] == ":":
             # strip windows drive name
             path = path[2:]
-        path = path.replace('\\', '/').lstrip('/')
+        path = path.replace("\\", "/").lstrip("/")
 
         # split file name into components
-        return cls(path.split('/'), dirname)
+        return cls(path.split("/"), dirname)
 
     def match_rank(self, other):
         """Returns match "rank" with the other path.
@@ -186,8 +186,7 @@ class _Path:
         if self.components[-1] != other.components[-1]:
             return 0
         rank = 0
-        for comp1, comp2 in zip(reversed(self.components),
-                                reversed(other.components)):
+        for comp1, comp2 in zip(reversed(self.components), reversed(other.components)):
             if comp1 != comp2:
                 break
             rank += 1
@@ -248,7 +247,7 @@ class _FileSearch(metaclass=abc.ABCMeta):
         max_rank = 1  # need at least basename match
         for cand in self.paths:
             rank = path.match_rank(cand)
-#             _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
+            #             _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
             if rank > max_rank:
                 matches = [cand]
                 max_rank = rank
@@ -259,19 +258,17 @@ class _FileSearch(metaclass=abc.ABCMeta):
             _log.debug("_FileSearch.find_file: nothing found")
             return
         elif len(matches) > 1:
-            _log.debug("_FileSearch.find_file: many files found: %s",
-                       matches)
-            raise MultipleMatchesError('More than one file matches name ' +
-                                       str(path) + ": " +
-                                       ', '.join(str(m) for m in matches))
+            _log.debug("_FileSearch.find_file: many files found: %s", matches)
+            raise MultipleMatchesError(
+                "More than one file matches name " + str(path) + ": " + ", ".join(str(m) for m in matches)
+            )
         else:
             _log.debug("_FileSearch.find_file: found: %s", matches[0])
             return matches[0]
 
     @property
     def paths(self):
-        """The list of all path names (_Path instances) to use for matching.
-        """
+        """The list of all path names (_Path instances) to use for matching."""
         if self._path_cache is None:
             self._path_cache = self._paths()
         return self._path_cache
@@ -303,15 +300,13 @@ class _FSFileSearch(_FileSearch):
     """
 
     def __init__(self, path):
-
         if path is not None and not isinstance(path, str):
             path = path.decode("utf_8")
         self._path = path
 
     def _paths(self):
         # docstring inherited from _FileSearch class
-        _log.debug("_FSFileSearch.find_file: recursively scan "
-                   "directory %r", self._path)
+        _log.debug("_FSFileSearch.find_file: recursively scan directory %r", self._path)
         if self._path is None:
             # do not search
             return []
@@ -341,7 +336,7 @@ class _FSFileSearch(_FileSearch):
                     yield p
             elif os.path.isfile(fpath):
                 p = _Path(components, self._path)
-#                 _log.debug("_scan: %s", p)
+                #                 _log.debug("_scan: %s", p)
                 yield p
 
 
@@ -353,6 +348,7 @@ class _ZIPFileSearch(_FileSearch):
     toc : `list` [ `str` ]
         List of entries in ZIP archive.
     """
+
     def __init__(self, toc):
         self._toc = toc
 
@@ -360,7 +356,7 @@ class _ZIPFileSearch(_FileSearch):
         # docstring inherited from _FileSearch class
         paths = []
         for entry in self._toc:
-            paths.append(_Path([comp for comp in entry.split('/') if comp]))
+            paths.append(_Path([comp for comp in entry.split("/") if comp]))
         return paths
 
 
@@ -380,12 +376,12 @@ class _FSLocator(FileLocator):
         ``None`` then file system is not searched for files. If ``image_path``
         is an empty string then current directory is searched.
     """
-    def __init__(self, input_file, image_path=None):
 
+    def __init__(self, input_file, image_path=None):
         self._input_file = input_file
         if image_path is None:
             # use parent folder of GEDCOM file for image search
-            if hasattr(input_file, 'read'):
+            if hasattr(input_file, "read"):
                 # it's probably a file
                 image_path = getattr(input_file, "name", None)
             else:
@@ -399,10 +395,10 @@ class _FSLocator(FileLocator):
     def open_gedcom(self):
         # docstring inherited from base class
         _log.debug("_FSLocator.open_gedcom")
-        if hasattr(self._input_file, 'read'):
+        if hasattr(self._input_file, "read"):
             # it's likely a file
             return self._input_file
-        return io.open(self._input_file, 'rb')
+        return io.open(self._input_file, "rb")
 
     def open_image(self, name):
         # docstring inherited from base class
@@ -420,8 +416,8 @@ class _FSLocator(FileLocator):
         # try unmodified name
         if os.path.isabs(name):
             try:
-                _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
-                return open(name, 'rb')
+                _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
+                return open(name, "rb")
             except IOError:
                 pass
         else:
@@ -430,16 +426,15 @@ class _FSLocator(FileLocator):
             if self._image_path:
                 try:
                     path = os.path.join(self._image_path, name)
-                    _log.debug('_ZipLocator.open_image: Trying FS path %s',
-                               name)
-                    return open(path, 'rb')
+                    _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
+                    return open(path, "rb")
                 except IOError:
                     pass
 
         # Otherwise try to search in the image folder.
         fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname.os_path(), 'rb')
+            return open(fname.os_path(), "rb")
 
 
 class _ZipLocator(FileLocator):
@@ -459,8 +454,9 @@ class _ZipLocator(FileLocator):
         ``None`` then filesystem is not searched for files. If ``image_path``
         is an empty string then current directory is searched.
     """
+
     def __init__(self, input_file, file_name_pattern, image_path):
-        self._zip = zipfile.ZipFile(input_file, 'r')
+        self._zip = zipfile.ZipFile(input_file, "r")
         self._toc = self._zip.namelist()
         self._pattern = file_name_pattern
         self._zipsearch = _ZIPFileSearch(self._toc)
@@ -472,15 +468,13 @@ class _ZipLocator(FileLocator):
         if not matches:
             return None
         if len(matches) > 1:
-            raise MultipleMatchesError('Multiple matching files found in '
-                                       'archive: ' + ' '.join(matches))
+            raise MultipleMatchesError("Multiple matching files found in archive: " + " ".join(matches))
         member = matches[0]
         _log.debug("_ZipLocator.open_gedcom: %r", member)
 
         # wee need a file on disk which supports seek, open in binary mode
-        fobj = tempfile.NamedTemporaryFile("w+b",
-                                           suffix=os.path.basename(member))
-        with self._zip.open(member, 'r') as src:
+        fobj = tempfile.NamedTemporaryFile("w+b", suffix=os.path.basename(member))
+        with self._zip.open(member, "r") as src:
             shutil.copyfileobj(src, fobj)
         fobj.seek(0)
         return fobj
@@ -489,26 +483,26 @@ class _ZipLocator(FileLocator):
         # docstring inherited from base class
         _log.debug("_ZipLocator.open_image: find image %s", name)
 
-        _log.debug('_ZipLocator.open_image: Trying archive name %r', name)
+        _log.debug("_ZipLocator.open_image: Trying archive name %r", name)
         fname = self._zipsearch.find_file(name)
         if fname:
             _log.debug("_ZipLocator.open_image: found in ZIP: %r", fname)
-            return self._zip.open(str(fname), 'r')
+            return self._zip.open(str(fname), "r")
 
         # if file name looks like absolute path (on current OS)
         # try unmodified name
         if os.path.isabs(name):
             try:
-                _log.debug('_ZipLocator.open_image: Trying FS path %s', name)
-                return open(name, 'rb')
+                _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
+                return open(name, "rb")
             except IOError:
                 pass
 
         # search on filesystem
-        _log.debug('_ZipLocator.open_image: Trying FS name %s', name)
+        _log.debug("_ZipLocator.open_image: Trying FS name %s", name)
         fname = self._fsearch.find_file(name)
         if fname is not None:
-            return open(fname.os_path(), 'rb')
+            return open(fname.os_path(), "rb")
 
 
 def make_file_locator(input_file, file_name_pattern, image_path):
@@ -552,9 +546,9 @@ def make_file_locator(input_file, file_name_pattern, image_path):
 
     if zipfile.is_zipfile(input_file):
         return _ZipLocator(input_file, file_name_pattern, image_path)
-    elif hasattr(input_file, 'read'):
-        if not hasattr(input_file, 'seek'):
-            raise AttributeError('File object has no `seek` attribute')
+    elif hasattr(input_file, "read"):
+        if not hasattr(input_file, "seek"):
+            raise AttributeError("File object has no `seek` attribute")
         input_file.seek(0)
         return _FSLocator(input_file, image_path)
     elif os.path.exists(input_file):

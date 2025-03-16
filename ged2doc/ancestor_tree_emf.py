@@ -1,5 +1,4 @@
-"""Module containing methods/classes for laying out ancestor trees.
-"""
+"""Module containing methods/classes for laying out ancestor trees."""
 
 __all__ = ["EMFTreeVisitor"]
 
@@ -14,7 +13,7 @@ from .ancestor_tree import AncestorTreeVisitor
 _log = logging.getLogger(__name__)
 
 _BLACK = 0x0
-_GRAY = 0xa0a0a0
+_GRAY = 0xA0A0A0
 
 
 class EMFTreeVisitor(AncestorTreeVisitor):
@@ -28,6 +27,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
     dpi : `float`
         Image resolution.
     """
+
     def __init__(self, width, height, dpi=300):
         self._width = width.to_dpi(dpi)
         self._height = height.to_dpi(dpi)
@@ -48,7 +48,6 @@ class EMFTreeVisitor(AncestorTreeVisitor):
 
         pen = self._gray_pen if node.person is None else self._black_pen
         with self._emf.use_pen(*pen):
-
             # draw a box/rectangle
             left = textbox.x0.to_dpi(self._dpi)
             right = textbox.x1.to_dpi(self._dpi)
@@ -114,4 +113,4 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             return None
 
         emf = self._emf.data()
-        return emf, 'image/x-emf', self._width, self._height
+        return emf, "image/x-emf", self._width, self._height

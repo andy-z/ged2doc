@@ -1,7 +1,6 @@
-"""Module defining `TexBox` class and related methods.
-"""
+"""Module defining `TexBox` class and related methods."""
 
-__all__ = ['TextBox']
+__all__ = ["TextBox"]
 
 import logging
 
@@ -42,15 +41,27 @@ class TextBox:
     padding : `~ged2doc.size.Size`, optional
         Box padding space (def: 4pt)
     """
-    def __init__(self, x0=0, y0=0, width=0, maxwidth=0, height=0, text='',
-                 font_size='10pt', padding='4pt', line_spacing='1.5pt', href=None):
+
+    def __init__(
+        self,
+        x0=0,
+        y0=0,
+        width=0,
+        maxwidth=0,
+        height=0,
+        text="",
+        font_size="10pt",
+        padding="4pt",
+        line_spacing="1.5pt",
+        href=None,
+    ):
         self._x0 = Size(x0)
         self._y0 = Size(y0)
         self._width = Size(width)
         self._maxwidth = Size(maxwidth)
         self._height = Size(height)
         self._text = text
-        self._lines = self._text.split('\n')
+        self._lines = self._text.split("\n")
         self._font_size = Size(font_size)
         self._padding = Size(padding)
         self._line_spacing = Size(line_spacing)
@@ -140,8 +151,7 @@ class TextBox:
         """
         x = self.midx
         for i, line in enumerate(self._lines):
-            y = self.y0 + self._padding + self._font_size * (i + 1) + \
-                self._line_spacing * i
+            y = self.y0 + self._padding + self._font_size * (i + 1) + self._line_spacing * i
             yield line, (x, y)
 
     def reflow(self):
@@ -150,8 +160,7 @@ class TextBox:
         """
         self._lines = self._splitText(self._text)
         nlines = len(self._lines)
-        self._height = nlines * self._font_size + \
-            (nlines - 1) * self._line_spacing + 2 * self._padding
+        self._height = nlines * self._font_size + (nlines - 1) * self._line_spacing + 2 * self._padding
 
     def move(self, x0, y0):
         """Sets new coordinates fo x0 and y0
@@ -194,8 +203,7 @@ class TextBox:
             lines1 = self._splitText1(text, width)
 
             if len(lines1) < len(lines):
-                self._width = max(self._textWidth(line) for line in lines1) + \
-                    2 * self._padding
+                self._width = max(self._textWidth(line) for line in lines1) + 2 * self._padding
                 return lines1
 
         return lines
@@ -206,15 +214,15 @@ class TextBox:
         """
 
         lines = []
-        for line in text.split('\n'):
+        for line in text.split("\n"):
             words = line.split()
             idx = 0
             while idx + 1 < len(words):
-                twowords = ' '.join(words[idx:idx + 2])
+                twowords = " ".join(words[idx : idx + 2])
                 twwidth = self._textWidth(twowords)
                 # _log.debug('_splitText1: %s width=%s', twowords, twwidth)
                 if twwidth <= width:
-                    words[idx:idx + 2] = [twowords]
+                    words[idx : idx + 2] = [twowords]
                 else:
                     idx += 1
             lines += words
@@ -222,8 +230,7 @@ class TextBox:
         return lines
 
     def _textWidth(self, text):
-        """Calculates approximate width of the string of text.
-        """
+        """Calculates approximate width of the string of text."""
 
         # just  a wild guess for now, try to do better later
         return self._font_size * len(text) * 0.5

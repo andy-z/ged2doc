@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-'''Python module for generating EMF.
+"""Python module for generating EMF.
 
 Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
-'''
+"""
 
 import struct
 
@@ -17,13 +17,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("file", type=argparse.FileType("rb"))
-    parser.add_argument("-v", dest="verbose", action="store_true", default=False,
-                        help="verbose output")
+    parser.add_argument("-v", dest="verbose", action="store_true", default=False, help="verbose output")
     args = parser.parse_args()
 
     data = args.file.read(8)
     while data:
-
         rectype, size = struct.unpack("II", data)
         for name, value in vars(dumbemf).items():
             if name.startswith("EMR_") and value == rectype:
@@ -60,7 +58,7 @@ def main():
 
                 for i in (0, 4, 8, 12):
                     if i < len(line):
-                        v, = struct.unpack("I", line[i:i+4])
+                        (v,) = struct.unpack("I", line[i : i + 4])
                         fline += " {:010d}".format(v)
 
                 print(fline)

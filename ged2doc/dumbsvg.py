@@ -1,10 +1,10 @@
-'''Python module for generating SVG.
+"""Python module for generating SVG.
 
 Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
-'''
+"""
 
-__all__ = ['Doc', 'Element', 'Line', 'Rect', 'Text', 'Tspan', 'Hyperlink']
+__all__ = ["Doc", "Element", "Line", "Rect", "Text", "Tspan", "Hyperlink"]
 
 
 class Doc:
@@ -15,14 +15,20 @@ class Doc:
     width, height : `int` or `str`
         Document width and height, int for pixels or string.
     """
+
     def __init__(self, width, height):
         self._width = width
         self._height = height
-        self._top = Element("svg", [("width", str(self._width)),
-                                    ("height", str(self._height)),
-                                    ("version", "1.1"),
-                                    ("xmlns", "http://www.w3.org/2000/svg"),
-                                    ("xmlns:xlink", "http://www.w3.org/1999/xlink")])
+        self._top = Element(
+            "svg",
+            [
+                ("width", str(self._width)),
+                ("height", str(self._height)),
+                ("version", "1.1"),
+                ("xmlns", "http://www.w3.org/2000/svg"),
+                ("xmlns:xlink", "http://www.w3.org/1999/xlink"),
+            ],
+        )
 
     def add(self, element):
         """Add new element to the document.
@@ -49,9 +55,11 @@ class Doc:
         """
         text = ""
         if full_xml:
-            text += '<?xml version="1.0" standalone="no"?>\n'\
-                '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '\
+            text += (
+                '<?xml version="1.0" standalone="no"?>\n'
+                '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
+            )
         text += self._top.xml()
         return text
 
@@ -68,6 +76,7 @@ class Element:
     value : `str`, optional
         Element value (text).
     """
+
     def __init__(self, tag, attributes=None, value=""):
         self._tag = tag
         self._attributes = attributes or []
@@ -106,7 +115,7 @@ class Element:
                 lines += [self._value]
             lines += [elem.xml() for elem in self._elements]
             lines += ["</" + self._tag + ">"]
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
 
 class Line(Element):
@@ -119,6 +128,7 @@ class Line(Element):
     style : `str`, optional
         Line style.
     """
+
     def __init__(self, x1, y1, x2, y2, style=None):
         attr = [("x1", x1), ("y1", y1), ("x2", x2), ("y2", y2)]
         if style:
@@ -138,6 +148,7 @@ class Rect(Element):
     style : `str`, optional
         Line style.
     """
+
     def __init__(self, x, y, width, height, style=None):
         attr = [("x", x), ("y", y), ("width", width), ("height", height)]
         if style:
@@ -161,8 +172,8 @@ class Text(Element):
     class_ : `str`, optional
         Text CSS class.
     """
-    def __init__(self, value="", font_size=None, text_anchor=None,
-                 style=None, class_=None):
+
+    def __init__(self, value="", font_size=None, text_anchor=None, style=None, class_=None):
         attr = []
         if font_size:
             attr += [("font-size", font_size)]
@@ -185,6 +196,7 @@ class Tspan(Element):
     value : `str`, optional
         Text to display.
     """
+
     def __init__(self, x, y, value=""):
         attr = [("x", x), ("y", y)]
         Element.__init__(self, "tspan", attr, value)
@@ -198,6 +210,7 @@ class Hyperlink(Element):
     href : `str`
         Hyperlink value.
     """
+
     def __init__(self, href):
         attr = [("xlink:href", href)]
         Element.__init__(self, "a", attr)
