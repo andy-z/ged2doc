@@ -16,6 +16,7 @@ from .html_writer import HtmlWriter
 from .name import NameFormat
 from .odt_writer import OdtWriter
 from .utils import languages, system_lang
+from .writer import Writer
 import ged2doc
 import ged4py
 from ged4py.model import NameOrder
@@ -357,6 +358,7 @@ def _make_writer(args=None):
 
     _log.debug("args: %s", args)
 
+    writer: Writer
     if args.type == "html":
         writer = HtmlWriter(
             flocator,

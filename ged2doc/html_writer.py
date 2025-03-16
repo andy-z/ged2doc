@@ -131,8 +131,7 @@ class HtmlWriter(writer.Writer):
         doc += ['<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n']
         doc += ["<title>", "Family Tree", "</title>\n"]
         d = dict(page_width=self._page_width ^ "px")
-        style = resources.files("ged2doc").joinpath("data/styles/default").read_bytes()
-        style = style.decode("utf-8")
+        style = resources.files("ged2doc").joinpath("data/styles/default").read_text()
         doc += [string.Template(style).substitute(d)]
         doc += ["</head>\n", "<body>\n"]
         doc += ['<div id="contents_div"/>\n']

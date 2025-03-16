@@ -1,3 +1,4 @@
 pillow
 odfpy
-ged4py
+ged4py @ git+https://github.com/andy-z/ged4py@master
+pytest

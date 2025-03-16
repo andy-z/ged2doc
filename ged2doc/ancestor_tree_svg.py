@@ -5,7 +5,7 @@ __all__ = ["SVGTreeVisitor"]
 import logging
 
 from .ancestor_tree import AncestorTreeVisitor
-from .dumbsvg import Doc, Line, Rect, Text, Tspan, Hyperlink
+from .dumbsvg import Doc, Element, Line, Rect, Text, Tspan, Hyperlink
 
 _log = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class SVGTreeVisitor(AncestorTreeVisitor):
 
     def _textbox_svg(self, textbox, textclass=None, units="in", rect_style=None):
         """Produces list of SVG elements for a textbox."""
-        shapes = []
+        shapes: list[Element] = []
 
         # render box
         kw = dict(

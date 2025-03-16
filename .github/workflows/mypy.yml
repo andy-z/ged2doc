@@ -40,4 +40,4 @@ jobs:
 
       - name: Run mypy
         run: |
-          mypy ged2doc
+          mypy ged2doc tests

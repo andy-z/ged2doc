@@ -129,10 +129,11 @@ def system_lang():
     language : `str`
         Guessed system language, "en" is returned as a fallback.
     """
-    loclang, _ = locale.getdefaultlocale()
-    for lang in languages():
-        if loclang.startswith(lang):
-            return lang
+    loclang, _ = locale.getlocale()
+    if loclang:
+        for lang in languages():
+            if loclang.startswith(lang):
+                return lang
     return "en"
 
 
@@ -223,7 +224,7 @@ def img_resize(img, size):
     if newsize != img.size:
         # means size was reduced
         _log.debug("Resize image to %s", newsize)
-        img = img.resize(newsize, Image.LANCZOS)
+        img = img.resize(newsize, Image.Resampling.LANCZOS)
 
     return img
 

@@ -152,15 +152,12 @@ _extra_tr = [
 ]
 
 
-class _NullFallback:
+class _NullFallback(gettext.NullTranslations):
     """Special fallback class for gettext which returns None for missing
     translations.
     """
 
     def gettext(self, message):
-        return None
-
-    def ugettext(self, message):
         return None
 
 
@@ -262,10 +259,7 @@ class I18N:
             _LOG.debug("variants = %r", variants)
             for txt in variants:
                 _LOG.debug("variant = %r", txt)
-                if hasattr(self._tr, "ugettext"):
-                    tr_text = self._tr.ugettext(txt)
-                else:
-                    tr_text = self._tr.gettext(txt)
+                tr_text = self._tr.gettext(txt)
                 _LOG.debug("translation = %r", tr_text)
                 if tr_text:
                     return tr_text

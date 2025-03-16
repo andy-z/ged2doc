@@ -151,9 +151,9 @@ class Writer(metaclass=abc.ABCMeta):
             bplace = person.sub_tag_value("BIRT/PLAC")
             if bplace:
                 born += [bplace]
-            born = ", ".join(born)
-            if born:
-                attributes += [(self._tr.tr(TR("Born"), person.sex), born)]
+            born_str = ", ".join(born)
+            if born_str:
+                attributes += [(self._tr.tr(TR("Born"), person.sex), born_str)]
 
             # maiden name
             if person.name.maiden:
@@ -330,12 +330,12 @@ class Writer(metaclass=abc.ABCMeta):
         sevents = []
         for date, facts in sorted(events, key=_date_key):
             facts = [fact for fact in facts if fact]
-            facts = "; ".join(facts)
+            facts_str = "; ".join(facts)
             if date is None:
                 if self._events_without_dates:
-                    sevents += [(self._tr.tr(TR("Event Date Unknown")), facts)]
+                    sevents += [(self._tr.tr(TR("Event Date Unknown")), facts_str)]
             else:
-                sevents += [(self._tr.tr_date(date), facts)]
+                sevents += [(self._tr.tr_date(date), facts_str)]
 
         return sevents
 
@@ -384,14 +384,14 @@ class Writer(metaclass=abc.ABCMeta):
         table : `list` [ `tuple` ]
             List of (name, count) ordered by name.
         """
-        namefreq = {}
+        namefreq: dict[str, int] = {}
         for person in people:
             namefreq.setdefault(person.name.first, 0)
             namefreq[person.name.first] += 1
-        namefreq = [(key, val) for key, val in namefreq.items()]
+        namefreq_list = [(key, val) for key, val in namefreq.items()]
         # sort ascending in name
-        namefreq.sort()
-        return namefreq
+        namefreq_list.sort()
+        return namefreq_list
 
     def _format_indi_attr(self, person, attrib, prefix="ATTR."):
         """Formatting of the individual's attributes.
@@ -427,8 +427,8 @@ class Writer(metaclass=abc.ABCMeta):
             props.append(attrib.place)
         if attrib.note:
             props.append(attrib.note)
-        props = ", ".join(props)
-        return (attr, props)
+        props_str = ", ".join(props)
+        return (attr, props_str)
 
     def _person_ref(self, person, name=None):
         """Returns encoded person reference.

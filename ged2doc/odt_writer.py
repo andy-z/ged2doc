@@ -9,7 +9,7 @@ from PIL import Image
 from typing import NamedTuple
 
 from ged4py import model
-from .ancestor_tree import AncestorTree
+from .ancestor_tree import AncestorTree, AncestorTreeVisitor
 from .ancestor_tree_emf import EMFTreeVisitor
 from .ancestor_tree_svg import SVGTreeVisitor
 from .size import Size
@@ -469,7 +469,8 @@ class OdtWriter(writer.Writer):
             _log.error("error while loading image: %s", exc)
             return None
 
-        filename = "Pictures/" + hashlib.sha1(image_data).hexdigest() + "." + img.format.lower()
+        img_format = img.format or "dat"
+        filename = "Pictures/" + hashlib.sha1(image_data).hexdigest() + "." + img_format.lower()
 
         # calculate size of the frame
         maxsize = (self._image_width.inches, self._image_height.inches)
@@ -490,6 +491,7 @@ class OdtWriter(writer.Writer):
         width = self.layout.width - self.layout.left - self.layout.right
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")
 
+        visitor: AncestorTreeVisitor
         if self._tree_format == "emf":
             visitor = EMFTreeVisitor(width=tree.width, height=tree.height)
             tree.visit(visitor)
