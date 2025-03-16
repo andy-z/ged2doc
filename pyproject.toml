@@ -1,0 +1,95 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ged2doc"
+version = "0.5.1"
+requires-python = ">=3.11.0"
+description = "Tools for converting GEDCOM data into document formats."
+readme = "README.rst"
+authors = [
+  {name = "Andy Salnikov", email = "ged4py@py-dev.com"}
+]
+maintainers = [
+  {name = "Andy Salnikov", email = "ged4py@py-dev.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    'Topic :: Sociology :: Genealogy',
+]
+license = {text = "MIT license"}
+dependencies = [
+    "ged4py",
+    "pillow",
+    "odfpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",  # testing
+    "mypy",  # linting
+    "pytest",  # testing
+    "ruff"  # linting
+]
+
+[project.urls]
+bugs = "https://github.com/andy-z/ged2doc/issues"
+homepage = "https://ged2doc.readthedocs.io/"
+
+[project.scripts]
+ged2doc = "ged2doc.cli:main"
+
+[tool.setuptools]
+zip-safe = false
+license-files = ["LICENSE"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+ged2doc = "ged2doc"
+
+[tool.setuptools.package-data]
+"ged2doc" = ["py.typed"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+exclude = [
+    "docs/conf.py",
+    "docs/ru/conf.py",
+]
+
+[tool.bumpver]
+current_version = "0.5.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "Bump version: {old_version} → {new_version}"
+tag_message = "Bump version: {old_version} → {new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    '^current_version = "{version}"$',
+    '^version = "{version}"$',
+]
+"ged2doc/__init__.py" = [
+    '^__version__ = "{version}"$',
+]
+"freeze/ged2doc.iss" = [
+    'MyAppVersion "{version}"'
+]
+"freeze/setup.py" = [
+    'version="{version}"'
+]
