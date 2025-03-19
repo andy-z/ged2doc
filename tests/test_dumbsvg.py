@@ -1,11 +1,10 @@
-"""Unit test for dumbsvg module"""
+"""Unit test for dumbsvg module."""
 
 from ged2doc.dumbsvg import Doc, Element, Hyperlink, Line, Rect, Text, Tspan
 
 
 def test_001_element_noval() -> None:
-    "Test case for Element class"
-
+    """Test case for Element class."""
     elem = Element("elem")
     assert elem.xml() == "<elem />"
 
@@ -17,8 +16,7 @@ def test_001_element_noval() -> None:
 
 
 def test_002_element_val() -> None:
-    "Test case for Element class"
-
+    """Test case for Element class."""
     elem = Element("elem", value="some text")
     assert elem.xml() == "<elem>\nsome text\n</elem>"
 
@@ -27,8 +25,7 @@ def test_002_element_val() -> None:
 
 
 def test_003_element_subelem() -> None:
-    "Test case for Element class"
-
+    """Test case for Element class."""
     elem = Element("elem")
     elem.add(Element("elem2"))
     assert elem.xml() == "<elem>\n<elem2 />\n</elem>"
@@ -43,8 +40,7 @@ def test_003_element_subelem() -> None:
 
 
 def test_010_doc() -> None:
-    "Test case for Doc class"
-
+    """Test case for Doc class."""
     doc = Doc(100, 100)
     doc.add(Element("elem"))
     doc.add(Element("elem2"))
@@ -62,8 +58,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink">
 
 
 def test_020_line() -> None:
-    "Test case for Line class"
-
+    """Test case for Line class."""
     elem = Line("0", "10", "90", "100")
     assert elem.xml() == '<line x1="0" y1="10" x2="90" y2="100" />'
 
@@ -72,8 +67,7 @@ def test_020_line() -> None:
 
 
 def test_030_rect() -> None:
-    "Test case for Rect class"
-
+    """Test case for Rect class."""
     elem = Rect("0", "10", "90", "100")
     assert elem.xml() == '<rect x="0" y="10" width="90" height="100" />'
 
@@ -82,8 +76,7 @@ def test_030_rect() -> None:
 
 
 def test_040_text() -> None:
-    "Test case for Text class"
-
+    """Test case for Text class."""
     elem = Text(value="", font_size=None, text_anchor=None, style=None, class_=None)
     assert elem.xml() == "<text />"
 
@@ -95,8 +88,7 @@ def test_040_text() -> None:
 
 
 def test_050_tspan() -> None:
-    "Test case for Tspan class"
-
+    """Test case for Tspan class."""
     elem = Tspan(x="10", y="20px", value="")
     assert elem.xml() == '<tspan x="10" y="20px" />'
 
@@ -105,8 +97,7 @@ def test_050_tspan() -> None:
 
 
 def test_050_hyperlink() -> None:
-    "Test case for Hyperlink class"
-
+    """Test case for Hyperlink class."""
     elem = Hyperlink("link_value")
     assert elem.xml() == '<a xlink:href="link_value" />'
 

@@ -10,13 +10,12 @@ import logging
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
-from .events import Event, indi_attributes, indi_events, family_events
-from .name import name_fmt
-
-from . import utils
-from .name import NameFormat
 from ged4py import model, parser
 from ged4py.date import DateValue
+
+from . import utils
+from .events import Event, family_events, indi_attributes, indi_events
+from .name import NameFormat, name_fmt
 
 if TYPE_CHECKING:
     from .i18n import I18N
@@ -26,14 +25,14 @@ _log = logging.getLogger(__name__)
 
 
 def TR(x: str) -> str:
-    """This is no-op function, only used to mark translatable strings,
-    to extract all strings run ``pygettext -k TR ...``
+    """Mark translatable strings. This is no-op function, only used
+    to extract all strings run ``pygettext -k TR ...``.
     """
     return x  # NOQA
 
 
 def _spouse(person: model.Individual, fam: model.Record) -> model.Individual | None:
-    """Returns person spouse in a given family"""
+    """Return person spouse in a given family."""
     # list of Pointers
     spouses = fam.sub_tags("HUSB", "WIFE", follow=False)
     spouses = [rec for rec in spouses if rec.value != person.xref_id]
@@ -277,7 +276,7 @@ class Writer(metaclass=abc.ABCMeta):
         return key
 
     def _events(self, person: model.Individual) -> list[tuple[str, str]]:
-        """Returns a list of events for a given person.
+        """Return a list of events for a given person.
 
         Returned list contains tuples (date, info).
 
@@ -325,12 +324,12 @@ class Writer(metaclass=abc.ABCMeta):
                 assert isinstance(child, model.Individual)
                 for evt in indi_events(child, {"BIRT"}):
                     pfmt = self._tr.tr(TR("CHILD.BORN {child}"), child.sex)
-                    childRef = self._person_ref(child, child.name.first)
-                    facts = [pfmt.format(child=childRef), evt.value, evt.place, evt.note]
+                    child_ref = self._person_ref(child, child.name.first)
+                    facts = [pfmt.format(child=child_ref), evt.value, evt.place, evt.note]
                     events += [(evt.date, facts)]
 
         def _date_key(event: tuple[DateValue | None, list]) -> DateValue:
-            "Return event date, used for comparison"
+            """Return event date, used for comparison."""
             date = event[0]
             if date is None:
                 # use date in the future
@@ -350,7 +349,7 @@ class Writer(metaclass=abc.ABCMeta):
         return sevents
 
     def _make_main_image(self, person: model.Individual) -> bytes | None:
-        """Returns image for a person.
+        """Return image for a person.
 
         Parameters
         ----------
@@ -362,7 +361,6 @@ class Writer(metaclass=abc.ABCMeta):
         image_data : `bytes` or ``None``
             Bytes of the image data or ``None``.
         """
-
         if not self._make_images:
             return None
 
@@ -382,7 +380,7 @@ class Writer(metaclass=abc.ABCMeta):
         return None
 
     def _name_freq(self, people: Iterable[model.Individual]) -> list[tuple[str, int]]:
-        """Returns name frequency table.
+        """Return name frequency table.
 
         Parameters
         ----------
@@ -406,7 +404,7 @@ class Writer(metaclass=abc.ABCMeta):
     def _format_indi_attr(
         self, person: model.Individual, attrib: Event, prefix: str = "ATTR."
     ) -> tuple[str, str]:
-        """Formatting of the individual's attributes.
+        """Format the individual's attributes.
 
         Parameters
         ----------
@@ -422,7 +420,6 @@ class Writer(metaclass=abc.ABCMeta):
         attribute : `tuple`
             Tuple (attribute, value).
         """
-
         # for generic FACT attribute, use TYPE as fact name, we cannot
         # translate it because it can be anything
         if attrib.tag == "FACT" and attrib.type:
@@ -443,7 +440,7 @@ class Writer(metaclass=abc.ABCMeta):
         return (attr, props_str)
 
     def _person_ref(self, person: model.Individual, name: str | None = None) -> str:
-        """Returns encoded person reference.
+        r"""Return encoded person reference.
 
         If person is None then None is returned. If name is not given then
         properly formatted person full name is used.
@@ -477,7 +474,7 @@ class Writer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _render_section(self, level: int, ref_id: str, title: str, newpage: bool = False) -> None:
-        """Produces new section in the output document.
+        """Produce new section in the output document.
 
         This method should also save section reference so that TOC can be
         later produced when `_render_toc` method is called.
@@ -541,7 +538,7 @@ class Writer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _render_name_stat(self, n_total: int, n_females: int, n_males: int) -> None:
-        """Produces summary table.
+        """Produce summary table.
 
         Sum of male and female counters can be lower than total count due to
         individuals with unknown/unspecified gender.
@@ -559,7 +556,7 @@ class Writer(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _render_name_freq(self, freq_table: list[tuple[str, int]]) -> None:
-        """Produces name statistics table.
+        """Produce name statistics table.
 
         Parameters
         ----------

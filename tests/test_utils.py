@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Unit test for utils module."""
 
-"""Unit test for utils module"""
+from ged4py import model
 
 from ged2doc import utils
-from ged4py import model
 
 
 def test_001_resize_reduceonly() -> None:
+    """Test box resizing (reduce only)."""
     bound = (10, 10)
 
     box = (1, 1)
@@ -27,6 +27,7 @@ def test_001_resize_reduceonly() -> None:
 
 
 def test_002_resize() -> None:
+    """Test box resizing."""
     bound = (10, 10)
 
     box = (1, 1)
@@ -48,7 +49,6 @@ def test_002_resize() -> None:
 
 def test_050_person_image_file() -> None:
     """Test person_image_file method."""
-
     # FORM is subordinate of OBJE
     dialect = model.Dialect.MYHERITAGE
     form = model.make_record(2, None, "FORM", "JPG", [], 0, dialect, None).freeze()
@@ -118,8 +118,7 @@ def test_050_person_image_file() -> None:
 
 
 def test_60_embed_ref() -> None:
-    """test for embed_ref method"""
-
+    """Test for embed_ref method."""
     eref = utils.embed_ref("id", "name")
     assert eref == "\001person.id\002name\003"
 
@@ -128,8 +127,7 @@ def test_60_embed_ref() -> None:
 
 
 def test_61_split_refs() -> None:
-    """test for split_refs method"""
-
+    """Test for split_refs method."""
     text = "\001person.id\002name\003"
     items = list(utils.split_refs(text))
     assert items == [("person.id", "name")]

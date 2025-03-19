@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ged4py import model
 
+
 class NameFormat(enum.Flag):
     """Names can be rendered in different formats, this enum defines different
     types of presentations that can also be combined with logical OR (``|``).
@@ -17,7 +18,7 @@ class NameFormat(enum.Flag):
     """Bit flag for surname-first format (e.g. ``Smith Jane``).
     """
     COMMA = 0x2
-    """Bit flag for adding comma in surname-first format (e.g. ``Smith, Jane``).
+    """Bit flag for comma in surname-first format (e.g. ``Smith, Jane``).
     """
     MAIDEN = 0x4
     """Bit flag for adding maiden name (e.g. ``Jane Smith (Sawyer)``).

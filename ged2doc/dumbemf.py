@@ -14,10 +14,8 @@ import logging
 import math
 import struct
 from collections.abc import Iterator
-from typing import Any
 
 from .size import Size
-
 
 _LOG = logging.getLogger(__name__)
 
@@ -86,11 +84,15 @@ ETO_REVERSE_INDEX_MAP = 0x00010000
 
 
 class BackgroundMode:
+    """Background fill mode."""
+
     TRANSPARENT = 0x0001
     OPAQUE = 0x000
 
 
 class MapMode:
+    """Mapping mode."""
+
     MM_TEXT = 0x01
     MM_LOMETRIC = 0x02
     MM_HIMETRIC = 0x03
@@ -102,12 +104,16 @@ class MapMode:
 
 
 class StockObjects:
+    """Codes for stock objects."""
+
     NULL_BRUSH = 0x80000005
     NULL_PEN = 0x80000008
     DEVICE_DEFAULT_FONT = 0x8000000E
 
 
 class PenStyle:
+    """Pen style codes."""
+
     PS_COSMETIC = 0x00000000
     PS_ENDCAP_ROUND = 0x00000000
     PS_JOIN_ROUND = 0x00000000
@@ -137,7 +143,7 @@ _pen_styles = {
 
 
 def _pack(*args: tuple) -> bytes:
-    """Helper method to simplify struct.pack call.
+    """Simplify struct.pack call.
 
     Accepts a list of tuples, each tuple has a characted format code as first
     element and packed data values as remaining elements. Example:
@@ -191,7 +197,10 @@ class EMF:
 
         # self._records += [
         #     GeneralRecord(EMR_SETMAPMODE, ("I", MapMode.MM_TEXT)),
-        #     GeneralRecord(EMR_MODIFYWORLDTRANSFORM, ("f", 1., 0., 0., 1., 0., 0.), ("I", 2)),
+        #     GeneralRecord(
+        #         EMR_MODIFYWORLDTRANSFORM,
+        #         ("f", 1., 0., 0., 1., 0., 0.), ("I", 2)
+        #     ),
         #     GeneralRecord(EMR_SETBKMODE, ("I", BackgroundMode.TRANSPARENT)),
         #     GeneralRecord(EMR_SETPOLYFILLMODE, ("I", 2)),
         #     GeneralRecord(EMR_SETTEXTALIGN, ("I", TA_CENTER | TA_BASELINE)),
@@ -236,17 +245,19 @@ class EMF:
         color : `int`
             Pen color.
         """
-
         pen_handle = 1  # self._handle_for("pen")
 
         pen_style = _pen_styles.get(style, PenStyle.PS_SOLID | PenStyle.PS_GEOMETRIC)
         width_px = int(math.ceil(width.pxf))  # math.ceil returns float in Python2
-        # rec = GeneralRecord(EMR_CREATEPEN, ("I", pen_handle, style, width, width, color))
+        # rec = GeneralRecord(
+        #     EMR_CREATEPEN, ("I", pen_handle, style, width, width, color))
         rec = GeneralRecord(
             EMR_EXTCREATEPEN, ("I", pen_handle, 0, 0, 0, 0, pen_style, width_px, 0, color, 6, 0, 0)
         )
         self._records.append(rec)
-        _LOG.debug("EMF: create_pen: id=%s style=%s width=%s color=%s", pen_handle, pen_style, width_px, color)
+        _LOG.debug(
+            "EMF: create_pen: id=%s style=%s width=%s color=%s", pen_handle, pen_style, width_px, color
+        )
         rec = GeneralRecord(EMR_SELECTOBJECT, ("I", pen_handle))
         self._records.append(rec)
         yield pen_handle
@@ -289,7 +300,8 @@ class EMF:
             ("64s", facename),
             # ("128s", fullname),
             # ("64s", style),
-            # ("I", 0, 0, 0, 0, 0, 0),  # version/stylesize/match/resv/vendor/culture
+            # ("I", 0, 0, 0, 0, 0, 0),
+            #          # version/stylesize/match/resv/vendor/culture
             # ("B", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),  # panose
             # ("H", 0),  # padding
         )
@@ -363,7 +375,7 @@ class EMF:
         self._records.append(GeneralRecord(EMR_STROKEPATH, ("i", 0, 0, -1, -1)))
 
     def text_align(self, align_mode: str = "c") -> None:
-        """Set text alignment for next text drawing operation
+        """Set text alignment for next text drawing operation.
 
         Parameters
         ----------
@@ -385,7 +397,7 @@ class EMF:
         self._records.append(rec)
 
     def text_color(self, color: int) -> None:
-        """Set text color for next text drawing operation
+        """Set text color for next text drawing operation.
 
         Parameters
         ----------
@@ -406,10 +418,10 @@ class EMF:
             Text to draw.
         """
         pos = tuple(pos.px for pos in (x, y))
-        iGraphicsMode = GM_COMPATIBLE
-        exScale, eyScale = 1.0, 1.0
+        i_graphics_mode = GM_COMPATIBLE
+        ex_scale, ey_scale = 1.0, 1.0
 
-        nChars = len(text)  # number of characters, not bytes
+        n_chars = len(text)  # number of characters, not bytes
         # encode as UTF16-LE and pad to 4-byte
         txt_bytes = text.encode("utf_16_le", "replace")
         if len(txt_bytes) % 4 != 0:
@@ -417,22 +429,22 @@ class EMF:
 
         _LOG.debug("EMF: text: pos=%s, txt_bytes=%r", pos, txt_bytes)
 
-        offString = 76
-        offDx = 0
+        off_string = 76
+        off_dx = 0
         options = 0
 
         rec = GeneralRecord(
             EMR_EXTTEXTOUTW,
             ("i", 0, 0, -1, -1),  # bounds
-            ("I", iGraphicsMode),
-            ("f", exScale, eyScale),
+            ("I", i_graphics_mode),
+            ("f", ex_scale, ey_scale),
             ("i", pos[0], pos[1]),  # x, y
-            ("I", nChars),
-            ("I", offString),
+            ("I", n_chars),
+            ("I", off_string),
             ("I", options),
             ("i", 0, 0, -1, -1),  # Rectangle
-            ("I", offDx),
-            ("{}s".format(len(txt_bytes)), txt_bytes),
+            ("I", off_dx),
+            (f"{len(txt_bytes)}s", txt_bytes),
         )
         self._records.append(rec)
 
@@ -517,41 +529,41 @@ class _HeaderRecord(Record):
 
     def data(self) -> bytes:
         # docstring inherited from base class
-        boundsX = int(math.ceil(self._width.pxf))
-        boundsY = int(math.ceil(self._height.pxf))
-        sizeXmm = int(math.ceil(self._width.mm))
-        sizeYmm = int(math.ceil(self._height.mm))
-        frameX = sizeXmm * 100
-        frameY = sizeYmm * 100
+        bounds_x = int(math.ceil(self._width.pxf))
+        bounds_y = int(math.ceil(self._height.pxf))
+        size_x_mm = int(math.ceil(self._width.mm))
+        size_y_mm = int(math.ceil(self._height.mm))
+        frame_x = size_x_mm * 100
+        frame_y = size_y_mm * 100
         version = 0x00010000
         emf_size = self._rec_size + self.size()
-        nDescription, offDescription = 7, 108
-        nPalEntries = 0
-        cbPixelFormat, offPixelFormat = 0, 0
-        bOpenGL = 0
-        MicrometersX = sizeXmm * 1000
-        MicrometersY = sizeYmm * 1000
+        n_description, off_description = 7, 108
+        n_pal_entries = 0
+        cb_pixel_format, off_pixel_format = 0, 0
+        b_open_gl = 0
+        micrometers_x = size_x_mm * 1000
+        micrometers_y = size_y_mm * 1000
         _LOG.debug(
             "EMF: header: bounds = %s x %s; frame = %s x %s; size_mm = %s x %s",
-            boundsX,
-            boundsY,
-            frameX,
-            frameY,
-            sizeXmm,
-            sizeYmm,
+            bounds_x,
+            bounds_y,
+            frame_x,
+            frame_y,
+            size_x_mm,
+            size_y_mm,
         )
         return _pack(
             ("I", self._type, self.size()),
-            ("I", 0, 0, boundsX, boundsY),
-            ("I", 0, 0, frameX, frameY),
+            ("I", 0, 0, bounds_x, bounds_y),
+            ("I", 0, 0, frame_x, frame_y),
             ("c", b" ", b"E", b"M", b"F"),
             ("I", version, emf_size, self._n_rec),
             ("H", self._n_handles, 0),
-            ("I", nDescription, offDescription, nPalEntries),
-            ("I", boundsX, boundsY),
-            ("I", sizeXmm, sizeYmm),
-            ("I", cbPixelFormat, offPixelFormat, bOpenGL),
-            ("I", MicrometersX, MicrometersY),
+            ("I", n_description, off_description, n_pal_entries),
+            ("I", bounds_x, bounds_y),
+            ("I", size_x_mm, size_y_mm),
+            ("I", cb_pixel_format, off_pixel_format, b_open_gl),
+            ("I", micrometers_x, micrometers_y),
             ("16s", b"\0d\0u\0m\0b\0e\0m\0f\0\0"),
         )
 
@@ -581,7 +593,7 @@ class _EOFRecord(Record):
 
 
 def _parse() -> None:
-    """Simple command line utility to parse/dump EMF.
+    """Parse/dump EMF files.
 
     .. note::
 
@@ -600,7 +612,7 @@ def _parse() -> None:
         for name, value in globals().items():
             if name.startswith("EMR_") and value == rectype:
                 rectype = name
-        print("{} size={}".format(rectype, size))
+        print(f"{rectype} size={size}")
 
         # read remaining data
         data += args.file.read(size - 8)
@@ -608,7 +620,7 @@ def _parse() -> None:
             offset = 0
             while data:
                 line, data = data[:16], data[16:]
-                fline = "    {:03d}:".format(offset)
+                fline = f"    {offset:03d}:"
                 bline = list(line)
                 bline += [None] * (16 - len(bline))
 
@@ -616,7 +628,7 @@ def _parse() -> None:
                     if i % 4 == 0:
                         fline += "  "
                     if b is not None:
-                        fline += " {:02X}".format(b)
+                        fline += f" {b:02X}"
                     else:
                         fline += "   "
 
@@ -626,14 +638,14 @@ def _parse() -> None:
                     if b is None:
                         fline += "  "
                     elif 32 <= b < 127:
-                        fline += " {}".format(chr(b))
+                        fline += f" {chr(b)}"
                     else:
                         fline += " ."
 
                 for i in (0, 4, 8, 12):
                     if i < len(line):
                         (v,) = struct.unpack("I", line[i : i + 4])
-                        fline += " {:010d}".format(v)
+                        fline += f" {v:010d}"
 
                 print(fline)
                 offset += 16

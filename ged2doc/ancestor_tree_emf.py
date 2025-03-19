@@ -7,9 +7,8 @@ __all__ = ["EMFTreeVisitor"]
 import logging
 
 from . import dumbemf
-from .size import Size
 from .ancestor_tree import AncestorTreeVisitor, TreeNode
-
+from .size import Size
 
 _log = logging.getLogger(__name__)
 
@@ -62,12 +61,12 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             for line, (x, y) in textbox.lines_pos():
                 self._emf.text(x.to_dpi(self._dpi), y.to_dpi(self._dpi), line)
 
-    def visitMotherEdge(self, node: TreeNode, parentNode: TreeNode) -> None:
+    def visitMotherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
-        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
-        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        x1 = parent_node.textbox.x0.to_dpi(self._dpi)
+        y1 = parent_node.textbox.midy.to_dpi(self._dpi)
         midx = (x0 + x1) / 2
 
         # draw connections
@@ -75,21 +74,21 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             points = [(x0, y0), (midx, y0)]
             self._emf.polyline(points)
 
-        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        pen = self._gray_pen if parent_node.person is None else self._black_pen
         with self._emf.use_pen(*pen):
             points = [(midx, y0), (midx, y1), (x1, y1)]
             self._emf.polyline(points)
 
-    def visitFatherEdge(self, node: TreeNode, parentNode: TreeNode) -> None:
+    def visitFatherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
-        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
-        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        x1 = parent_node.textbox.x0.to_dpi(self._dpi)
+        y1 = parent_node.textbox.midy.to_dpi(self._dpi)
         midx = (x0 + x1) / 2
 
         # draw connections
-        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        pen = self._gray_pen if parent_node.person is None else self._black_pen
         with self._emf.use_pen(*pen):
             points = [(midx, y0), (midx, y1), (x1, y1)]
             self._emf.polyline(points)

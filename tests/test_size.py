@@ -1,4 +1,4 @@
-"""Unit test for size module"""
+"""Unit test for size module."""
 
 import pytest
 
@@ -6,6 +6,7 @@ from ged2doc.size import Size, String2Size
 
 
 def test_size_1_val() -> None:
+    """Test size constructed from integer/float."""
     assert Size().value == 0.0
     assert Size().dpi == 96.0
     assert Size(1).value == 1.0
@@ -16,6 +17,7 @@ def test_size_1_val() -> None:
 
 
 def test_size_2_str() -> None:
+    """Test size constructed from strings."""
     assert Size("1").value == 1.0
     assert Size("1").dpi == 96.0
     assert Size("1", 300).dpi == 300.0
@@ -37,6 +39,7 @@ def test_size_2_str() -> None:
 
 
 def test_size_3_arith() -> None:
+    """Test size arithmetics."""
     s1 = Size("144pt", 100.0)
     s2 = Size("72pt", 200.0)
 
@@ -112,6 +115,7 @@ def test_size_3_arith() -> None:
 
 
 def test_size_4_meth() -> None:
+    """Test size methods."""
     s1 = Size("144pt")
     assert s1.pt == 144
     assert s1.inches == 2
@@ -126,6 +130,7 @@ def test_size_4_meth() -> None:
 
 
 def test_size_5_copy() -> None:
+    """Test size copy."""
     s1 = Size("144pt")
     s2 = Size(s1 * 2)
     assert s2.value == 4
@@ -145,12 +150,14 @@ def test_size_5_copy() -> None:
 
 
 def test_size_6_str() -> None:
+    """Test size string representation."""
     assert str(Size()) == "0.0in"
     assert str(Size(2)) == "2.0in"
     assert str(Size("1.5in")) == "1.5in"
 
 
 def test_size_7_xor() -> None:
+    """Test size XOR formatting."""
     assert Size(1) ^ "in" == "1in"
     assert Size("2in") ^ "pt" == "144pt"
     assert Size("30mm") ^ "cm" == "3cm"
@@ -159,12 +166,14 @@ def test_size_7_xor() -> None:
 
 
 def test_size_8_cmp() -> None:
+    """Test size comparison."""
     assert Size("1in") < Size("73pt")
     assert Size("1in") > Size("71pt")
     assert Size("1in") <= Size("72pt")
 
 
 def test_str2size_1_default_unit() -> None:
+    """Test String2Size with default units."""
     str2size = String2Size()
     assert str2size("96").inches == 96.0
 
@@ -179,6 +188,7 @@ def test_str2size_1_default_unit() -> None:
 
 
 def test_str2size_2_accepted() -> None:
+    """Test String2Size with accepted units."""
     str2size = String2Size(accepted_units=["pt", "in"])
     assert str2size("72pt").pt == 72.0
     assert str2size("1").inches == 1.0
@@ -193,6 +203,7 @@ def test_str2size_2_accepted() -> None:
 
 
 def test_str2size_3_rejected() -> None:
+    """Test String2Size with rejected units."""
     str2size = String2Size(rejected_units=["pt", "in"])
     assert str2size("96px").px == 96.0
     with pytest.raises(ValueError):

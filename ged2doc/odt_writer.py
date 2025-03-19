@@ -10,18 +10,17 @@ import logging
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, NamedTuple
 
-from PIL import Image
 from ged4py import model
+from odf import draw, style, table, text
+from odf.opendocument import OpenDocumentText
+from PIL import Image
 
+from . import utils, writer
 from .ancestor_tree import AncestorTree, AncestorTreeVisitor
 from .ancestor_tree_emf import EMFTreeVisitor
 from .ancestor_tree_svg import SVGTreeVisitor
 from .name import NameFormat
 from .size import Size
-from . import utils
-from . import writer
-from odf.opendocument import OpenDocumentText
-from odf import text, style, draw, table
 
 if TYPE_CHECKING:
     from .i18n import I18N
@@ -32,7 +31,7 @@ _log = logging.getLogger(__name__)
 
 
 class PageLayout(NamedTuple):
-    """Class representing page layout, size and margins
+    """Class representing page layout, size and margins.
 
     Attributes
     ----------
@@ -51,8 +50,8 @@ class PageLayout(NamedTuple):
 
 
 def TR(x: str) -> str:
-    """This is no-op function, only used to mark translatable strings,
-    to extract all strings run ``pygettext -k TR ...``
+    """Mark translatable strings. This is no-op function, only used
+    to extract all strings run ``pygettext -k TR ...``.
     """
     return x  # NOQA
 
@@ -96,7 +95,8 @@ class OdtWriter(writer.Writer):
         If ``True`` (default) then show events that have no associated dates.
     page_width, page_height : `ged2doc.size.Size`, optional
         Page size of the produced document.
-    margin_left, margin_right, margin_top, margin_bottom : `ged2doc.size.Size`, optional
+    margin_left, margin_right, margin_top, margin_bottom : `ged2doc.size.Size`\
+            , optional
         Page margins of the produced document.
     image_width, image_height : `ged2doc.size.Size`, optional
         Size of the images.
@@ -184,9 +184,9 @@ class OdtWriter(writer.Writer):
         firstpage : `int`
             Number of the first generated page.
         """
-        pageLayout = style.PageLayout(name="pl1")
-        doc.automaticstyles.addElement(pageLayout)
-        plProp = style.PageLayoutProperties(
+        page_layout = style.PageLayout(name="pl1")
+        doc.automaticstyles.addElement(page_layout)
+        pl_prop = style.PageLayoutProperties(
             pageheight=str(layout.height),
             pagewidth=str(layout.width),
             marginleft=str(layout.left),
@@ -194,7 +194,7 @@ class OdtWriter(writer.Writer):
             margintop=str(layout.top),
             marginbottom=str(layout.bottom),
         )
-        pageLayout.addElement(plProp)
+        page_layout.addElement(pl_prop)
 
         # add page numbers to the footers
         footer = style.Footer()
@@ -206,7 +206,7 @@ class OdtWriter(writer.Writer):
         p.addElement(text.PageNumber(selectpage="current", pageadjust=str(firstpage - 1)))
         footer.addElement(p)
 
-        masterpage = style.MasterPage(name="Standard", pagelayoutname=pageLayout)
+        masterpage = style.MasterPage(name="Standard", pagelayoutname=page_layout)
         masterpage.addElement(footer)
         doc.masterstyles.addElement(masterpage)
 
@@ -312,7 +312,7 @@ class OdtWriter(writer.Writer):
         return styles
 
     def _interpolate(self, text: str) -> str:
-        """Takes text with embedded references and returns text.
+        """Take text with embedded references and returns text.
 
         Parameters
         ----------
@@ -398,7 +398,7 @@ class OdtWriter(writer.Writer):
         # docstring inherited from base class
         items = ((TR("Person count"), n_total), (TR("Female count"), n_females), (TR("Male count"), n_males))
         for key, val in items:
-            p = text.P(text="%s: %d" % (self._tr.tr(key), val))
+            p = text.P(text=f"{self._tr.tr(key)}: {val:d}")
             self.doc.text.addElement(p)
 
     def _render_name_freq(self, freq_table: list[tuple[str, int]]) -> None:
@@ -428,7 +428,7 @@ class OdtWriter(writer.Writer):
             row.addElement(cell)
 
             cell = table.TableCell()
-            cell.addElement(text.P(text="%d (%.1f%%)" % (count1, count1 / total * 100)))
+            cell.addElement(text.P(text=f"{count1:d} ({count1 / total * 100:.1f}%)"))
             row.addElement(cell)
 
             if count2 is not None:
@@ -437,7 +437,7 @@ class OdtWriter(writer.Writer):
                 row.addElement(cell)
 
                 cell = table.TableCell()
-                cell.addElement(text.P(text="%d (%.1f%%)" % (count2, count2 / total * 100)))
+                cell.addElement(text.P(text=f"{count2:d} ({count2 / total * 100:.1f}%)"))
                 row.addElement(cell)
 
             tbl.addElement(row)
@@ -465,7 +465,7 @@ class OdtWriter(writer.Writer):
             self.doc.save(self._output)
 
     def _get_image_fragment(self, image_data: bytes) -> draw.Frame:
-        """Adds Image to the document as person's picture.
+        """Add Image to the document as person's picture.
 
         Parameters
         ----------
@@ -477,7 +477,6 @@ class OdtWriter(writer.Writer):
         frame : `odf.draw.Frame`
             Frame containing image.
         """
-
         try:
             img = Image.open(io.BytesIO(image_data))
         except Exception as exc:
@@ -492,18 +491,18 @@ class OdtWriter(writer.Writer):
         # calculate size of the frame
         maxsize = (self._image_width.inches, self._image_height.inches)
         w, h = utils.resize(img.size, maxsize)
-        frame = draw.Frame(width="%.3fin" % w, height="%.3fin" % h)
+        frame = draw.Frame(width=f"{w:.3f}in", height=f"{h:.3f}in")
         imgref = self.doc.addPicture(filename, utils.img_mime_type(img), image_data)
         frame.addElement(draw.Image(href=imgref))
         return frame
 
     def _make_ancestor_tree(self, person: model.Individual) -> None:
-        """ "Add a picture for ancestor tree.
+        """Add a picture for ancestor tree.
 
         Parameters
         ----------
         person : `ged4py.model.Individual`
-            INDI record
+            INDI record.
         """
         width = self.layout.width - self.layout.left - self.layout.right
         tree = AncestorTree(person, max_gen=self._tree_width, width=width, gen_dist="12pt", font_size="9pt")

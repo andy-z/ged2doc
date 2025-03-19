@@ -28,9 +28,9 @@ class TreeNode:
         Corresponding individual, may be ``None``.
     gen : `int`
         Generation number, 0 for the tree root.
-    motherNode : `TreeNode`
+    mother_node : `TreeNode`
         Node for mother, can be ``None``.
-    fatherNode : `TreeNode`
+    father_node : `TreeNode`
         Node for father, can be ``None``.
     box_width : `ged2doc.size.Size`
         Desired width of this node, actual width can grow.
@@ -48,15 +48,15 @@ class TreeNode:
         self,
         person: model.Individual | None,
         gen: int,
-        motherNode: TreeNode | None,
-        fatherNode: TreeNode | None,
+        mother_node: TreeNode | None,
+        father_node: TreeNode | None,
         box_width: Size,
         max_box_width: Size,
         font_size: Size,
         gen_dist: Size,
     ):
-        self.mother = motherNode
-        self.father = fatherNode
+        self.mother = mother_node
+        self.father = father_node
         self.generation = gen
         self._person = person
 
@@ -78,7 +78,9 @@ class TreeNode:
 
     @property
     def person(self) -> model.Individual | None:
-        """Person corresponding to this node, can be None (`ged4py.model.Individual`)."""
+        """Person corresponding to this node, can be None
+        (`ged4py.model.Individual`).
+        """
         return self._person
 
     @property
@@ -157,7 +159,7 @@ class AncestorTree:
         self.root = None
 
         def _genDepth(person: model.Individual | None, max_gen: int) -> int:
-            """Return number known generations for a person"""
+            """Return number known generations for a person."""
             if not person:
                 return 0
             if max_gen == 0:
@@ -165,7 +167,9 @@ class AncestorTree:
             return max(_genDepth(person.father, max_gen - 1), _genDepth(person.mother, max_gen - 1)) + 1
 
         def _boxes(box: TreeNode) -> Iterator[TreeNode]:
-            """Generator for person parents, returns None for unknown parent"""
+            """Generate nodes for person parents, returns None for unknown
+            parent.
+            """
             yield box
             if box.mother:
                 for p in _boxes(box.mother):
@@ -213,12 +217,12 @@ class AncestorTree:
 
     @property
     def width(self) -> Size:
-        """Full width of the tree (`ged2doc.size.Size`)"""
+        """Full width of the tree (`ged2doc.size.Size`)."""
         return self._width
 
     @property
     def height(self) -> Size:
-        """Full height of the tree (`ged2doc.size.Size`)"""
+        """Full height of the tree (`ged2doc.size.Size`)."""
         return self._height
 
     def visit(self, visitor: AncestorTreeVisitor) -> None:
@@ -233,7 +237,7 @@ class AncestorTree:
             self._visit(visitor, self.root)
 
     def _visit(self, visitor: AncestorTreeVisitor, node: TreeNode) -> None:
-        """Helper method for recursive visiting of the nodes."""
+        """Visit nodes recursively."""
         visitor.visitNode(node)
         if node.mother:
             self._visit(visitor, node.mother)
@@ -247,16 +251,16 @@ class AncestorTree:
     ) -> TreeNode | None:
         """Recursively generate tree of TreeNode instances.
 
-        Fro internal use only.
+        For internal use only.
         """
         if gen < max_gen:
-            motherTree = None
-            fatherTree = None
+            mother_tree = None
+            father_tree = None
             if person and (person.mother or person.father):
-                motherTree = self._makeTree(person.mother, gen + 1, max_gen, box_width, max_box_width)
-                fatherTree = self._makeTree(person.father, gen + 1, max_gen, box_width, max_box_width)
+                mother_tree = self._makeTree(person.mother, gen + 1, max_gen, box_width, max_box_width)
+                father_tree = self._makeTree(person.father, gen + 1, max_gen, box_width, max_box_width)
             box = TreeNode(
-                person, gen, motherTree, fatherTree, box_width, max_box_width, self.font_size, self.gen_dist
+                person, gen, mother_tree, father_tree, box_width, max_box_width, self.font_size, self.gen_dist
             )
             return box
         return None
@@ -281,7 +285,7 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def visitMotherEdge(self, node: TreeNode, parentNode: TreeNode) -> None:
+    def visitMotherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         """Visitor method for an edge leading from node to its mother.
 
         It is guaranteed that `visitNode` is called for both nodes before
@@ -291,13 +295,13 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
         ----------
         node : `TreeNode`
             Tree node.
-        parentNode : `TreeNode`
+        parent_node : `TreeNode`
             Parent tree node.
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def visitFatherEdge(self, node: TreeNode, parentNode: TreeNode) -> None:
+    def visitFatherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         """Visitor method for an edge leading from node to its mother.
 
         It is guaranteed that `visitNode` is called for both nodes before
@@ -307,7 +311,7 @@ class AncestorTreeVisitor(metaclass=abc.ABCMeta):
         ----------
         node : `TreeNode`
             Tree node.
-        parentNode : `TreeNode`
+        parent_node : `TreeNode`
             Parent tree node.
         """
         raise NotImplementedError()

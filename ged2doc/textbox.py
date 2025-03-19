@@ -4,13 +4,9 @@ from __future__ import annotations
 
 __all__ = ["TextBox"]
 
-import logging
 from collections.abc import Iterator
 
 from .size import Size, SizeLike
-
-
-_log = logging.getLogger(__name__)
 
 
 class TextBox:
@@ -166,7 +162,7 @@ class TextBox:
         self._height = nlines * self._font_size + (nlines - 1) * self._line_spacing + 2 * self._padding
 
     def move(self, x0: Size | SizeLike, y0: Size | SizeLike) -> None:
-        """Sets new coordinates fo x0 and y0
+        """Set new coordinates fo x0 and y0.
 
         Parameters
         ----------
@@ -177,7 +173,7 @@ class TextBox:
         self._y0 = Size(y0)
 
     def _splitText(self, text: str) -> list[str]:
-        """Tries to split a line of text into a number of lines which fit into
+        """Try to split a line of text into a number of lines which fit into
         box width. It honors embedded newlines, line will always be split at
         those first.
 
@@ -192,12 +188,7 @@ class TextBox:
         """
         width = self._width - 2 * self._padding
 
-        # _log.debug('=========================================================')
-        # _log.debug('_splitText: %s width=%s', text, width)
-
         lines = self._splitText1(text, width)
-
-        # _log.debug('_splitText: lines=[%s]', ' | '.join(lines))
 
         if len(lines) > 1 and self._maxwidth > Size():
             # try to increase box width up to a maximum allowed width
@@ -212,10 +203,9 @@ class TextBox:
         return lines
 
     def _splitText1(self, text: str, width: Size) -> list[str]:
-        """Tries to split a line of text into a number of lines which fit into
+        """Try to split a line of text into a number of lines which fit into
         box width.
         """
-
         lines = []
         for line in text.split("\n"):
             words = line.split()
@@ -223,7 +213,6 @@ class TextBox:
             while idx + 1 < len(words):
                 twowords = " ".join(words[idx : idx + 2])
                 twwidth = self._textWidth(twowords)
-                # _log.debug('_splitText1: %s width=%s', twowords, twwidth)
                 if twwidth <= width:
                     words[idx : idx + 2] = [twowords]
                 else:
@@ -233,12 +222,12 @@ class TextBox:
         return lines
 
     def _textWidth(self, text: str) -> Size:
-        """Calculates approximate width of the string of text."""
-
+        """Calculate approximate width of the string of text."""
         # just  a wild guess for now, try to do better later
         return self._font_size * len(text) * 0.5
 
     def __str__(self) -> str:
-        return "TextBox(x0={}, x1={}, y0={}, y1={}, w={}, h={})".format(
-            self.x0, self.x1, self.y0, self.y1, self.width, self.height
+        return (
+            "TextBox"
+            f"(x0={self.x0}, x1={self.x1}, y0={self.y0}, y1={self.y1}, w={self.width}, h={self.height})"
         )

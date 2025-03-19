@@ -5,7 +5,8 @@ from __future__ import annotations
 import locale
 import logging
 import mimetypes
-from typing import TYPE_CHECKING, BinaryIO, Iterator, cast
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, BinaryIO, cast
 
 from PIL import Image
 
@@ -50,7 +51,7 @@ def resize(
 
 
 def person_image_file(person: model.Individual) -> str | None:
-    """Finds primary person image file name.
+    """Find primary person image file name.
 
     Scans INDI's OBJE records and finds "best" FILE record from those.
 
@@ -118,7 +119,7 @@ def person_image_file(person: model.Individual) -> str | None:
 
 
 def languages() -> list[str]:
-    """Returns list of supported languages.
+    """Return list of supported languages.
 
     This should correspond to the existing translations and needs to be
     updated when new translation is added.
@@ -147,7 +148,7 @@ def system_lang() -> str:
 
 
 def embed_ref(xref_id: str, name: str) -> str:
-    """Returns encoded person reference.
+    """Return encoded person reference.
 
     Encoded reference consists of ASCII character ``SOH`` (``0x01``) followed
     by reference ID, ``STX`` (``0x02``), person name, and ``ETX`` (``0x03``).
@@ -191,7 +192,7 @@ def split_refs(text: str) -> Iterator[tuple[str, str] | str]:
 
 
 def img_mime_type(img: Image.Image) -> str | None:
-    """Returns image MIME type or ``None``.
+    """Return image MIME type or ``None``.
 
     Parameters
     ----------
@@ -227,7 +228,6 @@ def img_resize(img: Image.Image, size: tuple[int, int]) -> Image.Image:
     image : `PIL.Image`
         Resized image.
     """
-
     newsize = resize(img.size, size)
     newsize = (int(newsize[0]), int(newsize[1]))
     if newsize != img.size:

@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Unit test for utils module."""
 
-"""Unit test for utils module"""
+from ged4py.date import CalendarDate, DateValue
 
 from ged2doc import i18n
-from ged4py.date import CalendarDate, DateValue
 
 
 def test_001_tr_en() -> None:
+    """Test English translations."""
     tr = i18n.I18N("en")
     assert tr.tr("Person List") == "Person List"
     assert tr.tr("CHILD.BORN {child}", "M") == "Born son {child}"
@@ -17,6 +17,7 @@ def test_001_tr_en() -> None:
 
 
 def test_002_tr_ru() -> None:
+    """Test Russian translations."""
     tr = i18n.I18N("ru")
     assert tr.tr("Person List") == "Персоналии"
     assert tr.tr("CHILD.BORN {child}", "M") == "Родился сын {child}"
@@ -51,8 +52,7 @@ def test_011_month_ru() -> None:
 
 
 def test_021_cal_date_en() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("1975")
 
@@ -67,8 +67,7 @@ def test_021_cal_date_en() -> None:
 
 
 def test_022_cal_date_en() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("JAN 1975")
 
@@ -96,8 +95,7 @@ def test_022_cal_date_en() -> None:
 
 
 def test_023_cal_date_en() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("9 JAN 1975")
 
@@ -125,8 +123,7 @@ def test_023_cal_date_en() -> None:
 
 
 def test_031_cal_date_ru() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("1975")
 
@@ -141,8 +138,7 @@ def test_031_cal_date_ru() -> None:
 
 
 def test_032_cal_date_ru() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("JAN 1975")
 
@@ -170,8 +166,7 @@ def test_032_cal_date_ru() -> None:
 
 
 def test_033_cal_date_ru() -> None:
-    """Test calendar date translations"""
-
+    """Test calendar date translations."""
     # year only
     date = CalendarDate.parse("9 JAN 1975")
 
@@ -199,8 +194,7 @@ def test_033_cal_date_ru() -> None:
 
 
 def test_041_date_en() -> None:
-    """Test DateValue translations"""
-
+    """Test DateValue translations."""
     # year only
     date = DateValue.parse("ABT 1975")
 
@@ -210,8 +204,7 @@ def test_041_date_en() -> None:
 
 
 def test_042_date_ru() -> None:
-    """Test DateValue translations"""
-
+    """Test DateValue translations."""
     # year only
     date = DateValue.parse("ABT 1975")
 

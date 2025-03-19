@@ -38,7 +38,6 @@ from ged4py.date import (
     DateValueVisitor,
 )
 
-
 _LOG = logging.getLogger(__name__)
 
 # acceptable date formats
@@ -60,8 +59,8 @@ DEFAULT_DATE_FORMAT = {"en": "MD,Y", "ru": "D.M.Y"}
 
 
 def TR(x: str) -> str:
-    """This is no-op function, only used to mark translatable strings,
-    to extract all strings run ``pygettext -k TR ...``
+    """Mark translatable strings. This is no-op function, only used
+    to extract all strings run ``pygettext -k TR ...``.
     """
     return x  # NOQA
 
@@ -242,7 +241,7 @@ class I18N:
         self._tr = None
 
         # open MO file
-        path = "data/lang/{}/{}.mo".format(lang, domain)
+        path = f"data/lang/{lang}/{domain}.mo"
         try:
             _LOG.debug("Opening translations file %r", path)
             modata = resources.files("ged2doc").joinpath(path).read_bytes()
@@ -251,11 +250,11 @@ class I18N:
             self._tr = gettext.GNUTranslations(mofile)
             self._tr.add_fallback(_NullFallback())
             _LOG.debug("self._tr = %r", self._tr)
-        except IOError:
+        except OSError:
             _LOG.warning("Cannot locate translations for language %r", lang)
 
     def tr(self, text: str, gender: str | None = None) -> str:
-        """Translates given text, takes into account gender.
+        """Translate given text, takes into account gender.
 
         Parameters
         ----------
@@ -333,16 +332,16 @@ class I18N:
                     # use month number
                     month = date.month_num
                     if month is not None:
-                        items += ["{:02d}".format(month)]
+                        items += [f"{month:02d}"]
                 else:
                     if date.month:
                         items += [self._monthName(date.month)]
             elif code == "D":
                 day = date.day
                 if day is not None and "," in self._datefmt:
-                    items += [str("{:02d},".format(day))]
+                    items += [str(f"{day:02d},")]
                 elif day is not None:
-                    items += ["{:02d}".format(day)]
+                    items += [f"{day:02d}"]
         if "/" in self._datefmt:
             sep = "/"
         elif "." in self._datefmt:
@@ -354,7 +353,7 @@ class I18N:
         return sep.join(items)
 
     def _monthName(self, month: str) -> str:
-        """Returns translation of a month name.
+        """Return translation of a month name.
 
         For a given GEDCOM month name return translated month name.
 

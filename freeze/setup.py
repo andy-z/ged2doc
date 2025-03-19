@@ -1,4 +1,4 @@
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 
 # Dependencies are automatically detected, but it might need fine tuning.
 build_exe_options = {"excludes": ["tkinter"]}

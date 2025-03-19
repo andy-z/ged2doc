@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-__all__ = ["Event", "indi_events", "indi_attributes", "family_events"]
+__all__ = ["Event", "family_events", "indi_attributes", "indi_events"]
 
 from typing import NamedTuple
 
-import ged4py.model
 import ged4py.date
+import ged4py.model
 
 
 # Event structure, reflection of <EVENT_DETAIL>. Only relevant
@@ -136,7 +136,7 @@ def _get_events(record: ged4py.model.Record, tags: set[str]) -> list[Event]:
 
 
 def indi_events(person: ged4py.model.Individual, tags: set[str] | None = None) -> list[Event]:
-    """Returns all events for a given individual.
+    """Return all events for a given individual.
 
     Parameters
     ----------
@@ -154,7 +154,7 @@ def indi_events(person: ged4py.model.Individual, tags: set[str] | None = None) -
 
 
 def indi_attributes(person: ged4py.model.Individual, tags: set[str] | None = None) -> list[Event]:
-    """Returns all attributes for a given individual.
+    """Return all attributes for a given individual.
 
     Parameters
     ----------
@@ -172,7 +172,7 @@ def indi_attributes(person: ged4py.model.Individual, tags: set[str] | None = Non
 
 
 def family_events(family: ged4py.model.Record, tags: set[str] | None = None) -> list[Event]:
-    """Returns all events for a given family.
+    """Return all events for a given family.
 
     Parameters
     ----------

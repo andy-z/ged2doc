@@ -1,18 +1,19 @@
-"""Unit test for input module"""
+"""Unit test for input module."""
 
 import os
-import pytest
 import shutil
 import tempfile
 import zipfile
 from collections.abc import Iterator
+
+import pytest
 
 from ged2doc import input as ged2doc_input
 
 
 @pytest.fixture
 def files_on_disk() -> Iterator[str]:
-    """Fixture that creates directory tree with files on disk"""
+    """Fixture that creates directory tree with files on disk."""
     tmpdir = tempfile.mkdtemp()
     files = [
         ("xxx.ged",),
@@ -40,7 +41,7 @@ def files_on_disk() -> Iterator[str]:
 
 @pytest.fixture
 def files_in_zip() -> Iterator[str]:
-    """Fixture that creates zip archive with few files"""
+    """Fixture that creates zip archive with few files."""
     fd, aname = tempfile.mkstemp(".zip")
     os.close(fd)
     with zipfile.ZipFile(aname, "w") as archive:
@@ -62,6 +63,7 @@ def files_in_zip() -> Iterator[str]:
 
 
 def checkFilesLoc(loc: ged2doc_input.FileLocator) -> None:
+    """Check that FileLocator finds all files."""
     ged = loc.open_gedcom()
     assert ged is not None
     assert ged.read() == b"xxx.ged"

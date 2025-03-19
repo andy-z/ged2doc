@@ -1,12 +1,12 @@
-"""Unit test for events module"""
+"""Unit test for events module."""
+
+from ged4py import model
 
 from ged2doc import events
-from ged4py import model
 
 
 def test_001_indi_events() -> None:
     """Test indi_events method."""
-
     dialect = model.Dialect.MYHERITAGE
 
     rtype = model.make_record(2, None, "TYPE", "SomeType", [], 0, dialect, None).freeze()
@@ -38,7 +38,6 @@ def test_001_indi_events() -> None:
 
 def test_002_indi_attributes() -> None:
     """Test indi_attributes method."""
-
     dialect = model.Dialect.MYHERITAGE
 
     rec1 = model.make_record(1, None, "BIRT", "", [], 0, dialect, None).freeze()
@@ -67,7 +66,6 @@ def test_002_indi_attributes() -> None:
 
 def test_003_family_events() -> None:
     """Test family_events method."""
-
     dialect = model.Dialect.MYHERITAGE
 
     rtype = model.make_record(2, None, "TYPE", "SomeType", [], 0, dialect, None).freeze()

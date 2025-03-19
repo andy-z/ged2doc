@@ -5,17 +5,18 @@ from typing import Any
 
 import pytest
 from PIL import Image
+
 from ged2doc import utils
 
 
 def _make_image(mode: str, size: tuple[int, int]) -> Image.Image:
-    """Makes an Image object with given pixel mode and size."""
+    """Make an Image object with given pixel mode and size."""
     img = Image.new(mode, size)
     return img
 
 
 def _make_img_file(mode: str, size: tuple[int, int], fmt: str, **kwargs: Any) -> io.BytesIO:
-    """Makes image file of given size, mode, and format."""
+    """Make image file of given size, mode, and format."""
     img = _make_image(mode, size)
     imgfile = io.BytesIO()
     img.save(imgfile, fmt, **kwargs)
@@ -24,8 +25,7 @@ def _make_img_file(mode: str, size: tuple[int, int], fmt: str, **kwargs: Any) ->
 
 
 def test_000_assumptions() -> None:
-    "Test for general assumptions about PIL images"
-
+    """Test for general assumptions about PIL images."""
     # check that image format is as expected after reading data from file
     formats = {
         "JPEG": ["RGB", "L", "CMYK"],
@@ -46,8 +46,7 @@ def test_000_assumptions() -> None:
 
 
 def test_001_palette() -> None:
-    "Testing palette images"
-
+    """Testing palette images."""
     img = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert img.mode == "P"
     assert img.palette is not None
@@ -62,8 +61,7 @@ def test_001_palette() -> None:
 
 
 def test_002_mime() -> None:
-    "Testing MIME type guessing"
-
+    """Testing MIME type guessing."""
     img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert utils.img_mime_type(img) == "image/gif"
 
@@ -78,8 +76,7 @@ def test_002_mime() -> None:
 
 
 def test_003_img_resize() -> None:
-    "Testing utils.img_resize() method."
-
+    """Testing utils.img_resize() method."""
     # palette image, no resize
     img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert img.mode == "P"
@@ -116,8 +113,7 @@ def test_003_img_resize() -> None:
 
 
 def test_004_img_save() -> None:
-    "Testing utils.img_save() method."
-
+    """Testing utils.img_save() method."""
     # keep original format
     img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert img.mode == "P"

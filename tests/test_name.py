@@ -1,14 +1,16 @@
-"""Unit test for name module"""
+"""Unit test for name module."""
 
 from typing import TYPE_CHECKING, NamedTuple
 
-from ged2doc.name import name_fmt, NameFormat
+from ged2doc.name import NameFormat, name_fmt
 
 # Some messing around needed to make mypy happy
 if TYPE_CHECKING:
     from ged4py import model
 
     class Name(model.Name):
+        """Name class for mypy."""
+
         def __init__(self, given: str | None, surname: str | None, maiden: str | None):
             pass
 
@@ -17,12 +19,15 @@ else:
 
     # mock for Name class
     class Name(NamedTuple):
+        """Mock for Name class."""
+
         given: str | None  # type: ignore
         surname: str | None  # type: ignore
         maiden: str | None
 
 
 def test_001_default() -> None:
+    """Test default name format."""
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name) == "Jane Smith"
 
@@ -37,6 +42,7 @@ def test_001_default() -> None:
 
 
 def test_002_surname_first() -> None:
+    """Test surname-first format."""
     flags = NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -53,6 +59,7 @@ def test_002_surname_first() -> None:
 
 
 def test_003_comma() -> None:
+    """Test surname-first with comma format."""
     flags = NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -83,6 +90,7 @@ def test_003_comma() -> None:
 
 
 def test_004_maiden() -> None:
+    """Test maiden-name format."""
     flags = NameFormat.MAIDEN
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -103,6 +111,7 @@ def test_004_maiden() -> None:
 
 
 def test_005_maiden_only() -> None:
+    """Test maiden-name-only format."""
     flags = NameFormat.MAIDEN_ONLY
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -123,6 +132,7 @@ def test_005_maiden_only() -> None:
 
 
 def test_006_capital() -> None:
+    """Test capitalized last name format."""
     flags = NameFormat.MAIDEN | NameFormat.CAPITAL
 
     name = Name(given="Jane", surname="Smith", maiden=None)

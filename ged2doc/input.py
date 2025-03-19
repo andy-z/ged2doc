@@ -1,4 +1,4 @@
-"""Module which handles input files.
+r"""Module which handles input files.
 
 This module is responsible for locating all files (GEDCOM data and images)
 given the application inputs. Currently it handles two cases:
@@ -43,12 +43,11 @@ for images.
 
 from __future__ import annotations
 
-__all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
+__all__ = ["FileLocator", "MultipleMatchesError", "make_file_locator"]
 
 import abc
 import errno
 import fnmatch
-import io
 import logging
 import os
 import shutil
@@ -56,7 +55,6 @@ import tempfile
 import zipfile
 from collections.abc import Iterator
 from typing import BinaryIO, cast
-
 
 _log = logging.getLogger(__name__)
 
@@ -74,7 +72,7 @@ class FileLocator(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def open_gedcom(self) -> BinaryIO | None:
-        """Returns file object for the input GEDCOM file.
+        """Return file object for the input GEDCOM file.
 
         If no GEDCOM file is found `None` is returned. If more than one
         file is found than :py:exc:`MultipleMatchesError` exception is raised.
@@ -99,7 +97,7 @@ class FileLocator(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def open_image(self, name: str) -> BinaryIO | None:
-        """Returns open file object for the named image file.
+        """Return open file object for the named image file.
 
         If image file is not found `None` is returned. If more than one
         matching file is found than :py:exc:`MultipleMatchesError` exception
@@ -173,7 +171,7 @@ class _Path:
         return cls(path.split("/"), dirname)
 
     def match_rank(self, other: _Path) -> int:
-        """Returns match "rank" with the other path.
+        """Return match "rank" with the other path.
 
         Rank is a count of identical matching components at the end of paths.
 
@@ -224,18 +222,18 @@ class _FileSearch(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _enc(name: str | bytes) -> bytes:
-        """If string is Unicode encode it into UTF-8"""
+        """If string is Unicode encode it into UTF-8."""
         if isinstance(name, str):
             name = name.encode("utf_8")
         return name
 
     @staticmethod
     def _enc_list(path: list[str | bytes]) -> list[bytes]:
-        """If strings are Unicode encode them into UTF-8"""
+        """If strings are Unicode encode them into UTF-8."""
         return [_FileSearch._enc(comp) for comp in path]
 
     def find_file(self, name: str) -> _Path | None:
-        """Returns file path for the named file.
+        """Return file path for the named file.
 
         Parameters
         ----------
@@ -243,7 +241,6 @@ class _FileSearch(metaclass=abc.ABCMeta):
             File name to search, this is usually the path as it comes directly
             from GEDCOM file.
         """
-
         path = _Path.from_path(name)
 
         # for each match assign its rank
@@ -400,7 +397,7 @@ class _FSLocator(FileLocator):
         # docstring inherited from base class
         _log.debug("_FSLocator.open_gedcom")
         if isinstance(self._input_file, str):
-            return io.open(self._input_file, "rb")
+            return open(self._input_file, "rb")
         else:
             return self._input_file
 
@@ -422,7 +419,7 @@ class _FSLocator(FileLocator):
             try:
                 _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
                 return open(name, "rb")
-            except IOError:
+            except OSError:
                 pass
         else:
             # if path looks like relative path try to open it relative to image
@@ -432,7 +429,7 @@ class _FSLocator(FileLocator):
                     path = os.path.join(self._image_path, name)
                     _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
                     return open(path, "rb")
-                except IOError:
+                except OSError:
                     pass
 
         # Otherwise try to search in the image folder.
@@ -500,7 +497,7 @@ class _ZipLocator(FileLocator):
             try:
                 _log.debug("_ZipLocator.open_image: Trying FS path %s", name)
                 return open(name, "rb")
-            except IOError:
+            except OSError:
                 pass
 
         # search on filesystem
@@ -515,7 +512,7 @@ class _ZipLocator(FileLocator):
 def make_file_locator(
     input_file: str | BinaryIO, file_name_pattern: str, image_path: str | None
 ) -> FileLocator:
-    """Create and return file locator instance
+    """Create and return file locator instance.
 
     For a given input file (which can be GEDCOM file or ZIP archive) return
     corresponding file locator object (instance of :py:class:`FileLocator`
@@ -552,7 +549,6 @@ def make_file_locator(
         Raised if file object is given as input file but it does not support
         ``seek()`` method.
     """
-
     if zipfile.is_zipfile(input_file):
         return _ZipLocator(input_file, file_name_pattern, image_path)
     elif hasattr(input_file, "read"):

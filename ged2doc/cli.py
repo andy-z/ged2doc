@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Console script for ged2doc."""
 
 from __future__ import annotations
@@ -11,17 +9,19 @@ import os
 import platform
 import sys
 
-from .size import String2Size
-from .i18n import I18N, DATE_FORMATS
-from .input import make_file_locator
-from .html_writer import HtmlWriter
-from .name import NameFormat
-from .odt_writer import OdtWriter
-from .utils import languages, system_lang
-from .writer import Writer
-import ged2doc
 import ged4py
 from ged4py.model import NameOrder
+
+import ged2doc
+
+from .html_writer import HtmlWriter
+from .i18n import DATE_FORMATS, I18N
+from .input import make_file_locator
+from .name import NameFormat
+from .odt_writer import OdtWriter
+from .size import String2Size
+from .utils import languages, system_lang
+from .writer import Writer
 
 _log = logging.getLogger(__name__)
 
@@ -45,9 +45,8 @@ def _make_writer(argv: list[str] | None = None) -> tuple[argparse.Namespace, Wri
     writer : `ged2doc.writer.Writer`
         Instance of `~ged2doc.writer.Writer` to use for writing output file.
     """
-
-    version = "ged2doc {0} (ged4py {1}; python {2})".format(
-        ged2doc.__version__, ged4py.__version__, platform.python_version()
+    version = (
+        f"ged2doc {ged2doc.__version__} (ged4py {ged4py.__version__}; python {platform.python_version()})"
     )
 
     parser = argparse.ArgumentParser(description="Convert GEDCOM file into document.")
@@ -304,7 +303,7 @@ def _make_writer(argv: list[str] | None = None) -> tuple[argparse.Namespace, Wri
 
     # configure logging
     if args.verbose == 0:
-        log_level = logging.WARN
+        log_level = logging.WARNING
     elif args.verbose == 1:
         log_level = logging.INFO
     else:
@@ -337,7 +336,7 @@ def _make_writer(argv: list[str] | None = None) -> tuple[argparse.Namespace, Wri
         flocator = make_file_locator(args.input, args.file_name_pattern, args.image_path)
     except Exception as exc:
         _log.debug("caught exception: %s", exc, exc_info=True)
-        parser.error("Error reading input file: {0}".format(exc))
+        parser.error(f"Error reading input file: {exc}")
 
     tr = I18N(args.language, args.date_format)
 
@@ -417,7 +416,6 @@ def main(argv: list[str] | None = None) -> int:
     argv : `list` [ `str` ], optional
         Command line arguments, be default ``sys.argv`` is used.
     """
-
     args, writer = _make_writer(argv)
 
     try:
@@ -426,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except Exception as exc:
         _log.debug("caught exception: %s", exc, exc_info=True)
-        print("Error while producing a document:\n  {}".format(exc), file=sys.stderr)
+        print(f"Error while producing a document:\n  {exc}", file=sys.stderr)
         # clear output file in case some partial output was written
         try:
             _log.debug("trying to remove output file: %s", args.output)

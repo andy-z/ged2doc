@@ -6,7 +6,7 @@ ged2doc package.
 
 from __future__ import annotations
 
-__all__ = ["Doc", "Element", "Line", "Rect", "Text", "Tspan", "Hyperlink"]
+__all__ = ["Doc", "Element", "Hyperlink", "Line", "Rect", "Text", "Tspan"]
 
 from typing import Any
 
