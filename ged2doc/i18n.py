@@ -11,13 +11,32 @@ Note that we do not use system locale, instead we expect client to provide
 small set of configuration options such as output language and date format.
 """
 
+from __future__ import annotations
+
 import gettext
 import io
 import logging
 import string
 from importlib import resources
+from typing import Any
 
-from ged4py.date import CalendarDate, DateValueVisitor
+from ged4py.date import (
+    CalendarDate,
+    DateValue,
+    DateValueAbout,
+    DateValueAfter,
+    DateValueBefore,
+    DateValueCalculated,
+    DateValueEstimated,
+    DateValueFrom,
+    DateValueInterpreted,
+    DateValuePeriod,
+    DateValuePhrase,
+    DateValueRange,
+    DateValueSimple,
+    DateValueTo,
+    DateValueVisitor,
+)
 
 _LOG = logging.getLogger(__name__)
 
@@ -39,9 +58,9 @@ DATE_FORMATS = [
 DEFAULT_DATE_FORMAT = {"en": "MD,Y", "ru": "D.M.Y"}
 
 
-def TR(x):
-    """This is no-op function, only used to mark translatable strings,
-    to extract all strings run ``pygettext -k TR ...``
+def TR(x: str) -> str:
+    """Mark translatable strings. This is no-op function, only used
+    to extract all strings run ``pygettext -k TR ...``.
     """
     return x  # NOQA
 
@@ -153,12 +172,12 @@ _extra_tr = [
 
 
 class _NullFallback(gettext.NullTranslations):
-    """Special fallback class for gettext which returns None for missing
-    translations.
+    """Special fallback class for gettext which returns empty string for
+    missing translations.
     """
 
-    def gettext(self, message):
-        return None
+    def gettext(self, message: str) -> str:
+        return ""
 
 
 class _TemplateDateVisitor(DateValueVisitor):
@@ -166,40 +185,40 @@ class _TemplateDateVisitor(DateValueVisitor):
     keywords from dates.
     """
 
-    def visitSimple(self, date):
+    def visitSimple(self, date: DateValueSimple) -> Any:
         return "DATE_VALUE.$date", dict(date=date.date)
 
-    def visitPeriod(self, date):
+    def visitPeriod(self, date: DateValuePeriod) -> Any:
         return ("DATE_VALUE.FROM $date1 TO $date2", dict(date1=date.date1, date2=date.date2))
 
-    def visitFrom(self, date):
+    def visitFrom(self, date: DateValueFrom) -> Any:
         return "DATE_VALUE.FROM $date", dict(date=date.date)
 
-    def visitTo(self, date):
+    def visitTo(self, date: DateValueTo) -> Any:
         return "DATE_VALUE.TO $date", dict(date=date.date)
 
-    def visitRange(self, date):
+    def visitRange(self, date: DateValueRange) -> Any:
         return ("DATE_VALUE.BETWEEN $date1 AND $date2", dict(date1=date.date1, date2=date.date2))
 
-    def visitBefore(self, date):
+    def visitBefore(self, date: DateValueBefore) -> Any:
         return "DATE_VALUE.BEFORE $date", dict(date=date.date)
 
-    def visitAfter(self, date):
+    def visitAfter(self, date: DateValueAfter) -> Any:
         return "DATE_VALUE.AFTER $date", dict(date=date.date)
 
-    def visitAbout(self, date):
+    def visitAbout(self, date: DateValueAbout) -> Any:
         return "DATE_VALUE.ABOUT $date", dict(date=date.date)
 
-    def visitCalculated(self, date):
+    def visitCalculated(self, date: DateValueCalculated) -> Any:
         return "DATE_VALUE.CALCULATED $date", dict(date=date.date)
 
-    def visitEstimated(self, date):
+    def visitEstimated(self, date: DateValueEstimated) -> Any:
         return "DATE_VALUE.ESTIMATED $date", dict(date=date.date)
 
-    def visitInterpreted(self, date):
+    def visitInterpreted(self, date: DateValueInterpreted) -> Any:
         return ("DATE_VALUE.INTERPRETED $date ($phrase)", dict(date=date.date, phrase=date.phrase))
 
-    def visitPhrase(self, date):
+    def visitPhrase(self, date: DateValuePhrase) -> Any:
         return "DATE_VALUE.($phrase)", dict(phrase=date.phrase)
 
 
@@ -216,15 +235,13 @@ class I18N:
         ``gettext`` domain (message file name).
     """
 
-    def __init__(self, lang, datefmt=None, domain="ged2doc"):
+    def __init__(self, lang: str, datefmt: str | None = None, domain: str = "ged2doc"):
         self._lang = lang
-        self._datefmt = datefmt
-        if self._datefmt is None:
-            self._datefmt = DEFAULT_DATE_FORMAT.get(lang, "YMD")
+        self._datefmt = DEFAULT_DATE_FORMAT.get(lang, "YMD") if datefmt is None else datefmt
         self._tr = None
 
         # open MO file
-        path = "data/lang/{}/{}.mo".format(lang, domain)
+        path = f"data/lang/{lang}/{domain}.mo"
         try:
             _LOG.debug("Opening translations file %r", path)
             modata = resources.files("ged2doc").joinpath(path).read_bytes()
@@ -233,11 +250,11 @@ class I18N:
             self._tr = gettext.GNUTranslations(mofile)
             self._tr.add_fallback(_NullFallback())
             _LOG.debug("self._tr = %r", self._tr)
-        except IOError:
+        except OSError:
             _LOG.warning("Cannot locate translations for language %r", lang)
 
-    def tr(self, text, gender=None):
-        """Translates given text, takes into account gender.
+    def tr(self, text: str, gender: str | None = None) -> str:
+        """Translate given text, takes into account gender.
 
         Parameters
         ----------
@@ -266,7 +283,7 @@ class I18N:
         _LOG.debug("return original = %r", text)
         return text
 
-    def tr_date(self, date):
+    def tr_date(self, date: DateValue) -> str:
         """Produce language-specific date representation.
 
         Parameters
@@ -291,7 +308,7 @@ class I18N:
                 kw[key] = val
         return tmpl.substitute(kw)
 
-    def _tr_cal_date(self, date):
+    def _tr_cal_date(self, date: CalendarDate) -> str:
         """Produce language-specific calendar date representation.
 
         Uses date format provided in constructor, month name is translated
@@ -312,19 +329,19 @@ class I18N:
                 items += [date.year_str]
             elif code == "M":
                 if "/" in self._datefmt or "." in self._datefmt:
+                    # use month number
                     month = date.month_num
                     if month is not None:
-                        month = "{:02d}".format(month)
+                        items += [f"{month:02d}"]
                 else:
-                    month = self._monthName(date.month)
-                if month is not None:
-                    items += [month]
+                    if date.month:
+                        items += [self._monthName(date.month)]
             elif code == "D":
                 day = date.day
                 if day is not None and "," in self._datefmt:
-                    items += [str("{:02d},".format(day))]
+                    items += [str(f"{day:02d},")]
                 elif day is not None:
-                    items += ["{:02d}".format(day)]
+                    items += [f"{day:02d}"]
         if "/" in self._datefmt:
             sep = "/"
         elif "." in self._datefmt:
@@ -335,8 +352,8 @@ class I18N:
             sep = " "
         return sep.join(items)
 
-    def _monthName(self, month):
-        """Returns translation of a month name.
+    def _monthName(self, month: str) -> str:
+        """Return translation of a month name.
 
         For a given GEDCOM month name return translated month name.
 

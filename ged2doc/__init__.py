@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Top-level package for GEDCOM Utilities."""
 
 __author__ = "Andy Salnikov"

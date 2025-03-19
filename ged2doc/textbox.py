@@ -1,13 +1,12 @@
 """Module defining `TexBox` class and related methods."""
 
+from __future__ import annotations
+
 __all__ = ["TextBox"]
 
-import logging
+from collections.abc import Iterator
 
-from .size import Size
-
-
-_log = logging.getLogger(__name__)
+from .size import Size, SizeLike
 
 
 class TextBox:
@@ -44,16 +43,16 @@ class TextBox:
 
     def __init__(
         self,
-        x0=0,
-        y0=0,
-        width=0,
-        maxwidth=0,
-        height=0,
-        text="",
-        font_size="10pt",
-        padding="4pt",
-        line_spacing="1.5pt",
-        href=None,
+        x0: Size | SizeLike = 0,
+        y0: Size | SizeLike = 0,
+        width: Size | SizeLike = 0,
+        maxwidth: Size | SizeLike = 0,
+        height: Size | SizeLike = 0,
+        text: str = "",
+        font_size: Size | SizeLike = "10pt",
+        padding: Size | SizeLike = "4pt",
+        line_spacing: Size | SizeLike = "1.5pt",
+        href: str | None = None,
     ):
         self._x0 = Size(x0)
         self._y0 = Size(y0)
@@ -72,66 +71,66 @@ class TextBox:
             self.reflow()
 
     @property
-    def x0(self):
+    def x0(self) -> Size:
         return self._x0
 
     @x0.setter
-    def x0(self, x):
+    def x0(self, x: Size) -> None:
         self._x0 = x
 
     @property
-    def x1(self):
+    def x1(self) -> Size:
         return self._x0 + self._width
 
     @property
-    def y0(self):
+    def y0(self) -> Size:
         return self._y0
 
     @y0.setter
-    def y0(self, y):
+    def y0(self, y: Size) -> None:
         self._y0 = y
 
     @property
-    def y1(self):
+    def y1(self) -> Size:
         return self._y0 + self._height
 
     @property
-    def midx(self):
+    def midx(self) -> Size:
         return self._x0 + self._width / 2
 
     @property
-    def midy(self):
+    def midy(self) -> Size:
         return self._y0 + self._height / 2
 
     @property
-    def width(self):
+    def width(self) -> Size:
         return self._width
 
     @width.setter
-    def width(self, width):
+    def width(self, width: Size) -> None:
         self._width = width
 
     @property
-    def height(self):
+    def height(self) -> Size:
         return self._height
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._text
 
     @property
-    def href(self):
+    def href(self) -> str | None:
         return self._href
 
     @property
-    def font_size(self):
+    def font_size(self) -> Size:
         return self._font_size
 
     @property
-    def lines(self):
+    def lines(self) -> list[str]:
         return self._lines
 
-    def lines_pos(self):
+    def lines_pos(self) -> Iterator[tuple[str, tuple[Size, Size]]]:
         """Iterate over lines and their positions.
 
         For each line of test iterator returns a tuple of two items:
@@ -154,7 +153,7 @@ class TextBox:
             y = self.y0 + self._padding + self._font_size * (i + 1) + self._line_spacing * i
             yield line, (x, y)
 
-    def reflow(self):
+    def reflow(self) -> None:
         """Split the text inside the box so that it fits into box width, then
         recalculate box height so that all text fits inside the box.
         """
@@ -162,8 +161,8 @@ class TextBox:
         nlines = len(self._lines)
         self._height = nlines * self._font_size + (nlines - 1) * self._line_spacing + 2 * self._padding
 
-    def move(self, x0, y0):
-        """Sets new coordinates fo x0 and y0
+    def move(self, x0: Size | SizeLike, y0: Size | SizeLike) -> None:
+        """Set new coordinates fo x0 and y0.
 
         Parameters
         ----------
@@ -173,8 +172,8 @@ class TextBox:
         self._x0 = Size(x0)
         self._y0 = Size(y0)
 
-    def _splitText(self, text):
-        """Tries to split a line of text into a number of lines which fit into
+    def _splitText(self, text: str) -> list[str]:
+        """Try to split a line of text into a number of lines which fit into
         box width. It honors embedded newlines, line will always be split at
         those first.
 
@@ -189,12 +188,7 @@ class TextBox:
         """
         width = self._width - 2 * self._padding
 
-        # _log.debug('=========================================================')
-        # _log.debug('_splitText: %s width=%s', text, width)
-
         lines = self._splitText1(text, width)
-
-        # _log.debug('_splitText: lines=[%s]', ' | '.join(lines))
 
         if len(lines) > 1 and self._maxwidth > Size():
             # try to increase box width up to a maximum allowed width
@@ -208,11 +202,10 @@ class TextBox:
 
         return lines
 
-    def _splitText1(self, text, width):
-        """Tries to split a line of text into a number of lines which fit into
+    def _splitText1(self, text: str, width: Size) -> list[str]:
+        """Try to split a line of text into a number of lines which fit into
         box width.
         """
-
         lines = []
         for line in text.split("\n"):
             words = line.split()
@@ -220,7 +213,6 @@ class TextBox:
             while idx + 1 < len(words):
                 twowords = " ".join(words[idx : idx + 2])
                 twwidth = self._textWidth(twowords)
-                # _log.debug('_splitText1: %s width=%s', twowords, twwidth)
                 if twwidth <= width:
                     words[idx : idx + 2] = [twowords]
                 else:
@@ -229,13 +221,13 @@ class TextBox:
 
         return lines
 
-    def _textWidth(self, text):
-        """Calculates approximate width of the string of text."""
-
+    def _textWidth(self, text: str) -> Size:
+        """Calculate approximate width of the string of text."""
         # just  a wild guess for now, try to do better later
         return self._font_size * len(text) * 0.5
 
-    def __str__(self):
-        return "TextBox(x0={}, x1={}, y0={}, y1={}, w={}, h={})".format(
-            self.x0, self.x1, self.y0, self.y1, self.width, self.height
+    def __str__(self) -> str:
+        return (
+            "TextBox"
+            f"(x0={self.x0}, x1={self.x1}, y0={self.y0}, y1={self.y1}, w={self.width}, h={self.height})"
         )

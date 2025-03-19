@@ -1,17 +1,19 @@
-"""Unit test for input module"""
+"""Unit test for input module."""
 
 import os
-import pytest
 import shutil
 import tempfile
 import zipfile
+from collections.abc import Iterator
+
+import pytest
 
 from ged2doc import input as ged2doc_input
 
 
 @pytest.fixture
-def files_on_disk():
-    """Fixture that creates directory tree with files on disk"""
+def files_on_disk() -> Iterator[str]:
+    """Fixture that creates directory tree with files on disk."""
     tmpdir = tempfile.mkdtemp()
     files = [
         ("xxx.ged",),
@@ -38,8 +40,8 @@ def files_on_disk():
 
 
 @pytest.fixture
-def files_in_zip():
-    """Fixture that creates zip archive with few files"""
+def files_in_zip() -> Iterator[str]:
+    """Fixture that creates zip archive with few files."""
     fd, aname = tempfile.mkstemp(".zip")
     os.close(fd)
     with zipfile.ZipFile(aname, "w") as archive:
@@ -60,8 +62,10 @@ def files_in_zip():
     os.unlink(aname)
 
 
-def checkFilesLoc(loc):
+def checkFilesLoc(loc: ged2doc_input.FileLocator) -> None:
+    """Check that FileLocator finds all files."""
     ged = loc.open_gedcom()
+    assert ged is not None
     assert ged.read() == b"xxx.ged"
 
     with pytest.raises(ged2doc_input.MultipleMatchesError):
@@ -71,30 +75,37 @@ def checkFilesLoc(loc):
         img = loc.open_image("two.gif")
 
     img = loc.open_image("dir1/one.jpg")
+    assert img is not None
     assert img.read() == b"dir1/one.jpg"
 
     img = loc.open_image("dir2/one.jpg")
+    assert img is not None
     assert img.read() == b"dir1/dir2/one.jpg"
 
     img = loc.open_image("dir1/dir2/one.jpg")
+    assert img is not None
     assert img.read() == b"dir1/dir2/one.jpg"
 
     img = loc.open_image(r"d:\x\y\z\dir2\one.jpg")
+    assert img is not None
     assert img.read() == b"dir1/dir2/one.jpg"
 
     img = loc.open_image("dir1/two.gif")
+    assert img is not None
     assert img.read() == b"dir1/two.gif"
 
     img = loc.open_image("dir2/two.gif")
+    assert img is not None
     assert img.read() == b"dir2/two.gif"
 
     img = loc.open_image("/home/joe/Pictures/dir2/two.gif")
+    assert img is not None
     assert img.read() == b"dir2/two.gif"
 
     assert loc.open_image("three.pdf") is None
 
 
-def test_FSLocator_name(files_on_disk):
+def test_FSLocator_name(files_on_disk: str) -> None:
     """Test for _FSLocator with file name."""
     tmpdir = files_on_disk
 
@@ -102,7 +113,7 @@ def test_FSLocator_name(files_on_disk):
     checkFilesLoc(loc)
 
 
-def test_FSLocator_fobj(files_on_disk):
+def test_FSLocator_fobj(files_on_disk: str) -> None:
     """Test for _FSLocator with file object."""
     tmpdir = files_on_disk
 
@@ -111,7 +122,7 @@ def test_FSLocator_fobj(files_on_disk):
         checkFilesLoc(loc)
 
 
-def test_make_file_locator_name(files_on_disk):
+def test_make_file_locator_name(files_on_disk: str) -> None:
     """Test for make_file_locator with file name."""
     tmpdir = files_on_disk
 
@@ -120,7 +131,7 @@ def test_make_file_locator_name(files_on_disk):
     checkFilesLoc(loc)
 
 
-def test_make_file_locator_fobj(files_on_disk):
+def test_make_file_locator_fobj(files_on_disk: str) -> None:
     """Test for make_file_locator with file object."""
     tmpdir = files_on_disk
 
@@ -130,7 +141,7 @@ def test_make_file_locator_fobj(files_on_disk):
         checkFilesLoc(loc)
 
 
-def test_ZipLocator_name(files_in_zip):
+def test_ZipLocator_name(files_in_zip: str) -> None:
     """Test for _ZipLocator with file name."""
     archive = files_in_zip
 
@@ -148,7 +159,7 @@ def test_ZipLocator_name(files_in_zip):
         assert loc.open_gedcom()
 
 
-def test_ZipLocator_fobj(files_in_zip):
+def test_ZipLocator_fobj(files_in_zip: str) -> None:
     """Test for _ZipLocator with file object."""
     archive = files_in_zip
     with open(archive, "rb") as fobj:
@@ -156,7 +167,7 @@ def test_ZipLocator_fobj(files_in_zip):
         checkFilesLoc(loc)
 
 
-def test_make_file_locator_zip_name(files_in_zip):
+def test_make_file_locator_zip_name(files_in_zip: str) -> None:
     """Test for make_file_locator with zip file name."""
     archive = files_in_zip
 
@@ -165,7 +176,7 @@ def test_make_file_locator_zip_name(files_in_zip):
     checkFilesLoc(loc)
 
 
-def test_make_file_locator_zip_fobj(files_in_zip):
+def test_make_file_locator_zip_fobj(files_in_zip: str) -> None:
     """Test for make_file_locator with file object."""
     archive = files_in_zip
 

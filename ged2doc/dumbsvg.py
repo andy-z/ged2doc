@@ -4,7 +4,11 @@ Only the most trivial features are implemented, stuff that is required by
 ged2doc package.
 """
 
-__all__ = ["Doc", "Element", "Line", "Rect", "Text", "Tspan", "Hyperlink"]
+from __future__ import annotations
+
+__all__ = ["Doc", "Element", "Hyperlink", "Line", "Rect", "Text", "Tspan"]
+
+from typing import Any
 
 
 class Doc:
@@ -16,7 +20,7 @@ class Doc:
         Document width and height, int for pixels or string.
     """
 
-    def __init__(self, width, height):
+    def __init__(self, width: int | str, height: int | str):
         self._width = width
         self._height = height
         self._top = Element(
@@ -30,7 +34,7 @@ class Doc:
             ],
         )
 
-    def add(self, element):
+    def add(self, element: Element) -> None:
         """Add new element to the document.
 
         Parameters
@@ -40,7 +44,7 @@ class Doc:
         """
         self._top.add(element)
 
-    def xml(self, full_xml=True):
+    def xml(self, full_xml: bool = True) -> str:
         """Produce XML representation of the document.
 
         Parameters
@@ -77,13 +81,13 @@ class Element:
         Element value (text).
     """
 
-    def __init__(self, tag, attributes=None, value=""):
+    def __init__(self, tag: str, attributes: list[tuple[str, Any]] | None = None, value: str = ""):
         self._tag = tag
         self._attributes = attributes or []
         self._value = value
-        self._elements = []
+        self._elements: list[Element] = []
 
-    def add(self, element):
+    def add(self, element: Element) -> None:
         """Add new sub-element to the element.
 
         Parameters
@@ -93,7 +97,7 @@ class Element:
         """
         self._elements.append(element)
 
-    def xml(self):
+    def xml(self) -> str:
         """Produce XML fragment for this element.
 
         Returns
@@ -104,7 +108,7 @@ class Element:
         lines = []
         txt = "<" + self._tag
         for attr, val in self._attributes:
-            txt += ' {}="{}"'.format(attr, val)
+            txt += f' {attr}="{val}"'
         if not self._value and not self._elements:
             txt += " />"
             lines += [txt]
@@ -129,7 +133,7 @@ class Line(Element):
         Line style.
     """
 
-    def __init__(self, x1, y1, x2, y2, style=None):
+    def __init__(self, x1: str, y1: str, x2: str, y2: str, style: str | None = None):
         attr = [("x1", x1), ("y1", y1), ("x2", x2), ("y2", y2)]
         if style:
             attr += [("style", style)]
@@ -149,7 +153,7 @@ class Rect(Element):
         Line style.
     """
 
-    def __init__(self, x, y, width, height, style=None):
+    def __init__(self, x: str, y: str, width: str, height: str, style: str | None = None):
         attr = [("x", x), ("y", y), ("width", width), ("height", height)]
         if style:
             attr += [("style", style)]
@@ -173,7 +177,14 @@ class Text(Element):
         Text CSS class.
     """
 
-    def __init__(self, value="", font_size=None, text_anchor=None, style=None, class_=None):
+    def __init__(
+        self,
+        value: str = "",
+        font_size: str | None = None,
+        text_anchor: str | None = None,
+        style: str | None = None,
+        class_: str | None = None,
+    ):
         attr = []
         if font_size:
             attr += [("font-size", font_size)]
@@ -197,7 +208,7 @@ class Tspan(Element):
         Text to display.
     """
 
-    def __init__(self, x, y, value=""):
+    def __init__(self, x: str, y: str, value: str = ""):
         attr = [("x", x), ("y", y)]
         Element.__init__(self, "tspan", attr, value)
 
@@ -211,6 +222,6 @@ class Hyperlink(Element):
         Hyperlink value.
     """
 
-    def __init__(self, href):
+    def __init__(self, href: str):
         attr = [("xlink:href", href)]
         Element.__init__(self, "a", attr)

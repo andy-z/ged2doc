@@ -1,11 +1,15 @@
 """Module containing methods/classes for laying out ancestor trees."""
 
+from __future__ import annotations
+
 __all__ = ["SVGTreeVisitor"]
 
 import logging
 
-from .ancestor_tree import AncestorTreeVisitor
-from .dumbsvg import Doc, Element, Line, Rect, Text, Tspan, Hyperlink
+from .ancestor_tree import AncestorTreeVisitor, TreeNode
+from .dumbsvg import Doc, Element, Hyperlink, Line, Rect, Text, Tspan
+from .size import Size
+from .textbox import TextBox
 
 _log = logging.getLogger(__name__)
 
@@ -28,12 +32,12 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         If ``True`` then generate full XML header.
     """
 
-    def __init__(self, units="in", fullxml=True):
+    def __init__(self, units: str = "in", fullxml: bool = True):
         self._units = units
         self._fullxml = fullxml
-        self._elements = []
+        self._elements: list[Element] = []
 
-    def visitNode(self, node):
+    def visitNode(self, node: TreeNode) -> None:
         # docstring inherited from base class
         units = self._units
 
@@ -41,38 +45,38 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         style = _rect_unknown_style if node.person is None else _rect_style
         self._elements += self._textbox_svg(node.textbox, textclass=textclass, units=units, rect_style=style)
 
-    def visitMotherEdge(self, node, parentNode):
+    def visitMotherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         units = self._units
 
         x0 = node.textbox.x1
         y0 = node.textbox.midy
-        x1 = parentNode.textbox.x0
-        y1 = parentNode.textbox.midy
+        x1 = parent_node.textbox.x0
+        y1 = parent_node.textbox.midy
         midx = (x0 + x1) / 2
-        style = _pline_unknown_style if parentNode.person is None else _pline_style
+        style = _pline_unknown_style if parent_node.person is None else _pline_style
         self._elements += [
             Line(x1=x0 ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y0 ^ units, style=_pline_style),
             Line(x1=midx ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y1 ^ units, style=style),
             Line(x1=midx ^ units, y1=y1 ^ units, x2=x1 ^ units, y2=y1 ^ units, style=style),
         ]
 
-    def visitFatherEdge(self, node, parentNode):
+    def visitFatherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         units = self._units
 
         x0 = node.textbox.x1
         y0 = node.textbox.midy
-        x1 = parentNode.textbox.x0
-        y1 = parentNode.textbox.midy
+        x1 = parent_node.textbox.x0
+        y1 = parent_node.textbox.midy
         midx = (x0 + x1) / 2
-        style = _pline_unknown_style if parentNode.person is None else _pline_style
+        style = _pline_unknown_style if parent_node.person is None else _pline_style
         self._elements += [
             Line(x1=midx ^ units, y1=y0 ^ units, x2=midx ^ units, y2=y1 ^ units, style=style),
             Line(x1=midx ^ units, y1=y1 ^ units, x2=x1 ^ units, y2=y1 ^ units, style=style),
         ]
 
-    def makeSVG(self, width, height):
+    def makeSVG(self, width: Size, height: Size) -> tuple[str, str, Size, Size] | None:
         """Produce SVG document from a visited tree.
 
         Parameters
@@ -93,7 +97,6 @@ class SVGTreeVisitor(AncestorTreeVisitor):
         height : `ged2doc.size.Size`
             Height of SVG document
         """
-
         if not self._elements:
             return None
 
@@ -109,8 +112,10 @@ class SVGTreeVisitor(AncestorTreeVisitor):
 
         return xml, "image/svg", width, height
 
-    def _textbox_svg(self, textbox, textclass=None, units="in", rect_style=None):
-        """Produces list of SVG elements for a textbox."""
+    def _textbox_svg(
+        self, textbox: TextBox, textclass: str | None = None, units: str = "in", rect_style: str | None = None
+    ) -> list[Element]:
+        """Produce list of SVG elements for a textbox."""
         shapes: list[Element] = []
 
         # render box

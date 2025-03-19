@@ -1,14 +1,14 @@
 """Module containing methods/classes for laying out ancestor trees."""
 
+from __future__ import annotations
+
 __all__ = ["EMFTreeVisitor"]
 
 import logging
 
 from . import dumbemf
+from .ancestor_tree import AncestorTreeVisitor, TreeNode
 from .size import Size
-
-from .ancestor_tree import AncestorTreeVisitor
-
 
 _log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
         Image resolution.
     """
 
-    def __init__(self, width, height, dpi=300):
+    def __init__(self, width: Size, height: Size, dpi: int = 300):
         self._width = width.to_dpi(dpi)
         self._height = height.to_dpi(dpi)
         self._dpi = dpi
@@ -39,9 +39,7 @@ class EMFTreeVisitor(AncestorTreeVisitor):
         self._gray_pen = ("solid", Size("1pt", self._dpi), _GRAY)
         self._emf.set_bkmode(dumbemf.BackgroundMode.TRANSPARENT)
 
-        self._fonts = {}
-
-    def visitNode(self, node):
+    def visitNode(self, node: TreeNode) -> None:
         # docstring inherited from base class
         self._nodes += 1
         textbox = node.textbox
@@ -63,12 +61,12 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             for line, (x, y) in textbox.lines_pos():
                 self._emf.text(x.to_dpi(self._dpi), y.to_dpi(self._dpi), line)
 
-    def visitMotherEdge(self, node, parentNode):
+    def visitMotherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
-        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
-        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        x1 = parent_node.textbox.x0.to_dpi(self._dpi)
+        y1 = parent_node.textbox.midy.to_dpi(self._dpi)
         midx = (x0 + x1) / 2
 
         # draw connections
@@ -76,26 +74,26 @@ class EMFTreeVisitor(AncestorTreeVisitor):
             points = [(x0, y0), (midx, y0)]
             self._emf.polyline(points)
 
-        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        pen = self._gray_pen if parent_node.person is None else self._black_pen
         with self._emf.use_pen(*pen):
             points = [(midx, y0), (midx, y1), (x1, y1)]
             self._emf.polyline(points)
 
-    def visitFatherEdge(self, node, parentNode):
+    def visitFatherEdge(self, node: TreeNode, parent_node: TreeNode) -> None:
         # docstring inherited from base class
         x0 = node.textbox.x1.to_dpi(self._dpi)
         y0 = node.textbox.midy.to_dpi(self._dpi)
-        x1 = parentNode.textbox.x0.to_dpi(self._dpi)
-        y1 = parentNode.textbox.midy.to_dpi(self._dpi)
+        x1 = parent_node.textbox.x0.to_dpi(self._dpi)
+        y1 = parent_node.textbox.midy.to_dpi(self._dpi)
         midx = (x0 + x1) / 2
 
         # draw connections
-        pen = self._gray_pen if parentNode.person is None else self._black_pen
+        pen = self._gray_pen if parent_node.person is None else self._black_pen
         with self._emf.use_pen(*pen):
             points = [(midx, y0), (midx, y1), (x1, y1)]
             self._emf.polyline(points)
 
-    def makeEMF(self):
+    def makeEMF(self) -> tuple[bytes, str, Size, Size] | None:
         """Produce EMF image from a visited tree.
 
         Returns

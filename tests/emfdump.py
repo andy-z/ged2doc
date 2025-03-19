@@ -11,8 +11,8 @@ import struct
 from ged2doc import dumbemf
 
 
-def main():
-    """Simple command line utility to parse/dump EMF"""
+def main() -> None:
+    """Parse/dump EMF files."""
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -26,7 +26,7 @@ def main():
         for name, value in vars(dumbemf).items():
             if name.startswith("EMR_") and value == rectype:
                 rectype = name
-        print("{} size={}".format(rectype, size))
+        print(f"{rectype} size={size}")
 
         # read remaining data
         data += args.file.read(size - 8)
@@ -34,7 +34,7 @@ def main():
             offset = 0
             while data:
                 line, data = data[:16], data[16:]
-                fline = "    {:03d}:".format(offset)
+                fline = f"    {offset:03d}:"
                 bline = list(line)
                 bline += [None] * (16 - len(bline))
 
@@ -42,7 +42,7 @@ def main():
                     if i % 4 == 0:
                         fline += "  "
                     if b is not None:
-                        fline += " {:02X}".format(b)
+                        fline += f" {b:02X}"
                     else:
                         fline += "   "
 
@@ -52,14 +52,14 @@ def main():
                     if b is None:
                         fline += "  "
                     elif 32 <= b < 127:
-                        fline += " {}".format(chr(b))
+                        fline += f" {chr(b)}"
                     else:
                         fline += " ."
 
                 for i in (0, 4, 8, 12):
                     if i < len(line):
                         (v,) = struct.unpack("I", line[i : i + 4])
-                        fline += " {:010d}".format(v)
+                        fline += f" {v:010d}"
 
                 print(fline)
                 offset += 16

@@ -1,6 +1,12 @@
 """Methods for manipulating/formatting names."""
 
+from __future__ import annotations
+
 import enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ged4py import model
 
 
 class NameFormat(enum.Flag):
@@ -12,7 +18,7 @@ class NameFormat(enum.Flag):
     """Bit flag for surname-first format (e.g. ``Smith Jane``).
     """
     COMMA = 0x2
-    """Bit flag for adding comma in surname-first format (e.g. ``Smith, Jane``).
+    """Bit flag for comma in surname-first format (e.g. ``Smith, Jane``).
     """
     MAIDEN = 0x4
     """Bit flag for adding maiden name (e.g. ``Jane Smith (Sawyer)``).
@@ -25,7 +31,7 @@ class NameFormat(enum.Flag):
     """
 
 
-def name_fmt(name, fmt=NameFormat(0)):
+def name_fmt(name: model.Name, fmt: NameFormat = NameFormat(0)) -> str:
     """Format name for output.
 
     Parameters
