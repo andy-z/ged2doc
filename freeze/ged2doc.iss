@@ -6,7 +6,7 @@
 #define MyAppPublisher "Andy Salnikov"
 #define MyAppURL "https://github.com/andy-z/ged2doc"
 #define MyAppExeName "ged2doc.exe"
-#define SourceDir "..\build\exe.win32-3.8"
+#define SourceDir "..\build\exe.win-amd64-3.12"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -20,10 +20,11 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={userpf}\{#MyAppName}
+DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 UsePreviousAppDir=yes
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog commandline
 OutputDir=..\dist
 OutputBaseFilename=ged2doc-setup-{#MyAppVersion}
 SetupIconFile=setup.ico
@@ -39,12 +40,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#SourceDir}\ged2doc.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\python38.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\python312.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "start.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ged2doc.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k ""{app}\start.bat"" "; IconFilename: "{app}\ged2doc.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k ""{app}\start.bat"" "; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon

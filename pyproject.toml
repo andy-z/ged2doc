@@ -127,3 +127,11 @@ push = false
 "freeze/setup.py" = [
     'version="{version}"'
 ]
+
+[tool.cxfreeze]
+executables = [
+    {script = "freeze/freeze_main.py", base = "console", target_name = "ged2doc", icon="freeze/ged2doc.ico"}
+]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest"]
