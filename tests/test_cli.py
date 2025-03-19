@@ -10,7 +10,7 @@ from ged2doc.i18n import DATE_FORMATS
 
 
 @pytest.fixture
-def data_folder():
+def data_folder() -> str:
     tests = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(tests, "data")
 
@@ -18,7 +18,7 @@ def data_folder():
 @pytest.mark.parametrize("type", ["odt", "html"])
 @pytest.mark.parametrize("lang", languages())
 @pytest.mark.parametrize("datefmt", DATE_FORMATS)
-def test_writer(data_folder, type, lang, datefmt):
+def test_writer(data_folder: str, type: str, lang: str, datefmt: str) -> None:
     input = os.path.join(data_folder, "allged.ged")
     with tempfile.TemporaryDirectory() as tmp_folder:
         output = os.path.join(tmp_folder, "output." + type)

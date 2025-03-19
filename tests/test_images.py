@@ -1,19 +1,20 @@
 """Unit test for image types."""
 
 import io
-import pytest
+from typing import Any
 
+import pytest
 from PIL import Image
 from ged2doc import utils
 
 
-def _make_image(mode, size):
+def _make_image(mode: str, size: tuple[int, int]) -> Image.Image:
     """Makes an Image object with given pixel mode and size."""
     img = Image.new(mode, size)
     return img
 
 
-def _make_img_file(mode, size, fmt, **kwargs):
+def _make_img_file(mode: str, size: tuple[int, int], fmt: str, **kwargs: Any) -> io.BytesIO:
     """Makes image file of given size, mode, and format."""
     img = _make_image(mode, size)
     imgfile = io.BytesIO()
@@ -22,7 +23,7 @@ def _make_img_file(mode, size, fmt, **kwargs):
     return imgfile
 
 
-def test_000_assumptions():
+def test_000_assumptions() -> None:
     "Test for general assumptions about PIL images"
 
     # check that image format is as expected after reading data from file
@@ -44,7 +45,7 @@ def test_000_assumptions():
             assert (img.format, img.mode) == (fmt, rmode)
 
 
-def test_001_palette():
+def test_001_palette() -> None:
     "Testing palette images"
 
     img = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
@@ -60,10 +61,10 @@ def test_001_palette():
     img.save(imgfile, "PNG")
 
 
-def test_002_mime():
+def test_002_mime() -> None:
     "Testing MIME type guessing"
 
-    img = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
+    img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert utils.img_mime_type(img) == "image/gif"
 
     img = Image.open(_make_img_file("RGB", (100, 100), "JPEG"))
@@ -76,11 +77,11 @@ def test_002_mime():
     assert utils.img_mime_type(img) is None
 
 
-def test_003_img_resize():
+def test_003_img_resize() -> None:
     "Testing utils.img_resize() method."
 
     # palette image, no resize
-    img = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
+    img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert img.mode == "P"
     newimg = utils.img_resize(img, (200, 200))
     assert newimg is img
@@ -114,11 +115,11 @@ def test_003_img_resize():
     assert newimg.size == (80, 80)
 
 
-def test_004_img_save():
+def test_004_img_save() -> None:
     "Testing utils.img_save() method."
 
     # keep original format
-    img = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
+    img: Image.Image = Image.open(_make_img_file("RGB", (100, 100), "GIF"))
     assert img.mode == "P"
     assert img.format == "GIF"
     imgfile = io.BytesIO()

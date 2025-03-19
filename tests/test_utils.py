@@ -6,7 +6,7 @@ from ged2doc import utils
 from ged4py import model
 
 
-def test_001_resize_reduceonly():
+def test_001_resize_reduceonly() -> None:
     bound = (10, 10)
 
     box = (1, 1)
@@ -26,7 +26,7 @@ def test_001_resize_reduceonly():
     assert resized == (10, 0.1)
 
 
-def test_002_resize():
+def test_002_resize() -> None:
     bound = (10, 10)
 
     box = (1, 1)
@@ -46,7 +46,7 @@ def test_002_resize():
     assert resized == (10, 5)
 
 
-def test_050_person_image_file():
+def test_050_person_image_file() -> None:
     """Test person_image_file method."""
 
     # FORM is subordinate of OBJE
@@ -55,6 +55,7 @@ def test_050_person_image_file():
     file = model.make_record(2, None, "FILE", "/path/to/file.jpeg", [], 0, dialect, None).freeze()
     obje = model.make_record(1, None, "OBJE", "", [file, form], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of FILE
@@ -63,6 +64,7 @@ def test_050_person_image_file():
     file = model.make_record(2, None, "FILE", "/path/to/file.jpeg", [form], 0, dialect, None).freeze()
     obje = model.make_record(1, None, "OBJE", "", [file], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
     # FORM is subordinate of OBJE
@@ -71,6 +73,7 @@ def test_050_person_image_file():
     file = model.make_record(2, None, "FILE", "/path/to/file.wav", [], 0, dialect, None).freeze()
     obje = model.make_record(1, None, "OBJE", "", [file, form], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) is None
 
     # FORM is subordinate of FILE
@@ -79,6 +82,7 @@ def test_050_person_image_file():
     file = model.make_record(2, None, "FILE", "/path/to/file.wav", [form], 0, dialect, None).freeze()
     obje = model.make_record(1, None, "OBJE", "", [file], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) is None
 
     # _PRIM flag is set on one of the two OBJE
@@ -91,8 +95,10 @@ def test_050_person_image_file():
     file = model.make_record(2, None, "FILE", "/path/to/file_primary.jpg", [], 0, dialect, None).freeze()
     obje2 = model.make_record(1, None, "OBJE", "", [file, form, prim_y], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje1, obje2], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file_primary.jpg"
     person = model.make_record(0, None, "INDI", "", [obje2, obje1], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file_primary.jpg"
 
     # multiple FILEs per OBJE, choose JPG over WAV
@@ -103,13 +109,15 @@ def test_050_person_image_file():
     file2 = model.make_record(2, None, "FILE", "/path/to/file.wav", [form], 0, dialect, None).freeze()
     obje = model.make_record(1, None, "OBJE", "", [file1, file2], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
     obje = model.make_record(1, None, "OBJE", "", [file2, file1], 0, dialect, None).freeze()
     person = model.make_record(0, None, "INDI", "", [obje], 0, dialect, None).freeze()
+    assert isinstance(person, model.Individual)
     assert utils.person_image_file(person) == "/path/to/file.jpeg"
 
 
-def test_60_embed_ref():
+def test_60_embed_ref() -> None:
     """test for embed_ref method"""
 
     eref = utils.embed_ref("id", "name")
@@ -119,7 +127,7 @@ def test_60_embed_ref():
     assert eref == "\001person.id\002Иван Иванович\003"
 
 
-def test_61_split_refs():
+def test_61_split_refs() -> None:
     """test for split_refs method"""
 
     text = "\001person.id\002name\003"

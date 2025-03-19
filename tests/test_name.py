@@ -1,15 +1,28 @@
 """Unit test for name module"""
 
-from collections import namedtuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from ged2doc.name import name_fmt, NameFormat
 
+# Some messing around needed to make mypy happy
+if TYPE_CHECKING:
+    from ged4py import model
 
-# mock for Name class
-Name = namedtuple("Name", "given surname maiden")
+    class Name(model.Name):
+        def __init__(self, given: str | None, surname: str | None, maiden: str | None):
+            pass
+
+else:
+    NameBase = NamedTuple
+
+    # mock for Name class
+    class Name(NamedTuple):
+        given: str | None  # type: ignore
+        surname: str | None  # type: ignore
+        maiden: str | None
 
 
-def test_001_default():
+def test_001_default() -> None:
     name = Name(given="Jane", surname="Smith", maiden=None)
     assert name_fmt(name) == "Jane Smith"
 
@@ -23,7 +36,7 @@ def test_001_default():
     assert name_fmt(name) == "Jane Smith"
 
 
-def test_002_surname_first():
+def test_002_surname_first() -> None:
     flags = NameFormat.SURNAME_FIRST
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -39,7 +52,7 @@ def test_002_surname_first():
     assert name_fmt(name, flags) == "Smith Jane"
 
 
-def test_003_comma():
+def test_003_comma() -> None:
     flags = NameFormat.COMMA
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -69,7 +82,7 @@ def test_003_comma():
     assert name_fmt(name, flags) == "Smith, Jane"
 
 
-def test_004_maiden():
+def test_004_maiden() -> None:
     flags = NameFormat.MAIDEN
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -89,7 +102,7 @@ def test_004_maiden():
     assert name_fmt(name, flags) == "Smith (Sawyer), Jane"
 
 
-def test_005_maiden_only():
+def test_005_maiden_only() -> None:
     flags = NameFormat.MAIDEN_ONLY
 
     name = Name(given="Jane", surname="Smith", maiden=None)
@@ -109,7 +122,7 @@ def test_005_maiden_only():
     assert name_fmt(name, flags) == "Sawyer, Jane"
 
 
-def test_006_capital():
+def test_006_capital() -> None:
     flags = NameFormat.MAIDEN | NameFormat.CAPITAL
 
     name = Name(given="Jane", surname="Smith", maiden=None)

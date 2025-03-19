@@ -22,7 +22,7 @@ _text_align_bytes = 3 * 4
 _text_color_bytes = 3 * 4
 
 
-def _text_bytes(text):
+def _text_bytes(text: str) -> int:
     size = 19 * 4
     size += len(text) * 2
     if size % 4 != 0:
@@ -30,13 +30,13 @@ def _text_bytes(text):
     return size
 
 
-def _polyline_bytes(n_points):
+def _polyline_bytes(n_points: int) -> int:
     size = 7 * 4
     size += n_points * 2 * 4
     return size
 
 
-def test_001_empty():
+def test_001_empty() -> None:
     "Test for empty EMF, with only header and EOF"
 
     emf = EMF(*_size)
@@ -46,7 +46,7 @@ def test_001_empty():
     assert len(data) == _header_bytes + _EOF_bytes
 
 
-def test_use_pen():
+def test_use_pen() -> None:
     emf = EMF(*_size)
 
     with emf.use_pen("solid", Size("1pt", _dpi), 0) as pen:
@@ -57,7 +57,7 @@ def test_use_pen():
     assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes
 
 
-def test_use_font():
+def test_use_font() -> None:
     emf = EMF(*_size)
 
     with emf.use_font(Size("10pt", _dpi)) as font:
@@ -68,7 +68,7 @@ def test_use_font():
     assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes
 
 
-def test_rectangle():
+def test_rectangle() -> None:
     emf = EMF(*_size)
 
     # it needs a pen
@@ -80,7 +80,7 @@ def test_rectangle():
     assert len(data) == _header_bytes + _EOF_bytes + _use_pen_bytes + _rect_bytes
 
 
-def test_text_align():
+def test_text_align() -> None:
     for align in "lrc":
         emf = EMF(*_size)
 
@@ -95,7 +95,7 @@ def test_text_align():
         emf.text_align("X")
 
 
-def test_text_color():
+def test_text_color() -> None:
     for color in [0, 0xFFFFFF, 0xFF00FF]:
         emf = EMF(*_size)
 
@@ -106,7 +106,7 @@ def test_text_color():
         assert len(data) == _header_bytes + _EOF_bytes + _text_color_bytes
 
 
-def test_text():
+def test_text() -> None:
     emf = EMF(*_size)
 
     # it needs a font
@@ -119,7 +119,7 @@ def test_text():
     assert len(data) == _header_bytes + _EOF_bytes + _use_font_bytes + _text_bytes(text)
 
 
-def test_polyline():
+def test_polyline() -> None:
     emf = EMF(*_size)
 
     # it needs a pen

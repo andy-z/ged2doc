@@ -6,7 +6,7 @@ from ged2doc import i18n
 from ged4py.date import CalendarDate, DateValue
 
 
-def test_001_tr_en():
+def test_001_tr_en() -> None:
     tr = i18n.I18N("en")
     assert tr.tr("Person List") == "Person List"
     assert tr.tr("CHILD.BORN {child}", "M") == "Born son {child}"
@@ -16,7 +16,7 @@ def test_001_tr_en():
     assert tr.tr("Random string $$$") == "Random string $$$"
 
 
-def test_002_tr_ru():
+def test_002_tr_ru() -> None:
     tr = i18n.I18N("ru")
     assert tr.tr("Person List") == "Персоналии"
     assert tr.tr("CHILD.BORN {child}", "M") == "Родился сын {child}"
@@ -26,7 +26,7 @@ def test_002_tr_ru():
     assert tr.tr("Random string $$$") == "Random string $$$"
 
 
-def test_011_month_en():
+def test_011_month_en() -> None:
     """Test month name translation, do not care about non-Gregorian
     calendars here.
     """
@@ -38,7 +38,7 @@ def test_011_month_en():
     assert tr._monthName("dec") == "Dec"
 
 
-def test_011_month_ru():
+def test_011_month_ru() -> None:
     """Test month name translation, do not care about non-Gregorian
     calendars here.
     """
@@ -50,7 +50,7 @@ def test_011_month_ru():
     assert tr._monthName("dec") == "Дек"
 
 
-def test_021_cal_date_en():
+def test_021_cal_date_en() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -66,7 +66,7 @@ def test_021_cal_date_en():
         assert tr._tr_cal_date(date) == "1975"
 
 
-def test_022_cal_date_en():
+def test_022_cal_date_en() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -95,7 +95,7 @@ def test_022_cal_date_en():
         assert tr._tr_cal_date(date) == expect[fmt]
 
 
-def test_023_cal_date_en():
+def test_023_cal_date_en() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -124,7 +124,7 @@ def test_023_cal_date_en():
         assert tr._tr_cal_date(date) == expect[fmt]
 
 
-def test_031_cal_date_ru():
+def test_031_cal_date_ru() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -140,7 +140,7 @@ def test_031_cal_date_ru():
         assert tr._tr_cal_date(date) == "1975"
 
 
-def test_032_cal_date_ru():
+def test_032_cal_date_ru() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -169,7 +169,7 @@ def test_032_cal_date_ru():
         assert tr._tr_cal_date(date) == expect[fmt]
 
 
-def test_033_cal_date_ru():
+def test_033_cal_date_ru() -> None:
     """Test calendar date translations"""
 
     # year only
@@ -198,7 +198,7 @@ def test_033_cal_date_ru():
         assert tr._tr_cal_date(date) == expect[fmt]
 
 
-def test_041_date_en():
+def test_041_date_en() -> None:
     """Test DateValue translations"""
 
     # year only
@@ -209,7 +209,7 @@ def test_041_date_en():
         assert tr.tr_date(date) == "about 1975"
 
 
-def test_042_date_ru():
+def test_042_date_ru() -> None:
     """Test DateValue translations"""
 
     # year only

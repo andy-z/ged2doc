@@ -11,7 +11,7 @@ import struct
 from ged2doc import dumbemf
 
 
-def main():
+def main() -> None:
     """Simple command line utility to parse/dump EMF"""
     import argparse
 

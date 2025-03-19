@@ -3,7 +3,7 @@
 from ged2doc.dumbsvg import Doc, Element, Hyperlink, Line, Rect, Text, Tspan
 
 
-def test_001_element_noval():
+def test_001_element_noval() -> None:
     "Test case for Element class"
 
     elem = Element("elem")
@@ -16,7 +16,7 @@ def test_001_element_noval():
     assert elem.xml() == '<elem attr="avalue" bttr="bval" />'
 
 
-def test_002_element_val():
+def test_002_element_val() -> None:
     "Test case for Element class"
 
     elem = Element("elem", value="some text")
@@ -26,7 +26,7 @@ def test_002_element_val():
     assert elem.xml() == '<elem attr="avalue">\nsome text\n</elem>'
 
 
-def test_003_element_subelem():
+def test_003_element_subelem() -> None:
     "Test case for Element class"
 
     elem = Element("elem")
@@ -42,7 +42,7 @@ def test_003_element_subelem():
     assert elem.xml() == "<elem>\nvalue\n<elem2>\nvalue2\n</elem2>\n</elem>"
 
 
-def test_010_doc():
+def test_010_doc() -> None:
     "Test case for Doc class"
 
     doc = Doc(100, 100)
@@ -61,27 +61,27 @@ xmlns:xlink="http://www.w3.org/1999/xlink">
     )
 
 
-def test_020_line():
+def test_020_line() -> None:
     "Test case for Line class"
 
-    elem = Line(0, 10, 90, 100)
+    elem = Line("0", "10", "90", "100")
     assert elem.xml() == '<line x1="0" y1="10" x2="90" y2="100" />'
 
-    elem = Line(0, 10, 90, 100, style="fancy")
+    elem = Line("0", "10", "90", "100", style="fancy")
     assert elem.xml() == '<line x1="0" y1="10" x2="90" y2="100" style="fancy" />'
 
 
-def test_030_rect():
+def test_030_rect() -> None:
     "Test case for Rect class"
 
-    elem = Rect(0, 10, 90, 100)
+    elem = Rect("0", "10", "90", "100")
     assert elem.xml() == '<rect x="0" y="10" width="90" height="100" />'
 
-    elem = Rect(0, 10, 90, 100, style="fancy")
+    elem = Rect("0", "10", "90", "100", style="fancy")
     assert elem.xml() == '<rect x="0" y="10" width="90" height="100" style="fancy" />'
 
 
-def test_040_text():
+def test_040_text() -> None:
     "Test case for Text class"
 
     elem = Text(value="", font_size=None, text_anchor=None, style=None, class_=None)
@@ -94,17 +94,17 @@ def test_040_text():
     assert elem.xml() == '<text font-size="10px" text-anchor="middle" style="fancy" class="fclass" />'
 
 
-def test_050_tspan():
+def test_050_tspan() -> None:
     "Test case for Tspan class"
 
-    elem = Tspan(x=10, y="20px", value="")
+    elem = Tspan(x="10", y="20px", value="")
     assert elem.xml() == '<tspan x="10" y="20px" />'
 
-    elem = Tspan(x=10, y="20px", value="Some text")
+    elem = Tspan(x="10", y="20px", value="Some text")
     assert elem.xml() == '<tspan x="10" y="20px">\nSome text\n</tspan>'
 
 
-def test_050_hyperlink():
+def test_050_hyperlink() -> None:
     "Test case for Hyperlink class"
 
     elem = Hyperlink("link_value")
