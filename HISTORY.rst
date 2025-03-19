@@ -2,6 +2,22 @@
 History
 =======
 
+0.6.1 (2025-03-19)
+------------------
+
+* Update HISTORY.
+
+0.6.0 (2025-03-19)
+------------------
+
+* No functional changes.
+* Modernize package structure, add pyproject.toml replacing setup.{py.cfg}.
+* Python versions supported/tested are 3.11, 3.12, 3.13.
+* Added github actions to do testing with supported Python versions, drop tox.
+* Add pre-commit config with some checks.
+* Add type annotations everywhere.
+* Re-format with ruff.
+
 0.5.1 (2021-05-01)
 ------------------
 
