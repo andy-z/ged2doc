@@ -47,5 +47,4 @@ Source: "ged2doc.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon 
-
+Name: "{commondesktop}\{#MyAppName}"; Filename: "cmd.exe"; WorkingDir: "{userdesktop}"; Parameters: "/k {app}\start.bat"; IconFilename: "{app}\ged2doc.ico"; Tasks: desktopicon
