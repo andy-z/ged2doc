@@ -41,6 +41,8 @@ on disk may need to be created in some cases) and a "simple" binary stream
 for images.
 """
 
+from __future__ import annotations
+
 __all__ = ["make_file_locator", "FileLocator", "MultipleMatchesError"]
 
 import abc
@@ -52,6 +54,8 @@ import os
 import shutil
 import tempfile
 import zipfile
+from collections.abc import Iterator
+from typing import BinaryIO, cast
 
 
 _log = logging.getLogger(__name__)
@@ -69,7 +73,7 @@ class FileLocator(metaclass=abc.ABCMeta):
     """Abstract interface for file locator instances."""
 
     @abc.abstractmethod
-    def open_gedcom(self):
+    def open_gedcom(self) -> BinaryIO | None:
         """Returns file object for the input GEDCOM file.
 
         If no GEDCOM file is found `None` is returned. If more than one
@@ -94,7 +98,7 @@ class FileLocator(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def open_image(self, name):
+    def open_image(self, name: str) -> BinaryIO | None:
         """Returns open file object for the named image file.
 
         If image file is not found `None` is returned. If more than one
@@ -141,12 +145,12 @@ class _Path:
         Optional prefix directory.
     """
 
-    def __init__(self, components, dirname=None):
+    def __init__(self, components: list[str], dirname: str | None = None):
         self.components = components[:]
         self.dirname = dirname
 
     @classmethod
-    def from_path(cls, path, dirname=None):
+    def from_path(cls, path: str, dirname: str | None = None) -> _Path:
         """Construct instance of this type from full path name.
 
         Parameters
@@ -168,7 +172,7 @@ class _Path:
         # split file name into components
         return cls(path.split("/"), dirname)
 
-    def match_rank(self, other):
+    def match_rank(self, other: _Path) -> int:
         """Returns match "rank" with the other path.
 
         Rank is a count of identical matching components at the end of paths.
@@ -192,7 +196,7 @@ class _Path:
             rank += 1
         return rank
 
-    def os_path(self):
+    def os_path(self) -> str:
         """Return full path of the file as a string.
 
         Returns
@@ -204,7 +208,7 @@ class _Path:
         else:
             return os.path.join(*self.components)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "/".join(self.components)
 
 
@@ -219,18 +223,18 @@ class _FileSearch(metaclass=abc.ABCMeta):
     _path_cache = None
 
     @staticmethod
-    def _enc(name):
+    def _enc(name: str | bytes) -> bytes:
         """If string is Unicode encode it into UTF-8"""
         if isinstance(name, str):
             name = name.encode("utf_8")
         return name
 
     @staticmethod
-    def _enc_list(path):
+    def _enc_list(path: list[str | bytes]) -> list[bytes]:
         """If strings are Unicode encode them into UTF-8"""
         return [_FileSearch._enc(comp) for comp in path]
 
-    def find_file(self, name):
+    def find_file(self, name: str) -> _Path | None:
         """Returns file path for the named file.
 
         Parameters
@@ -247,7 +251,7 @@ class _FileSearch(metaclass=abc.ABCMeta):
         max_rank = 1  # need at least basename match
         for cand in self.paths:
             rank = path.match_rank(cand)
-            #             _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
+            # _log.debug("find_file: %s and %s: rank=%s", path, cand, rank)
             if rank > max_rank:
                 matches = [cand]
                 max_rank = rank
@@ -256,7 +260,7 @@ class _FileSearch(metaclass=abc.ABCMeta):
 
         if not matches:
             _log.debug("_FileSearch.find_file: nothing found")
-            return
+            return None
         elif len(matches) > 1:
             _log.debug("_FileSearch.find_file: many files found: %s", matches)
             raise MultipleMatchesError(
@@ -267,14 +271,14 @@ class _FileSearch(metaclass=abc.ABCMeta):
             return matches[0]
 
     @property
-    def paths(self):
+    def paths(self) -> list[_Path]:
         """The list of all path names (_Path instances) to use for matching."""
         if self._path_cache is None:
             self._path_cache = self._paths()
         return self._path_cache
 
     @abc.abstractmethod
-    def _paths(self):
+    def _paths(self) -> list[_Path]:
         """Return list of file paths (_Path instances), must be implemented
         in a subclass.
 
@@ -299,12 +303,12 @@ class _FSFileSearch(_FileSearch):
         Directory on a file system to search for files.
     """
 
-    def __init__(self, path):
+    def __init__(self, path: str | bytes | None):
         if path is not None and not isinstance(path, str):
             path = path.decode("utf_8")
         self._path = path
 
-    def _paths(self):
+    def _paths(self) -> list[_Path]:
         # docstring inherited from _FileSearch class
         _log.debug("_FSFileSearch.find_file: recursively scan directory %r", self._path)
         if self._path is None:
@@ -312,7 +316,7 @@ class _FSFileSearch(_FileSearch):
             return []
         return list(self._scan(self._path))
 
-    def _scan(self, path, current=None):
+    def _scan(self, path: str, current: list[str] | None = None) -> Iterator[_Path]:
         """Recursively scan folder, return each file path as a list of
         its components.
 
@@ -336,7 +340,7 @@ class _FSFileSearch(_FileSearch):
                     yield p
             elif os.path.isfile(fpath):
                 p = _Path(components, self._path)
-                #                 _log.debug("_scan: %s", p)
+                # _log.debug("_scan: %s", p)
                 yield p
 
 
@@ -349,10 +353,10 @@ class _ZIPFileSearch(_FileSearch):
         List of entries in ZIP archive.
     """
 
-    def __init__(self, toc):
+    def __init__(self, toc: list[str]):
         self._toc = toc
 
-    def _paths(self):
+    def _paths(self) -> list[_Path]:
         # docstring inherited from _FileSearch class
         paths = []
         for entry in self._toc:
@@ -377,7 +381,7 @@ class _FSLocator(FileLocator):
         is an empty string then current directory is searched.
     """
 
-    def __init__(self, input_file, image_path=None):
+    def __init__(self, input_file: str | BinaryIO, image_path: str | None = None):
         self._input_file = input_file
         if image_path is None:
             # use parent folder of GEDCOM file for image search
@@ -392,15 +396,15 @@ class _FSLocator(FileLocator):
         self._image_path = image_path
         self._fsearch = _FSFileSearch(image_path)
 
-    def open_gedcom(self):
+    def open_gedcom(self) -> BinaryIO | None:
         # docstring inherited from base class
         _log.debug("_FSLocator.open_gedcom")
-        if hasattr(self._input_file, "read"):
-            # it's likely a file
+        if isinstance(self._input_file, str):
+            return io.open(self._input_file, "rb")
+        else:
             return self._input_file
-        return io.open(self._input_file, "rb")
 
-    def open_image(self, name):
+    def open_image(self, name: str) -> BinaryIO | None:
         # docstring inherited from base class
 
         # `name` could be an absolute or relative path name, usually this is
@@ -435,6 +439,7 @@ class _FSLocator(FileLocator):
         fname = self._fsearch.find_file(name)
         if fname is not None:
             return open(fname.os_path(), "rb")
+        return None
 
 
 class _ZipLocator(FileLocator):
@@ -455,14 +460,14 @@ class _ZipLocator(FileLocator):
         is an empty string then current directory is searched.
     """
 
-    def __init__(self, input_file, file_name_pattern, image_path):
+    def __init__(self, input_file: str | BinaryIO, file_name_pattern: str, image_path: str | None):
         self._zip = zipfile.ZipFile(input_file, "r")
         self._toc = self._zip.namelist()
         self._pattern = file_name_pattern
         self._zipsearch = _ZIPFileSearch(self._toc)
         self._fsearch = _FSFileSearch(image_path)
 
-    def open_gedcom(self):
+    def open_gedcom(self) -> BinaryIO | None:
         # docstring inherited from base class
         matches = [f for f in self._toc if fnmatch.fnmatch(f, self._pattern)]
         if not matches:
@@ -477,9 +482,9 @@ class _ZipLocator(FileLocator):
         with self._zip.open(member, "r") as src:
             shutil.copyfileobj(src, fobj)
         fobj.seek(0)
-        return fobj
+        return cast(BinaryIO, fobj)
 
-    def open_image(self, name):
+    def open_image(self, name: str) -> BinaryIO | None:
         # docstring inherited from base class
         _log.debug("_ZipLocator.open_image: find image %s", name)
 
@@ -487,7 +492,7 @@ class _ZipLocator(FileLocator):
         fname = self._zipsearch.find_file(name)
         if fname:
             _log.debug("_ZipLocator.open_image: found in ZIP: %r", fname)
-            return self._zip.open(str(fname), "r")
+            return cast(BinaryIO, self._zip.open(str(fname), "r"))
 
         # if file name looks like absolute path (on current OS)
         # try unmodified name
@@ -504,8 +509,12 @@ class _ZipLocator(FileLocator):
         if fname is not None:
             return open(fname.os_path(), "rb")
 
+        return None
 
-def make_file_locator(input_file, file_name_pattern, image_path):
+
+def make_file_locator(
+    input_file: str | BinaryIO, file_name_pattern: str, image_path: str | None
+) -> FileLocator:
     """Create and return file locator instance
 
     For a given input file (which can be GEDCOM file or ZIP archive) return
@@ -547,9 +556,10 @@ def make_file_locator(input_file, file_name_pattern, image_path):
     if zipfile.is_zipfile(input_file):
         return _ZipLocator(input_file, file_name_pattern, image_path)
     elif hasattr(input_file, "read"):
-        if not hasattr(input_file, "seek"):
+        if hasattr(input_file, "seek"):
+            input_file.seek(0)
+        else:
             raise AttributeError("File object has no `seek` attribute")
-        input_file.seek(0)
         return _FSLocator(input_file, image_path)
     elif os.path.exists(input_file):
         return _FSLocator(input_file, image_path)

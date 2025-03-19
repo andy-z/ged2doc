@@ -1,14 +1,23 @@
 """Various utility methods."""
 
+from __future__ import annotations
+
 import locale
 import logging
 import mimetypes
+from typing import TYPE_CHECKING, BinaryIO, Iterator, cast
+
 from PIL import Image
+
+if TYPE_CHECKING:
+    from ged4py import model
 
 _log = logging.getLogger(__name__)
 
 
-def resize(size, max_size, reduce_only=True):
+def resize(
+    size: tuple[int | float, int | float], max_size: tuple[int | float, int | float], reduce_only: bool = True
+) -> tuple[int | float, int | float]:
     """Resize a box so that it fits into other box and keeps aspect ratio.
 
     Parameters
@@ -40,7 +49,7 @@ def resize(size, max_size, reduce_only=True):
     return w, h
 
 
-def person_image_file(person):
+def person_image_file(person: model.Individual) -> str | None:
     """Finds primary person image file name.
 
     Scans INDI's OBJE records and finds "best" FILE record from those.
@@ -85,30 +94,30 @@ def person_image_file(person):
     examples of MEDI use yet, so for now I only select FORM which correspond
     to images.
     """
-    first = None
+    first: str | None = None
     for obje in person.sub_tags("OBJE"):
         # assume by default it is some image format
-        objform = obje.sub_tag("FORM")
-        objform = objform.value if objform else "jpg"
+        objform_rec = obje.sub_tag("FORM")
+        objform = cast(str, objform_rec.value if objform_rec else "jpg")
 
-        primary = obje.sub_tag("_PRIM")
-        primary = primary.value == "Y" if primary is not None else False
+        primary_rec = obje.sub_tag("_PRIM")
+        primary = primary_rec.value == "Y" if primary_rec is not None else False
 
         files = obje.sub_tags("FILE")
         for file in files:
-            form = file.sub_tag("FORM")
-            form = form.value if form is not None else objform
+            form_rec = file.sub_tag("FORM")
+            form = cast(str, form_rec.value if form_rec is not None else objform)
 
             if form.lower() in ("jpg", "gif", "tif", "bmp"):
                 if primary:
-                    return file.value
+                    return file.value  # type: ignore
                 elif not first:
-                    first = file.value
+                    first = file.value  # type: ignore
 
     return first
 
 
-def languages():
+def languages() -> list[str]:
     """Returns list of supported languages.
 
     This should correspond to the existing translations and needs to be
@@ -121,7 +130,7 @@ def languages():
     return ["en", "ru", "pl", "cz"]
 
 
-def system_lang():
+def system_lang() -> str:
     """Try to guess system language.
 
     Returns
@@ -137,7 +146,7 @@ def system_lang():
     return "en"
 
 
-def embed_ref(xref_id, name):
+def embed_ref(xref_id: str, name: str) -> str:
     """Returns encoded person reference.
 
     Encoded reference consists of ASCII character ``SOH`` (``0x01``) followed
@@ -153,7 +162,7 @@ def embed_ref(xref_id, name):
     return "\001" + "person." + xref_id + "\002" + name + "\003"
 
 
-def split_refs(text):
+def split_refs(text: str) -> Iterator[tuple[str, str] | str]:
     """Split text with embedded references into a sequence of text
     and references.
 
@@ -181,7 +190,7 @@ def split_refs(text):
             yield (ref, name)
 
 
-def img_mime_type(img):
+def img_mime_type(img: Image.Image) -> str | None:
     """Returns image MIME type or ``None``.
 
     Parameters
@@ -200,7 +209,7 @@ def img_mime_type(img):
     return None
 
 
-def img_resize(img, size):
+def img_resize(img: Image.Image, size: tuple[int, int]) -> Image.Image:
     """Resize image to fit given size.
 
     Image is resized only if it is larger than `size`, otherwise
@@ -229,7 +238,7 @@ def img_resize(img, size):
     return img
 
 
-def img_save(img, file):
+def img_save(img: Image.Image, file: BinaryIO) -> str | None:
     """Save image into output file.
 
     This method automatically chooses the best file format for output.

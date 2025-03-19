@@ -1,7 +1,12 @@
 """Methods for manipulating/formatting names."""
 
-import enum
+from __future__ import annotations
 
+import enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ged4py import model
 
 class NameFormat(enum.Flag):
     """Names can be rendered in different formats, this enum defines different
@@ -25,7 +30,7 @@ class NameFormat(enum.Flag):
     """
 
 
-def name_fmt(name, fmt=NameFormat(0)):
+def name_fmt(name: model.Name, fmt: NameFormat = NameFormat(0)) -> str:
     """Format name for output.
 
     Parameters

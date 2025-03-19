@@ -2,7 +2,9 @@
 
 """Console script for ged2doc."""
 
-from argparse import ArgumentParser, FileType
+from __future__ import annotations
+
+import argparse
 import locale
 import logging
 import os
@@ -27,12 +29,12 @@ _log = logging.getLogger(__name__)
 NAME_ORDER_LIST = [item.value for item in NameOrder]
 
 
-def _make_writer(args=None):
+def _make_writer(argv: list[str] | None = None) -> tuple[argparse.Namespace, Writer]:
     """Make Writer instance based on command line arguments.
 
     Parameters
     ----------
-    args : `list` [ `str` ]
+    argv : `list` [ `str` ]
         List of command line arguments passed to argparse, optional, by
         default uses `sys.argv`.
 
@@ -48,7 +50,7 @@ def _make_writer(args=None):
         ged2doc.__version__, ged4py.__version__, platform.python_version()
     )
 
-    parser = ArgumentParser(description="Convert GEDCOM file into document.")
+    parser = argparse.ArgumentParser(description="Convert GEDCOM file into document.")
     parser.add_argument(
         "-v",
         "--verbose",
@@ -60,7 +62,7 @@ def _make_writer(args=None):
         "--log",
         default=None,
         metavar="PATH",
-        type=FileType(mode="wt"),
+        type=argparse.FileType(mode="wt"),
         help="Produces log file with debugging information.",
     )
     parser.add_argument(
@@ -298,7 +300,7 @@ def _make_writer(args=None):
         help="Type of image format for ancestor tree, one of %(choices)s; default: %(default)s",
     )
 
-    args = parser.parse_args(args)
+    args = parser.parse_args(argv)
 
     # configure logging
     if args.verbose == 0:
@@ -407,16 +409,16 @@ def _make_writer(args=None):
     return args, writer
 
 
-def main(args=None):
+def main(argv: list[str] | None = None) -> int:
     """Console script for ged2doc.
 
     Parameters
     ----------
-    args : `list` [ `str` ], optional
+    argv : `list` [ `str` ], optional
         Command line arguments, be default ``sys.argv`` is used.
     """
 
-    args, writer = _make_writer(args)
+    args, writer = _make_writer(argv)
 
     try:
         writer.save()

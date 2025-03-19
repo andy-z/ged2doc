@@ -1,27 +1,36 @@
 """Module which produces HTML output."""
 
+from __future__ import annotations
+
 __all__ = ["HtmlWriter"]
 
 import base64
 import io
 import logging
 import string
-from PIL import Image
-from html import escape as html_escape
+from collections.abc import Iterator
 from importlib import resources
+from html import escape as html_escape
+from typing import TYPE_CHECKING
+
+from PIL import Image
 
 from ged4py import model
 from .ancestor_tree import AncestorTree
 from .ancestor_tree_svg import SVGTreeVisitor
+from .name import NameFormat
 from .size import Size
 from . import utils
 from . import writer
 
+if TYPE_CHECKING:
+    from .i18n import I18N
+    from .input import FileLocator
 
 _log = logging.getLogger(__name__)
 
 
-def TR(x):
+def TR(x: str) -> str:
     """This is no-op function, only used to mark translatable strings,
     to extract all strings run ``pygettext -k TR ...``
     """
@@ -55,7 +64,7 @@ class HtmlWriter(writer.Writer):
     sort_order : `ged4py.model.NameOrder`, optional
         Determines ordering of person in output file, one of the constants
         defined in `ged4py.model.NameOrder` enum.
-    name_fmt : `int`, optional
+    name_fmt : `ged2doc.name.NameFormat`, optional
         Bit mask with flags from `ged2doc.name` module.
     make_images : `bool`, optional
         If ``True`` (default) then generate images for persons.
@@ -79,22 +88,22 @@ class HtmlWriter(writer.Writer):
 
     def __init__(
         self,
-        flocator,
-        output,
-        tr,
-        encoding=None,
-        encoding_errors="strict",
-        sort_order=model.NameOrder.SURNAME_GIVEN,
-        name_fmt=0,
-        make_images=True,
-        make_stat=True,
-        make_toc=True,
-        events_without_dates=True,
-        page_width="800px",
-        image_width="300px",
-        image_height="300px",
-        image_upscale=False,
-        tree_width=4,
+        flocator: FileLocator,
+        output: str | io.BufferedIOBase,
+        tr: I18N,
+        encoding: str | None = None,
+        encoding_errors: str = "strict",
+        sort_order: model.NameOrder = model.NameOrder.SURNAME_GIVEN,
+        name_fmt: NameFormat = NameFormat(0),
+        make_images: bool = True,
+        make_stat: bool = True,
+        make_toc: bool = True,
+        events_without_dates: bool = True,
+        page_width: str = "800px",
+        image_width: str = "300px",
+        image_height: str = "300px",
+        image_upscale: bool = False,
+        tree_width: int = 4,
     ):
         writer.Writer.__init__(
             self,
@@ -116,15 +125,16 @@ class HtmlWriter(writer.Writer):
         self._image_upscale = image_upscale
         self._tree_width = tree_width
 
-        if hasattr(output, "write"):
-            self._output = output
-            self._close = False
-        else:
+        self._output: io.BufferedIOBase
+        if isinstance(output, str):
             self._output = open(output, "wb")
             self._close = True
-        self._toc = []
+        else:
+            self._output = output
+            self._close = False
+        self._toc: list[tuple[int, str, str]] = []
 
-    def _render_prolog(self):
+    def _render_prolog(self) -> None:
         # docstring inherited from base class
         doc = ["<!DOCTYPE html>"]
         doc += ["<html>", "<head>"]
@@ -138,7 +148,7 @@ class HtmlWriter(writer.Writer):
         for line in doc:
             self._output.write(line.encode("utf-8"))
 
-    def _interpolate(self, text):
+    def _interpolate(self, text: str) -> str:
         """Takes text with embedded references and returns properly
         escaped text with HTML links.
 
@@ -161,14 +171,22 @@ class HtmlWriter(writer.Writer):
                 result += html_escape(piece)
         return result
 
-    def _render_section(self, level, ref_id, title, newpage=False):
+    def _render_section(self, level: int, ref_id: str, title: str, newpage: bool = False) -> None:
         # docstring inherited from base class
         self._toc += [(level, ref_id, title)]
         doc = ['<h{0} id="{1}">{2}</h{0}>\n'.format(level, ref_id, html_escape(title))]
         for line in doc:
             self._output.write(line.encode("utf-8"))
 
-    def _render_person(self, person, image_data, attributes, families, events, notes):
+    def _render_person(
+        self,
+        person: model.Individual,
+        image_data: bytes | None,
+        attributes: list[tuple],
+        families: list[str],
+        events: list[tuple],
+        notes: list[str],
+    ) -> None:
         # docstring inherited from base class
         doc = []
 
@@ -209,7 +227,7 @@ class HtmlWriter(writer.Writer):
         for line in doc:
             self._output.write(line.encode("utf-8"))
 
-    def _render_name_stat(self, n_total, n_females, n_males):
+    def _render_name_stat(self, n_total: int, n_females: int, n_males: int) -> None:
         # docstring inherited from base class
         doc = []
         doc += ["<p>%s: %d</p>" % (self._tr.tr(TR("Person count")), n_total)]
@@ -218,9 +236,10 @@ class HtmlWriter(writer.Writer):
         for line in doc:
             self._output.write(line.encode("utf-8"))
 
-    def _render_name_freq(self, freq_table):
+    def _render_name_freq(self, freq_table: list[tuple[str, int]]) -> None:
         # docstring inherited from base class
-        def _gencouples(namefreq):
+
+        def _gencouples(namefreq: list[tuple[str, int]]) -> Iterator[tuple[str, int, str | None, int | None]]:
             halflen = (len(namefreq) + 1) // 2
             for i in range(halflen):
                 n1, c1 = namefreq[2 * i]
@@ -249,7 +268,7 @@ class HtmlWriter(writer.Writer):
         for line in tbl:
             self._output.write(line.encode("utf-8"))
 
-    def _render_toc(self):
+    def _render_toc(self) -> None:
         # docstring inherited from base class
         section = self._tr.tr(TR("Table Of Contents"))
         doc = ["<h1>{0}</h1>\n".format(html_escape(section))]
@@ -268,12 +287,12 @@ class HtmlWriter(writer.Writer):
         for line in doc:
             self._output.write(line.encode("utf-8"))
 
-    def _finalize(self):
+    def _finalize(self) -> None:
         # docstring inherited from base class
         if self._close:
             self._output.close()
 
-    def _get_image_fragment(self, image_data):
+    def _get_image_fragment(self, image_data: bytes) -> str | None:
         """Returns <img> HTML fragment for given image data (byte array).
 
         Parameters
@@ -318,8 +337,9 @@ class HtmlWriter(writer.Writer):
                 tag = '<img class="personImage" src="data:{mime};base64,{data}"/>'
                 data = base64.b64encode(imgfile.getvalue()).decode("ascii")
                 return tag.format(mime=mimetype, data=data)
+            return None
 
-    def _make_ancestor_tree(self, person):
+    def _make_ancestor_tree(self, person: model.Individual) -> list[str]:
         """Make SVG picture for parent tree.
 
         Parameters

@@ -1,22 +1,31 @@
 """Module which produces ODT output."""
 
+from __future__ import annotations
+
 __all__ = ["OdtWriter"]
 
 import hashlib
 import io
 import logging
-from PIL import Image
-from typing import NamedTuple
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, NamedTuple
 
+from PIL import Image
 from ged4py import model
+
 from .ancestor_tree import AncestorTree, AncestorTreeVisitor
 from .ancestor_tree_emf import EMFTreeVisitor
 from .ancestor_tree_svg import SVGTreeVisitor
+from .name import NameFormat
 from .size import Size
 from . import utils
 from . import writer
 from odf.opendocument import OpenDocumentText
 from odf import text, style, draw, table
+
+if TYPE_CHECKING:
+    from .i18n import I18N
+    from .input import FileLocator
 
 
 _log = logging.getLogger(__name__)
@@ -41,7 +50,7 @@ class PageLayout(NamedTuple):
     bottom: Size
 
 
-def TR(x):
+def TR(x: str) -> str:
     """This is no-op function, only used to mark translatable strings,
     to extract all strings run ``pygettext -k TR ...``
     """
@@ -101,28 +110,28 @@ class OdtWriter(writer.Writer):
 
     def __init__(
         self,
-        flocator,
-        output,
-        tr,
-        encoding=None,
-        encoding_errors="strict",
-        sort_order=model.NameOrder.SURNAME_GIVEN,
-        name_fmt=0,
-        make_images=True,
-        make_stat=True,
-        make_toc=True,
-        events_without_dates=True,
-        page_width="6in",
-        page_height="9in",
-        margin_left="0.5in",
-        margin_right="0.5in",
-        margin_top="0.5in",
-        margin_bottom="0.25in",
-        image_width="2in",
-        image_height="2in",
-        tree_width=4,
-        first_page=1,
-        tree_format="emf",
+        flocator: FileLocator,
+        output: str | io.BufferedIOBase,
+        tr: I18N,
+        encoding: str | None = None,
+        encoding_errors: str = "strict",
+        sort_order: model.NameOrder = model.NameOrder.SURNAME_GIVEN,
+        name_fmt: NameFormat = NameFormat(0),
+        make_images: bool = True,
+        make_stat: bool = True,
+        make_toc: bool = True,
+        events_without_dates: bool = True,
+        page_width: str = "6in",
+        page_height: str = "9in",
+        margin_left: str = "0.5in",
+        margin_right: str = "0.5in",
+        margin_top: str = "0.5in",
+        margin_bottom: str = "0.25in",
+        image_width: str = "2in",
+        image_height: str = "2in",
+        tree_width: int = 4,
+        first_page: int = 1,
+        tree_format: str = "emf",
     ):
         writer.Writer.__init__(
             self,
@@ -163,7 +172,7 @@ class OdtWriter(writer.Writer):
 
         self.doc = doc
 
-    def _make_layout(self, doc, layout, firstpage):
+    def _make_layout(self, doc: OpenDocumentText, layout: PageLayout, firstpage: int) -> None:
         """Set paper dimensions.
 
         Parameters
@@ -201,7 +210,7 @@ class OdtWriter(writer.Writer):
         masterpage.addElement(footer)
         doc.masterstyles.addElement(masterpage)
 
-    def _make_styles(self, doc, layout):
+    def _make_styles(self, doc: OpenDocumentText, layout: PageLayout) -> dict[str, style.Style]:
         """Generate set of styles for the document.
 
         Parameters
@@ -302,7 +311,7 @@ class OdtWriter(writer.Writer):
 
         return styles
 
-    def _interpolate(self, text):
+    def _interpolate(self, text: str) -> str:
         """Takes text with embedded references and returns text.
 
         Parameters
@@ -324,11 +333,11 @@ class OdtWriter(writer.Writer):
                 result += piece
         return result
 
-    def _render_prolog(self):
+    def _render_prolog(self) -> None:
         # docstring inherited from base class
         pass
 
-    def _render_section(self, level, ref_id, title, newpage=False):
+    def _render_section(self, level: int, ref_id: str, title: str, newpage: bool = False) -> None:
         # docstring inherited from base class
         style = "h" + str(level)
         if newpage:
@@ -338,7 +347,15 @@ class OdtWriter(writer.Writer):
             # page break after H1
             self.doc.text.addElement(text.P(text="", stylename="Break"))
 
-    def _render_person(self, person, image_data, attributes, families, events, notes):
+    def _render_person(
+        self,
+        person: model.Individual,
+        image_data: bytes | None,
+        attributes: list[tuple],
+        families: list[str],
+        events: list[tuple],
+        notes: list[str],
+    ) -> None:
         # docstring inherited from base class
 
         # image if present
@@ -377,16 +394,16 @@ class OdtWriter(writer.Writer):
 
         self._make_ancestor_tree(person)
 
-    def _render_name_stat(self, n_total, n_females, n_males):
+    def _render_name_stat(self, n_total: int, n_females: int, n_males: int) -> None:
         # docstring inherited from base class
         items = ((TR("Person count"), n_total), (TR("Female count"), n_females), (TR("Male count"), n_males))
         for key, val in items:
             p = text.P(text="%s: %d" % (self._tr.tr(key), val))
             self.doc.text.addElement(p)
 
-    def _render_name_freq(self, freq_table):
+    def _render_name_freq(self, freq_table: list[tuple[str, int]]) -> None:
         # docstring inherited from base class
-        def _gencouples(namefreq):
+        def _gencouples(namefreq: list[tuple[str, int]]) -> Iterator[tuple[str, int, str | None, int | None]]:
             halflen = (len(namefreq) + 1) // 2
             for i in range(halflen):
                 n1, c1 = namefreq[2 * i]
@@ -427,7 +444,7 @@ class OdtWriter(writer.Writer):
 
         self.doc.text.addElement(tbl)
 
-    def _render_toc(self):
+    def _render_toc(self) -> None:
         # docstring inherited from base class
         self.doc.text.addElement(text.P(text="", stylename=self.styles["br"]))
         toc = text.TableOfContent(name="TOC")
@@ -438,7 +455,7 @@ class OdtWriter(writer.Writer):
         toc.addElement(tocsrc)
         self.doc.text.addElement(toc)
 
-    def _finalize(self):
+    def _finalize(self) -> None:
         # docstring inherited from base class
 
         # save the result
@@ -447,7 +464,7 @@ class OdtWriter(writer.Writer):
         else:
             self.doc.save(self._output)
 
-    def _get_image_fragment(self, image_data):
+    def _get_image_fragment(self, image_data: bytes) -> draw.Frame:
         """Adds Image to the document as person's picture.
 
         Parameters
@@ -480,7 +497,7 @@ class OdtWriter(writer.Writer):
         frame.addElement(draw.Image(href=imgref))
         return frame
 
-    def _make_ancestor_tree(self, person):
+    def _make_ancestor_tree(self, person: model.Individual) -> None:
         """ "Add a picture for ancestor tree.
 
         Parameters
@@ -502,12 +519,12 @@ class OdtWriter(writer.Writer):
         else:
             visitor = SVGTreeVisitor(units="in", fullxml=True)
             tree.visit(visitor)
-            img = visitor.makeSVG(width=tree.width, height=tree.height)
-            if not img:
+            img_svg = visitor.makeSVG(width=tree.width, height=tree.height)
+            if not img_svg:
                 return
-            img_data, mime, width, height = img
+            img_data_str, mime, width, height = img_svg
             # convert it to binary
-            img_data = img_data.encode("utf_8")
+            img_data = img_data_str.encode("utf_8")
 
         # store image
         filename = "Pictures/" + hashlib.sha1(img_data).hexdigest() + "." + self._tree_format

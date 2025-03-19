@@ -1,9 +1,13 @@
 """Utilities related to individual or family events."""
 
+from __future__ import annotations
+
 __all__ = ["Event", "indi_events", "indi_attributes", "family_events"]
 
 from typing import NamedTuple
+
 import ged4py.model
+import ged4py.date
 
 
 # Event structure, reflection of <EVENT_DETAIL>. Only relevant
@@ -28,22 +32,22 @@ class Event(NamedTuple):
     tag: str
     """GEDCOM tag name for the event."""
 
-    value: str
+    value: str | None
     """GEDCOM record value, optional (`str` or ``None``)"""
 
-    type: str
+    type: str | None
     """GEDCOM event type, optional (`str` or ``None``)"""
 
-    date: ged4py.model.Date
-    """Event date, optional (`ged4py.model.Date` or ``None``)"""
+    date: ged4py.date.DateValue
+    """Event date, optional (`ged4py.date.DateValue` or ``None``)"""
 
-    place: str
+    place: str | None
     """Place where event happened, optional (`str` or ``None``)"""
 
-    note: str
+    note: str | None
     """Arbitrary text note, optional (`str` or ``None``)"""
 
-    cause: str
+    cause: str | None
     """What caused the event, optional (`str` or ``None``)"""
 
 
@@ -99,7 +103,7 @@ _fam_events_tags = set(
 )
 
 
-def _get_events(record, tags):
+def _get_events(record: ged4py.model.Record, tags: set[str]) -> list[Event]:
     """Return events corresponding to a record.
 
     Parameters
@@ -120,7 +124,7 @@ def _get_events(record, tags):
             events.append(
                 Event(
                     tag=rec.tag,
-                    value=rec.value,
+                    value=rec.value,  # type: ignore
                     type=rec.sub_tag_value("TYPE"),
                     date=rec.sub_tag_value("DATE"),
                     place=rec.sub_tag_value("PLAC"),
@@ -131,7 +135,7 @@ def _get_events(record, tags):
     return events
 
 
-def indi_events(person, tags=None):
+def indi_events(person: ged4py.model.Individual, tags: set[str] | None = None) -> list[Event]:
     """Returns all events for a given individual.
 
     Parameters
@@ -149,7 +153,7 @@ def indi_events(person, tags=None):
     return _get_events(person, tags or _indi_events_tags)
 
 
-def indi_attributes(person, tags=None):
+def indi_attributes(person: ged4py.model.Individual, tags: set[str] | None = None) -> list[Event]:
     """Returns all attributes for a given individual.
 
     Parameters
@@ -167,7 +171,7 @@ def indi_attributes(person, tags=None):
     return _get_events(person, tags or _indi_attr_tags)
 
 
-def family_events(family, tags=None):
+def family_events(family: ged4py.model.Record, tags: set[str] | None = None) -> list[Event]:
     """Returns all events for a given family.
 
     Parameters

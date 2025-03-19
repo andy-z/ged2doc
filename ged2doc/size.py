@@ -1,8 +1,15 @@
 """Module which defines class for manipulating size values."""
 
+from __future__ import annotations
+
+__all__ = ["Size", "SizeLike"]
+
+from typing import TypeAlias
+
 MM_PER_INCH = 25.4
 PT_PER_INCH = 72.0
 
+SizeLike: TypeAlias = str | int | float
 
 class Size:
     """Class for specifying size values.
@@ -47,7 +54,7 @@ class Size:
     do not specify explicit ``dpi`` argument
     """
 
-    def __init__(self, value=0, dpi=None):
+    def __init__(self, value: Size | SizeLike = 0, dpi: float | int | None = None):
         if isinstance(value, str):
             # convert units to inches
             self.dpi = float(dpi) if dpi is not None else Size.dpi
@@ -76,106 +83,136 @@ class Size:
                 raise TypeError("incorrect type of the argument: " + str(type(value)))
 
     @property
-    def pt(self):
+    def pt(self) -> float:
         """Size in points (`float`)"""
         return self.value * 72.0
 
     @property
-    def px(self):
+    def px(self) -> int:
         """Size in pixels, (`int`)"""
         return int(round(self.value * self.dpi))
 
     @property
-    def pxf(self):
+    def pxf(self) -> float:
         """Size in (fractional) pixels, (`float`)"""
         return self.value * self.dpi
 
     @property
-    def inches(self):
+    def inches(self) -> float:
         """Size in inches, (`float`)"""
         return self.value
 
     @property
-    def mm(self):
+    def mm(self) -> float:
         """Size in millimeters, (`float`)"""
         return self.value * MM_PER_INCH
 
-    def to_dpi(self, dpi):
+    def to_dpi(self, dpi: float | int) -> Size:
         """Return copy of itself with updated DPI value.
 
         This is a convenience method which does the same as `Size(self, dpi)`.
         """
         return Size(self, dpi)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns string representation, e.g. "12in" """
         return str(self.value) + "in"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Returns string representation, e.g. Size("12in")"""
         return "Size({}in)".format(self.value)
 
-    def __lt__(self, other):
+    def __lt__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value < self._coerce(other).value
 
-    def __le__(self, other):
+    def __le__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value <= self._coerce(other).value
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value == self._coerce(other).value
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value != self._coerce(other).value
 
-    def __ge__(self, other):
+    def __ge__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value >= self._coerce(other).value
 
-    def __gt__(self, other):
+    def __gt__(self, other: object) -> bool:
         """Compare two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self.value > self._coerce(other).value
 
-    def __sub__(self, other):
+    def __sub__(self, other: object) -> Size:
         """Subtract size from other size"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return Size(self.value - self._coerce(other).value, self.dpi)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: object) -> Size:
         """Subtract size from other size"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self._coerce(other) - self
 
-    def __add__(self, other):
+    def __add__(self, other: object) -> Size:
         """Add two sizes"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return Size(self.value + self._coerce(other).value, self.dpi)
 
-    def __radd__(self, other):
+    def __radd__(self, other: object) -> Size:
         """Add size and something: x + size"""
+        if not isinstance(other, Size | SizeLike):
+            return NotImplemented
         return self._coerce(other) + self
 
-    def __mul__(self, other):
+    def __mul__(self, other: object) -> Size:
         """Multiply size by a factor"""
+        if not isinstance(other, int | float):
+            return NotImplemented
         return Size(self.value * other, self.dpi)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: object) -> Size:
         """Multiply size by a factor: other * size"""
+        if not isinstance(other, int | float):
+            return NotImplemented
         return Size(self.value * other, self.dpi)
 
-    def __div__(self, other):
+    def __div__(self, other: object) -> Size:
         """Divide size by a factor"""
+        if not isinstance(other, int | float):
+            return NotImplemented
         return Size(self.value / other, self.dpi)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: object) -> Size:
         """Divide size by a factor"""
+        if not isinstance(other, int | float):
+            return NotImplemented
         return Size(self.value / other, self.dpi)
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: object) -> Size:
         """Divide size by a factor"""
+        if not isinstance(other, int | float):
+            return NotImplemented
         return Size(self.value // other, self.dpi)
 
-    def __xor__(self, units):
+    def __xor__(self, units: str) -> str:
         """Size(1.)^"mm"  will return "25.4mm" """
         if units == "in":
             return "%gin" % (self.value,)
@@ -190,7 +227,7 @@ class Size:
         else:
             return "%gin" % (self.value,)
 
-    def _coerce(self, other):
+    def _coerce(self, other: Size | SizeLike) -> Size:
         """Coerce other object to Size, use this object dpi if needed"""
         if not isinstance(other, Size):
             other = Size(other, self.dpi)
@@ -222,12 +259,17 @@ class String2Size:
     """All known unit names.
     """
 
-    def __init__(self, default_unit="in", accepted_units=None, rejected_units=None):
+    def __init__(
+        self,
+        default_unit: str = "in",
+        accepted_units: list[str] | None = None,
+        rejected_units: list[str] | None = None,
+    ):
         self._default_unit = default_unit
         self._accepted_units = accepted_units
         self._rejected_units = rejected_units
 
-    def __call__(self, value):
+    def __call__(self, value: str) -> Size:
         """Implements operator().
 
         Parameters
